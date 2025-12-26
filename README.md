@@ -12,17 +12,29 @@ SQ *JOES COFFEE SEATTLE
 CHECKCARD 0415 COSTCO WHSE #1234
 ```
 
-Categorizing these used to require:
-- Maintaining massive merchant databases
-- Writing fragile pattern-matching rules
-- Manual classification of thousands of transactions
-- Hoping your bank's categories were accurate (they weren't)
+And even when your bank *does* categorize them, their categories aren't *your* categories. They say "Shopping" but you want to know it's "Kids > Clothing" vs "Home > Furniture". They lump all restaurants together but you want to separate "Coffee" from "Fast Food" from "Fine Dining".
+
+Building a custom categorization system traditionally required:
+- Massive merchant databases (expensive, still incomplete)
+- Complex rules engines or a CMS (over-engineered)
+- Manual classification of thousands of transactions (tedious)
+- Accepting whatever categories your bank decided on (useless)
 
 ## The Solution
 
 LLMs have read the internet. They *know* what "WHOLEFDS MKT" is. They understand that "SQ *" means Square payment at a small business. They can tell "COSTCO WHSE" is groceries but "COSTCO GAS" is fuel.
 
-**Tally** is designed to work *with* an AI assistant. You provide your transaction data, the AI figures out what everything is, and Tally does the fast pattern-matching at scale.
+Better yet, you can use natural language to tell the AI what rules apply to *your* specific situation:
+
+```
+"ZELLE payments to Sarah are for babysitting - categorize as Childcare"
+"Anything at COSTCO that includes GAS is fuel, otherwise it's groceries"
+"I want to track coffee shops separately from other restaurants"
+```
+
+The AI understands your intent, writes the pattern-matching rules, and saves them to a simple CSV file. No complex CMS. No rules engine. Just a text file you can version control, edit by hand, or let the AI maintain.
+
+**Tally** is designed to work *with* an AI assistant. You describe what you want, the AI figures out the patterns, and Tally executes the categorization at scale.
 
 ## How It Works
 
