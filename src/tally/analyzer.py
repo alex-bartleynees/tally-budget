@@ -217,11 +217,18 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
                     amount_str = '-' + amount_str[1:-1]
                 amount = float(amount_str)
 
+                # Apply negation if specified (for credit cards where positive = charge)
+                if format_spec.negate_amount:
+                    amount = -amount
+
                 # Skip zero amounts
                 if amount == 0:
                     continue
 
-                # Normalize to positive (we're tracking expenses)
+                # Track if this is a credit (negative after sign normalization)
+                is_credit = amount < 0
+
+                # Normalize to positive for expense tracking
                 amount = abs(amount)
 
                 # Extract location
@@ -236,14 +243,16 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
 
                 transactions.append({
                     'date': date,
-                    'description': description,
+                    'raw_description': description,
+                    'description': merchant,
                     'amount': amount,
                     'merchant': merchant,
                     'category': category,
                     'subcategory': subcategory,
                     'source': format_spec.source_name or source_name,
                     'location': location,
-                    'is_travel': is_travel_location(location, home_locations)
+                    'is_travel': is_travel_location(location, home_locations),
+                    'is_credit': is_credit
                 })
 
             except (ValueError, IndexError):

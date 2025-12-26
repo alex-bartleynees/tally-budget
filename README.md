@@ -110,7 +110,24 @@ data_sources:
   - name: Chase
     file: data/chase.csv
     format: "{date:%m/%d/%Y},{description},{amount}"
+  - name: BofA Checking
+    file: data/bofa.csv
+    format: "{date:%m/%d/%Y},{description},{-amount}"  # Bank: negative = expense
 ```
+
+### Format Strings
+
+Use format strings to map CSV columns:
+- `{date:%m/%d/%Y}` - Date column with format
+- `{description}` - Transaction description
+- `{amount}` - Amount (positive = expense, e.g., credit card charges)
+- `{-amount}` - Negate amounts (for bank accounts where negative = expense)
+- `{location}` - Optional location column
+- `{_}` - Skip a column
+
+Different sources use different sign conventions:
+- **Credit cards** typically show charges as positive → use `{amount}`
+- **Bank accounts** typically show debits as negative → use `{-amount}`
 
 ```csv
 # config/merchant_categories.csv

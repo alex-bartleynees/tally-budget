@@ -20,6 +20,7 @@ class FormatSpec:
     location_column: Optional[int] = None
     has_header: bool = True
     source_name: Optional[str] = None  # Optional override for transaction source
+    negate_amount: bool = False  # If True, flip the sign of amounts (for credit cards)
 
 
 def parse_format_string(format_str: str) -> FormatSpec:
@@ -29,6 +30,7 @@ def parse_format_string(format_str: str) -> FormatSpec:
     Format string syntax:
         {field}           - Map this column to a field
         {field:format}    - Field with format specifier (e.g., date format)
+        {-field}          - Negate the value (for amount: flip sign)
         {_}               - Skip this column
 
     Required fields: date, description, amount
@@ -37,6 +39,7 @@ def parse_format_string(format_str: str) -> FormatSpec:
     Examples:
         "{date:%m/%d/%Y}, {description}, {amount}"
         "{date:%Y-%m-%d}, {_}, {description}, {location}, {amount}"
+        "{date:%m/%d/%Y}, {description}, {-amount}"  # Negate amounts (credit cards)
 
     Args:
         format_str: The format string to parse
@@ -47,8 +50,8 @@ def parse_format_string(format_str: str) -> FormatSpec:
     Raises:
         ValueError: If format string is invalid or missing required fields
     """
-    # Pattern to match {field} or {field:format}
-    field_pattern = re.compile(r'\{(\w+)(?::([^}]+))?\}')
+    # Pattern to match {field}, {-field}, or {field:format}
+    field_pattern = re.compile(r'\{(-?)(\w+)(?::([^}]+))?\}')
 
     # Split by comma and parse each column
     parts = [p.strip() for p in format_str.split(',')]
@@ -58,14 +61,16 @@ def parse_format_string(format_str: str) -> FormatSpec:
 
     field_positions = {}
     date_format = '%m/%d/%Y'  # Default
+    negate_amount = False
 
     for idx, part in enumerate(parts):
         match = field_pattern.match(part)
         if not match:
             raise ValueError(f"Invalid format at column {idx}: '{part}'. Expected {{field}} or {{field:format}}")
 
-        field_name = match.group(1).lower()
-        format_spec = match.group(2)  # May be None
+        negate_prefix = match.group(1)  # '-' or ''
+        field_name = match.group(2).lower()
+        format_spec = match.group(3)  # May be None
 
         # Skip placeholder columns
         if field_name == '_':
@@ -86,6 +91,10 @@ def parse_format_string(format_str: str) -> FormatSpec:
         if field_name == 'date' and format_spec:
             date_format = format_spec
 
+        # Capture negation for amount
+        if field_name == 'amount' and negate_prefix == '-':
+            negate_amount = True
+
     # Validate required fields
     required = {'date', 'description', 'amount'}
     missing = required - set(field_positions.keys())
@@ -98,7 +107,8 @@ def parse_format_string(format_str: str) -> FormatSpec:
         description_column=field_positions['description'],
         amount_column=field_positions['amount'],
         location_column=field_positions.get('location'),
-        has_header=True
+        has_header=True,
+        negate_amount=negate_amount
     )
 
 
