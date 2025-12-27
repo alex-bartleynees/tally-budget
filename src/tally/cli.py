@@ -1903,8 +1903,8 @@ Examples:
         update_info = check_for_updates()
         if update_info and update_info.get('update_available'):
             print()
-            print(f"Update available: {update_info['latest_version']} (current: {update_info['current_version']})")
-            print(f"  {update_info['release_url']}")
+            print(f"Update available: v{update_info['latest_version']} (current: v{update_info['current_version']})")
+            print(f"  Run 'tally update' to install")
 
         sys.exit(0)
 
@@ -1928,8 +1928,8 @@ Examples:
         update_info = check_for_updates()
         if update_info and update_info.get('update_available'):
             print()
-            print(f"Update available: {update_info['latest_version']}")
-            print(f"  {update_info['release_url']}")
+            print(f"Update available: v{update_info['latest_version']}")
+            print(f"  Run 'tally update' to install")
     elif args.command == 'update':
         cmd_update(args)
 
