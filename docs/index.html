@@ -169,59 +169,84 @@
             color: #4ade80;
         }
 
-        .commands {
-            display: grid;
-            gap: 0.75rem;
+        .workflow {
             margin-bottom: 3rem;
         }
 
-        .command {
+        .workflow-step {
             display: flex;
             gap: 1rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            padding: 0.75rem 1rem;
+            padding: 1.25rem;
             background: rgba(255,255,255,0.02);
-            border-radius: 8px;
-        }
-
-        .command-name {
-            color: #4ade80;
-            min-width: 160px;
-        }
-
-        .command-desc {
-            color: rgba(255,255,255,0.5);
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .feature {
-            text-align: center;
-            padding: 1.5rem 1rem;
-            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
         }
 
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
+        .workflow-step.ai-step {
+            background: rgba(74, 222, 128, 0.05);
+            border-color: rgba(74, 222, 128, 0.2);
         }
 
-        .feature h3 {
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: rgba(74, 222, 128, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #4ade80;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: #4ade80;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-title {
             font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
+            color: #4ade80;
+            margin-bottom: 0.25rem;
         }
 
-        .feature p {
-            font-size: 0.875rem;
+        .step-desc {
             color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+
+        .ai-loop {
+            margin-top: 0.75rem;
+            padding-left: 1rem;
+            border-left: 2px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .loop-item {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+            padding: 0.35rem 0;
+        }
+
+        .loop-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            color: #4ade80;
+            font-size: 0.8rem;
+        }
+
+        .workflow-arrow {
+            text-align: center;
+            color: rgba(74, 222, 128, 0.5);
+            font-size: 1.5rem;
+            padding: 0.5rem 0;
         }
 
         .links {
@@ -303,42 +328,39 @@
             </div>
         </div>
 
-        <h2>Commands</h2>
-        <div class="commands">
-            <div class="command">
-                <span class="command-name">tally init</span>
-                <span class="command-desc">Set up a new budget folder</span>
+        <h2>Workflow</h2>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <div class="step-cmd">tally init</div>
+                    <div class="step-desc">Creates config folder with AGENTS.md instructions</div>
+                </div>
             </div>
-            <div class="command">
-                <span class="command-name">tally run</span>
-                <span class="command-desc">Generate spending report</span>
-            </div>
-            <div class="command">
-                <span class="command-name">tally discover</span>
-                <span class="command-desc">Find uncategorized transactions</span>
-            </div>
-            <div class="command">
-                <span class="command-name">tally discover --format json</span>
-                <span class="command-desc">JSON output for AI agents</span>
-            </div>
-        </div>
 
-        <h2>How It Works</h2>
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">💳</div>
-                <h3>Export Statements</h3>
-                <p>Download CSVs from your bank or credit card</p>
+            <div class="workflow-arrow">↓</div>
+
+            <div class="workflow-step ai-step">
+                <div class="step-number">🤖</div>
+                <div class="step-content">
+                    <div class="step-title">AI Agent Loop</div>
+                    <div class="step-desc">Your AI reads AGENTS.md then:</div>
+                    <div class="ai-loop">
+                        <div class="loop-item"><span class="loop-cmd">tally discover --format json</span> → finds unknown merchants</div>
+                        <div class="loop-item">AI identifies merchants, writes rules to CSV</div>
+                        <div class="loop-item">Repeat until unknowns are minimal</div>
+                    </div>
+                </div>
             </div>
-            <div class="feature">
-                <div class="feature-icon">🤖</div>
-                <h3>AI Categorizes</h3>
-                <p>LLMs understand messy merchant descriptions</p>
-            </div>
-            <div class="feature">
-                <div class="feature-icon">📊</div>
-                <h3>Tally Reports</h3>
-                <p>720 built-in rules + your custom patterns</p>
+
+            <div class="workflow-arrow">↓</div>
+
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <div class="step-cmd">tally run</div>
+                    <div class="step-desc">Generates HTML spending report with all transactions categorized</div>
+                </div>
             </div>
         </div>
 
