@@ -2,6 +2,12 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      release_notes:
+        description: 'Release notes (what changed in this release)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build:
@@ -99,7 +105,7 @@ jobs:
             artifacts/tally-macos-amd64/tally-macos-amd64.zip
             artifacts/tally-windows-amd64/tally-windows-amd64.zip
           body: |
-            ### Install
+            ${{ inputs.release_notes != '' && format('## What''s Changed\n\n{0}\n\n---\n\n', inputs.release_notes) || '' }}### Install
 
             **Linux / macOS:**
             ```bash
