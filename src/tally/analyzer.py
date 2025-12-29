@@ -1251,7 +1251,7 @@ def generate_embeddings(items):
     return embeddings.tolist()
 
 
-def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, currency_format="${amount}", sources=None):
+def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, currency_format="${amount}", sources=None, embedded_html=True):
     """Write summary to HTML file using Vue 3 for client-side rendering.
 
     Args:
@@ -1261,6 +1261,7 @@ def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, curr
         home_locations: Set of home location codes for location badge coloring
         currency_format: Format string for currency display, e.g. "${amount}" or "{amount} zł"
         sources: List of data source names (e.g., ['Amex', 'Chase'])
+        embedded_html: If True (default), embed CSS/JS inline. If False, output separate files.
     """
     home_locations = home_locations or set()
     sources = sources or []
@@ -1372,13 +1373,44 @@ def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, curr
 
     # Assemble final HTML
     data_script = f'window.spendingData = {json.dumps(spending_data)};'
-    final_html = html_template.replace(
-        '/* CSS_PLACEHOLDER */', css_content
-    ).replace(
-        '/* DATA_PLACEHOLDER */', data_script
-    ).replace(
-        '/* JS_PLACEHOLDER */', js_content
-    )
+
+    if not embedded_html:
+        # Write separate files for easier development
+        output_path = Path(filepath)
+        output_dir = output_path.parent
+
+        # Write CSS file
+        css_path = output_dir / 'spending_report.css'
+        css_path.write_text(css_content, encoding='utf-8')
+
+        # Write JS file
+        js_path = output_dir / 'spending_report.js'
+        js_path.write_text(js_content, encoding='utf-8')
+
+        # Write data file
+        data_path = output_dir / 'spending_data.js'
+        data_path.write_text(data_script, encoding='utf-8')
+
+        # Create HTML with external references
+        final_html = html_template.replace(
+            '<style>/* CSS_PLACEHOLDER */</style>',
+            '<link rel="stylesheet" href="spending_report.css">'
+        ).replace(
+            '<script>/* DATA_PLACEHOLDER */</script>',
+            '<script src="spending_data.js"></script>'
+        ).replace(
+            '<script>/* JS_PLACEHOLDER */</script>',
+            '<script src="spending_report.js"></script>'
+        )
+    else:
+        # Embed everything inline (default)
+        final_html = html_template.replace(
+            '/* CSS_PLACEHOLDER */', css_content
+        ).replace(
+            '/* DATA_PLACEHOLDER */', data_script
+        ).replace(
+            '/* JS_PLACEHOLDER */', js_content
+        )
 
     # Write output file
     Path(filepath).write_text(final_html, encoding='utf-8')

@@ -1448,7 +1448,8 @@ def cmd_run(args):
         # Collect source names for the report subtitle
         source_names = [s.get('name', 'Unknown') for s in data_sources]
         write_summary_file_vue(stats, output_path, year=year, home_locations=home_locations,
-                               currency_format=currency_format, sources=source_names)
+                               currency_format=currency_format, sources=source_names,
+                               embedded_html=args.embedded_html)
         if not args.quiet:
             # Make the path clickable using OSC 8 hyperlink escape sequence
             abs_path = os.path.abspath(output_path)
@@ -2471,6 +2472,13 @@ Examples:
     run_parser.add_argument(
         '--category',
         help='Filter to specific category'
+    )
+    run_parser.add_argument(
+        '--no-embedded-html',
+        dest='embedded_html',
+        action='store_false',
+        default=True,
+        help='Output CSS/JS as separate files instead of embedding (easier to iterate on styling)'
     )
 
     # inspect subcommand

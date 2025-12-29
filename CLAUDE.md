@@ -61,6 +61,19 @@ Netflix → Monthly
 - YOU MUST use `uv run` to run tally during development
 - YOU MUST NOT use `python -m tally` or direct Python invocation
 
+**HTML Report Development:**
+- Use `--no-embedded-html` to output separate CSS/JS/data files for easier iteration:
+  ```bash
+  uv run tally run --no-embedded-html -o /tmp/dev-report/spending.html /path/to/config
+  ```
+  This creates:
+  - `spending.html` - HTML with external `<link>` and `<script>` references
+  - `spending_report.css` - Editable styles
+  - `spending_report.js` - Editable Vue app
+  - `spending_data.js` - Transaction data
+
+  Edit CSS/JS directly and refresh browser - no need to regenerate the report.
+
 **Releases:**
 - YOU MUST use GitHub workflow for releases
 - YOU MUST NOT create releases manually or tag commits directly
