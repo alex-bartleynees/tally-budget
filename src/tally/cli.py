@@ -1294,7 +1294,12 @@ def cmd_run(args):
 
         write_summary_file(stats, output_path, year=year, home_locations=home_locations, currency_format=currency_format)
         if not args.quiet:
-            print(f"\nHTML report: {output_path}")
+            # Make the path clickable using OSC 8 hyperlink escape sequence
+            abs_path = os.path.abspath(output_path)
+            file_url = f"file://{abs_path}"
+            # OSC 8 format: \033]8;;URL\033\\text\033]8;;\033\\
+            clickable_path = f"\033]8;;{file_url}\033\\{output_path}\033]8;;\033\\"
+            print(f"\nHTML report: {clickable_path}")
 
 
 def cmd_discover(args):
