@@ -219,40 +219,27 @@ def diagnose_rules(csv_path=None):
     return result
 
 
-def clean_description(description):
+def clean_description(description, cleaning_patterns=None):
     """Clean and normalize raw transaction descriptions.
 
-    Handles common prefixes, suffixes, and formatting issues that
-    can't be represented in simple pattern matching rules.
+    Args:
+        description: Raw transaction description
+        cleaning_patterns: Optional list of regex patterns to strip from descriptions.
+                          Loaded from settings.yaml 'description_cleaning' key.
+
+    Returns:
+        Cleaned description with patterns removed and whitespace normalized.
     """
     cleaned = description
 
-    # Remove common payment processor prefixes
-    prefixes = [
-        r'^APLPAY\s+',      # Apple Pay
-        r'^AplPay\s+',      # Apple Pay (alternate case)
-        r'^SQ\s*\*',        # Square
-        r'^TST\*\s*',       # Toast POS
-        r'^SP\s+',          # Shopify
-        r'^PY\s*\*',        # PayPal merchant
-        r'^PP\s*\*',        # PayPal
-        r'^GOOGLE\s*\*',    # Google Pay (but keep for YouTube matching)
-        r'^BT\s*\*?\s*DD\s*\*?',  # DoorDash via various processors
-    ]
-
-    for prefix in prefixes:
-        cleaned = re.sub(prefix, '', cleaned, flags=re.IGNORECASE)
-
-    # Remove BOA statement suffixes (ID numbers, confirmation codes)
-    cleaned = re.sub(r'\s+DES:.*$', '', cleaned)
-    cleaned = re.sub(r'\s+ID:.*$', '', cleaned)
-    cleaned = re.sub(r'\s+INDN:.*$', '', cleaned)
-    cleaned = re.sub(r'\s+CO ID:.*$', '', cleaned)
-    cleaned = re.sub(r'\s+Confirmation#.*$', '', cleaned, flags=re.IGNORECASE)
-
-    # Remove trailing location info (City, State format)
-    # But be careful not to remove too much
-    cleaned = re.sub(r'\s{2,}[A-Z]{2}$', '', cleaned)  # Trailing state code
+    # Apply user-configured cleaning patterns
+    if cleaning_patterns:
+        for pattern in cleaning_patterns:
+            try:
+                cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+            except re.error:
+                # Invalid regex, skip
+                continue
 
     # Normalize whitespace
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
@@ -260,12 +247,12 @@ def clean_description(description):
     return cleaned
 
 
-def extract_merchant_name(description):
+def extract_merchant_name(description, cleaning_patterns=None):
     """Extract a readable merchant name from a cleaned description.
 
     Used as fallback when no pattern matches.
     """
-    cleaned = clean_description(description)
+    cleaned = clean_description(description, cleaning_patterns)
 
     # Remove non-alphabetic characters for grouping, keep first 2-3 words
     words = re.sub(r'[^A-Za-z\s]', ' ', cleaned).split()[:3]
@@ -279,7 +266,8 @@ def normalize_merchant(
     description: str,
     rules: list,
     amount: Optional[float] = None,
-    txn_date: Optional[date] = None
+    txn_date: Optional[date] = None,
+    cleaning_patterns: Optional[List[str]] = None
 ) -> Tuple[str, str, str, Optional[dict]]:
     """Normalize a merchant description to (name, category, subcategory, match_info).
 
@@ -289,13 +277,14 @@ def normalize_merchant(
               or older formats with fewer elements
         amount: Optional transaction amount for modifier matching
         txn_date: Optional transaction date for modifier matching
+        cleaning_patterns: Optional list of regex patterns to strip from descriptions
 
     Returns:
         Tuple of (merchant_name, category, subcategory, match_info)
         match_info is a dict with 'pattern', 'source', 'tags', or None if no match
     """
     # Clean the description for better matching
-    cleaned = clean_description(description)
+    cleaned = clean_description(description, cleaning_patterns)
     desc_upper = description.upper()
     cleaned_upper = cleaned.upper()
 
@@ -335,5 +324,90 @@ def normalize_merchant(
             continue
 
     # Fallback: extract merchant name from description, categorize as Unknown
-    merchant_name = extract_merchant_name(description)
+    merchant_name = extract_merchant_name(description, cleaning_patterns)
     return (merchant_name, 'Unknown', 'Unknown', None)
+
+
+def explain_description(
+    description: str,
+    rules: list,
+    amount: Optional[float] = None,
+    txn_date: Optional[date] = None,
+    cleaning_patterns: Optional[List[str]] = None
+) -> dict:
+    """Trace how a description is processed and matched.
+
+    Returns a dict with detailed information about the matching process:
+    - original: The original description
+    - cleaned: The cleaned description (if different)
+    - matched_rule: The rule that matched (if any)
+    - merchant: Resulting merchant name
+    - category: Resulting category
+    - subcategory: Resulting subcategory
+    - is_unknown: Whether this is an unknown merchant
+    """
+    # Use existing clean_description function
+    cleaned = clean_description(description, cleaning_patterns)
+
+    result = {
+        'original': description,
+        'cleaned': cleaned if cleaned != description else None,
+        'matched_rule': None,
+        'merchant': None,
+        'category': None,
+        'subcategory': None,
+        'is_unknown': False,
+    }
+
+    # Try pattern matching against both original and cleaned
+    desc_upper = description.upper()
+    cleaned_upper = cleaned.upper()
+
+    for rule in rules:
+        # Handle various formats
+        tags = []
+        if len(rule) == 7:
+            pattern, merchant, category, subcategory, parsed, source, tags = rule
+        elif len(rule) == 6:
+            pattern, merchant, category, subcategory, parsed, source = rule
+        elif len(rule) == 5:
+            pattern, merchant, category, subcategory, parsed = rule
+            source = 'unknown'
+        else:
+            pattern, merchant, category, subcategory = rule
+            parsed = None
+            source = 'unknown'
+
+        try:
+            # Check regex pattern
+            match_on_original = re.search(pattern, desc_upper, re.IGNORECASE)
+            match_on_cleaned = re.search(pattern, cleaned_upper, re.IGNORECASE)
+
+            if not (match_on_original or match_on_cleaned):
+                continue
+
+            # If pattern has modifiers, check them
+            if parsed and (parsed.amount_conditions or parsed.date_conditions):
+                if not check_all_conditions(parsed, amount, txn_date):
+                    continue
+
+            result['matched_rule'] = {
+                'pattern': pattern,
+                'source': source,
+                'matched_on': 'original' if match_on_original else 'cleaned',
+                'tags': tags,
+            }
+            result['merchant'] = merchant
+            result['category'] = category
+            result['subcategory'] = subcategory
+            return result
+
+        except re.error:
+            continue
+
+    # No match - unknown merchant
+    result['is_unknown'] = True
+    result['merchant'] = extract_merchant_name(description, cleaning_patterns)
+    result['category'] = 'Unknown'
+    result['subcategory'] = 'Unknown'
+    return result

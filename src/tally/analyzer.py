@@ -157,7 +157,7 @@ def is_travel_location(location, home_locations):
     return False
 
 
-def parse_amex(filepath, rules, home_locations=None):
+def parse_amex(filepath, rules, home_locations=None, cleaning_patterns=None):
     """Parse AMEX CSV file and return list of transactions.
 
     Handles both positive amounts (expenses) and negative amounts (AMEX exports
@@ -184,12 +184,14 @@ def parse_amex(filepath, rules, home_locations=None):
 
                 date = datetime.strptime(row['Date'], '%m/%d/%Y')
                 merchant, category, subcategory, match_info = normalize_merchant(
-                    row['Description'], rules, amount=amount, txn_date=date.date()
+                    row['Description'], rules, amount=amount, txn_date=date.date(),
+                    cleaning_patterns=cleaning_patterns
                 )
                 location = extract_location(row['Description'])
 
                 transactions.append({
                     'date': date,
+                    'raw_description': row['Description'],
                     'description': row['Description'],
                     'amount': amount,
                     'merchant': merchant,
@@ -207,7 +209,7 @@ def parse_amex(filepath, rules, home_locations=None):
     return transactions
 
 
-def parse_boa(filepath, rules, home_locations=None):
+def parse_boa(filepath, rules, home_locations=None, cleaning_patterns=None):
     """Parse BOA statement file and return list of transactions."""
     home_locations = home_locations or set()
     transactions = []
@@ -231,12 +233,14 @@ def parse_boa(filepath, rules, home_locations=None):
                     continue
 
                 merchant, category, subcategory, match_info = normalize_merchant(
-                    description, rules, amount=abs(amount), txn_date=date.date()
+                    description, rules, amount=abs(amount), txn_date=date.date(),
+                    cleaning_patterns=cleaning_patterns
                 )
                 location = extract_location(description)
 
                 transactions.append({
                     'date': date,
+                    'raw_description': description,
                     'description': description,
                     'amount': abs(amount),
                     'merchant': merchant,
@@ -254,7 +258,8 @@ def parse_boa(filepath, rules, home_locations=None):
     return transactions
 
 
-def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_name='CSV', decimal_separator='.'):
+def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_name='CSV',
+                      decimal_separator='.', cleaning_patterns=None):
     """
     Parse a CSV file using a custom format specification.
 
@@ -265,6 +270,7 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
         home_locations: Set of location codes considered "home"
         source_name: Name to use for transaction source (default: 'CSV')
         decimal_separator: Character used as decimal separator ('.' or ',')
+        cleaning_patterns: Optional list of regex patterns to strip from descriptions
 
     Returns:
         List of transaction dictionaries
@@ -340,7 +346,8 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
 
                 # Normalize merchant
                 merchant, category, subcategory, match_info = normalize_merchant(
-                    description, rules, amount=amount, txn_date=date.date()
+                    description, rules, amount=amount, txn_date=date.date(),
+                    cleaning_patterns=cleaning_patterns
                 )
 
                 transactions.append({
@@ -687,6 +694,7 @@ def analyze_transactions(transactions):
         'payments': [],  # All individual payment amounts
         'transactions': [],  # Individual transactions for drill-down
         'tags': set(),  # Collect all tags from matching rules
+        'raw_descriptions': defaultdict(int),  # Track raw description variations
     })
     by_month = defaultdict(float)
 
@@ -724,6 +732,9 @@ def analyze_transactions(transactions):
             by_merchant[txn['merchant']]['match_info'] = txn['match_info']
         # Collect tags from all transactions
         by_merchant[txn['merchant']]['tags'].update(txn.get('tags', []))
+        # Track raw description variations
+        raw_desc = txn.get('raw_description', txn.get('description', ''))
+        by_merchant[txn['merchant']]['raw_descriptions'][raw_desc] += 1
 
         by_month[month_key] += txn['amount']
 
@@ -937,9 +948,13 @@ def build_merchant_json(merchant_name, data, verbose=0):
         'reason': data.get('calc_reasoning', ''),
     }
 
-    # Verbose: add decision trace
+    # Verbose: add decision trace and raw description variations
     if verbose >= 1:
         result['reasoning']['trace'] = reasoning.get('trace', [])
+        raw_descs = data.get('raw_descriptions', {})
+        if raw_descs:
+            # Convert defaultdict to regular dict for JSON
+            result['raw_descriptions'] = dict(raw_descs)
 
     # Very verbose: add thresholds, CV, and calculation formula
     if verbose >= 2:

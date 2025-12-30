@@ -84,7 +84,7 @@ from ._version import (
 from .config_loader import load_config
 
 BANNER = ''
-from .merchant_utils import get_all_rules, diagnose_rules
+from .merchant_utils import get_all_rules, diagnose_rules, explain_description
 from .analyzer import (
     parse_amex,
     parse_boa,
@@ -201,6 +201,17 @@ html_filename: spending_summary.html
 # travel_labels:
 #   HI: Hawaii
 #   GB: United Kingdom
+
+# Description cleaning patterns (regex)
+# Strip payment processor prefixes/suffixes before matching merchant rules
+# This simplifies your merchant patterns - no need to handle every variation
+# description_cleaning:
+#   - "^APLPAY\\\\s+"           # Apple Pay prefix
+#   - "^SQ\\\\s*\\\\*"          # Square prefix
+#   - "^TST\\\\*\\\\s*"         # Toast POS prefix
+#   - "^PP\\\\s*\\\\*"          # PayPal prefix
+#   - "\\\\s+DES:.*$"           # Bank of America DES suffix
+#   - "\\\\s+ID:.*$"            # Bank of America ID suffix
 '''
 
 STARTER_MERCHANT_CATEGORIES = '''# Merchant Categorization Rules
@@ -492,6 +503,7 @@ def cmd_run(args):
     home_locations = config.get('home_locations', set())
     travel_labels = config.get('travel_labels', {})
     data_sources = config.get('data_sources', [])
+    cleaning_patterns = config.get('description_cleaning', [])
 
     # Check for data sources early before printing anything
     if not data_sources:
@@ -548,14 +560,15 @@ def cmd_run(args):
 
         try:
             if parser_type == 'amex':
-                txns = parse_amex(filepath, rules, home_locations)
+                txns = parse_amex(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'boa':
-                txns = parse_boa(filepath, rules, home_locations)
+                txns = parse_boa(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'generic' and format_spec:
                 txns = parse_generic_csv(filepath, format_spec, rules,
                                          home_locations,
                                          source_name=source.get('name', 'CSV'),
-                                         decimal_separator=source.get('decimal_separator', '.'))
+                                         decimal_separator=source.get('decimal_separator', '.'),
+                                         cleaning_patterns=cleaning_patterns)
             else:
                 if not args.quiet:
                     print(f"  {source['name']}: Unknown parser type '{parser_type}'")
@@ -695,6 +708,7 @@ def cmd_discover(args):
 
     home_locations = config.get('home_locations', set())
     data_sources = config.get('data_sources', [])
+    cleaning_patterns = config.get('description_cleaning', [])
 
     if not data_sources:
         print("Error: No data sources configured", file=sys.stderr)
@@ -731,14 +745,15 @@ def cmd_discover(args):
 
         try:
             if parser_type == 'amex':
-                txns = parse_amex(filepath, rules, home_locations)
+                txns = parse_amex(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'boa':
-                txns = parse_boa(filepath, rules, home_locations)
+                txns = parse_boa(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'generic' and format_spec:
                 txns = parse_generic_csv(filepath, format_spec, rules,
                                          home_locations,
                                          source_name=source.get('name', 'CSV'),
-                                         decimal_separator=source.get('decimal_separator', '.'))
+                                         decimal_separator=source.get('decimal_separator', '.'),
+                                         cleaning_patterns=cleaning_patterns)
             else:
                 continue
         except Exception:
@@ -1049,6 +1064,13 @@ def cmd_diag(args):
             from .analyzer import format_currency
             print(f"  Currency format: {currency_fmt}")
             print(f"    Example: {format_currency(1234, currency_fmt)}")
+            cleaning = config.get('description_cleaning', [])
+            if cleaning:
+                print(f"  Description cleaning: {len(cleaning)} pattern(s)")
+                for pattern in cleaning:
+                    print(f"    - {pattern}")
+            else:
+                print(f"  Description cleaning: none configured")
         except Exception as e:
             print(f"  Loaded successfully: No")
             print(f"  Error: {e}")
@@ -1306,6 +1328,20 @@ def cmd_workflow(args):
     for cmd, desc in cmds:
         print(f"    {C.GREEN}{cmd:<24}{C.RESET} {C.DIM}{desc}{C.RESET}")
 
+    section("Debugging Rules")
+    print(f"    {C.GREEN}tally explain Amazon{C.RESET}           {C.DIM}See how Amazon is classified{C.RESET}")
+    print(f"    {C.GREEN}tally explain Amazon -v{C.RESET}        {C.DIM}Show raw description variations{C.RESET}")
+    print(f"    {C.GREEN}tally explain \"RAW DESC\"{C.RESET}       {C.DIM}Trace how a description matches{C.RESET}")
+
+    section("Description Cleaning")
+    print(f"    {C.DIM}Strip payment processor prefixes before matching rules.{C.RESET}")
+    print(f"    {C.DIM}Add to {C.RESET}{C.CYAN}{path_settings}{C.RESET}{C.DIM}:{C.RESET}")
+    print()
+    print(f"    {C.DIM}description_cleaning:")
+    print(f"      - \"^APLPAY\\\\s+\"       # Apple Pay")
+    print(f"      - \"^SQ\\\\s*\\\\*\"       # Square")
+    print(f"      - \"\\\\s+DES:.*$\"      # BOA suffix{C.RESET}")
+
     section("CSV Format")
     print(f"    {C.DIM}Pattern,Merchant,Category,Subcategory,Tags{C.RESET}")
     print()
@@ -1436,6 +1472,7 @@ def cmd_explain(args):
 
     home_locations = config.get('home_locations', set())
     data_sources = config.get('data_sources', [])
+    cleaning_patterns = config.get('description_cleaning', [])
 
     if not data_sources:
         print("Error: No data sources configured", file=sys.stderr)
@@ -1463,14 +1500,15 @@ def cmd_explain(args):
 
         try:
             if parser_type == 'amex':
-                txns = parse_amex(filepath, rules, home_locations)
+                txns = parse_amex(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'boa':
-                txns = parse_boa(filepath, rules, home_locations)
+                txns = parse_boa(filepath, rules, home_locations, cleaning_patterns)
             elif parser_type == 'generic' and format_spec:
                 txns = parse_generic_csv(filepath, format_spec, rules,
                                          home_locations,
                                          source_name=source.get('name', 'CSV'),
-                                         decimal_separator=source.get('decimal_separator', '.'))
+                                         decimal_separator=source.get('decimal_separator', '.'),
+                                         cleaning_patterns=cleaning_patterns)
             else:
                 continue
         except Exception:
@@ -1510,14 +1548,22 @@ def cmd_explain(args):
                     found_any = True
                     _print_merchant_explanation(matches[0], all_merchants[matches[0]], args.format, verbose, stats['num_months'])
                 else:
-                    # Try fuzzy match
-                    close_matches = get_close_matches(merchant_query, list(all_merchants.keys()), n=3, cutoff=0.6)
-                    if close_matches:
-                        print(f"No merchant matching '{merchant_query}'. Did you mean:", file=sys.stderr)
-                        for m in close_matches:
-                            print(f"  - {m}", file=sys.stderr)
+                    # Try treating query as a raw description
+                    trace = explain_description(merchant_query, rules, cleaning_patterns=cleaning_patterns)
+                    if not trace['is_unknown']:
+                        # It matched a rule - show the explanation
+                        found_any = True
+                        _print_description_explanation(merchant_query, trace, args.format, verbose)
                     else:
-                        print(f"No merchant matching '{merchant_query}'", file=sys.stderr)
+                        # Try fuzzy match on merchant names
+                        close_matches = get_close_matches(merchant_query, list(all_merchants.keys()), n=3, cutoff=0.6)
+                        if close_matches:
+                            print(f"No merchant matching '{merchant_query}'. Did you mean:", file=sys.stderr)
+                            for m in close_matches:
+                                print(f"  - {m}", file=sys.stderr)
+                        else:
+                            # Show unknown merchant info
+                            _print_description_explanation(merchant_query, trace, args.format, verbose)
 
         if not found_any:
             sys.exit(1)
@@ -1612,6 +1658,57 @@ def cmd_explain(args):
         _print_explain_summary(stats, verbose)
 
 
+def _print_description_explanation(query, trace, output_format, verbose):
+    """Print explanation for how a raw description matches."""
+    import json
+
+    if output_format == 'json':
+        print(json.dumps(trace, indent=2))
+    elif output_format == 'markdown':
+        print(f"## Description Trace: `{query}`")
+        print()
+        if trace['cleaned'] and trace['cleaned'] != trace['original']:
+            print(f"**Cleaned:** `{trace['cleaned']}`")
+            print()
+
+        if trace['is_unknown']:
+            print(f"**Result:** Unknown merchant")
+            print(f"**Extracted Name:** {trace['merchant']}")
+            print()
+            print("No matching rule found. Run `tally discover` to add a rule for this merchant.")
+        else:
+            rule = trace['matched_rule']
+            print(f"**Matched Rule:** `{rule['pattern']}`")
+            print(f"**Matched On:** {rule['matched_on']} description")
+            print(f"**Merchant:** {trace['merchant']}")
+            print(f"**Category:** {trace['category']} > {trace['subcategory']}")
+            if rule.get('tags'):
+                print(f"**Tags:** {', '.join(rule['tags'])}")
+        print()
+    else:
+        # Text format
+        print(f"Description: {query}")
+        if trace['cleaned'] and trace['cleaned'] != trace['original']:
+            print(f"  Cleaned: {trace['cleaned']}")
+
+        print()
+        if trace['is_unknown']:
+            print(f"  Result: Unknown merchant")
+            print(f"  Extracted name: {trace['merchant']}")
+            print()
+            print("  No matching rule found.")
+            print("  Run 'tally discover' to add a rule for this merchant.")
+        else:
+            rule = trace['matched_rule']
+            print(f"  Matched: {rule['pattern']} -> {trace['merchant']}")
+            print(f"  Category: {trace['category']} > {trace['subcategory']}")
+            if rule.get('tags'):
+                print(f"  Tags: {', '.join(rule['tags'])}")
+            if verbose >= 1:
+                print(f"  Matched on: {rule['matched_on']} description")
+        print()
+
+
 def _print_merchant_explanation(name, data, output_format, verbose, num_months):
     """Print explanation for a single merchant."""
     import json
@@ -1630,6 +1727,23 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months):
         print(f"**Months Active:** {data.get('months_active', 0)}/{num_months}")
 
         if verbose >= 1:
+            # Show raw description variations
+            raw_descs = data.get('raw_descriptions', {})
+            if raw_descs and len(raw_descs) > 0:
+                sorted_descs = sorted(raw_descs.items(), key=lambda x: -x[1])
+                if verbose >= 2:
+                    # -vv: show all variations
+                    print(f"\n**Description Variations ({len(raw_descs)}):**")
+                    for desc, count in sorted_descs:
+                        print(f"  - `{desc}` ({count})")
+                else:
+                    # -v: show top 10 variations
+                    print(f"\n**Description Variations ({len(raw_descs)} unique):**")
+                    for desc, count in sorted_descs[:10]:
+                        print(f"  - `{desc}` ({count})")
+                    if len(raw_descs) > 10:
+                        print(f"  - ... and {len(raw_descs) - 10} more (use -vv to see all)")
+
             trace = reasoning.get('trace', [])
             if trace:
                 print('\n**Decision Trace:**')
@@ -1665,6 +1779,25 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months):
             print(f"  Tags: {', '.join(sorted(tags))}")
 
         if verbose >= 1:
+            # Show raw description variations
+            raw_descs = data.get('raw_descriptions', {})
+            if raw_descs and len(raw_descs) > 0:
+                sorted_descs = sorted(raw_descs.items(), key=lambda x: -x[1])
+                if verbose >= 2:
+                    # -vv: show all variations
+                    print()
+                    print(f"  Description variations ({len(raw_descs)}):")
+                    for desc, count in sorted_descs:
+                        print(f"    {desc} ({count})")
+                else:
+                    # -v: show top 10 variations
+                    print()
+                    print(f"  Description variations ({len(raw_descs)} unique):")
+                    for desc, count in sorted_descs[:10]:
+                        print(f"    {desc} ({count})")
+                    if len(raw_descs) > 10:
+                        print(f"    ... and {len(raw_descs) - 10} more (use -vv to see all)")
+
             trace = reasoning.get('trace', [])
             if trace:
                 print()
