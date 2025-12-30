@@ -1285,6 +1285,25 @@ def cmd_init(args):
                 return f"\033]8;;{url}\033\\{C.UNDERLINE}{C.BLUE}{text}{C.RESET}\033]8;;\033\\"
             return url
 
+        # Check which agents are installed
+        agents = [
+            ('claude', 'Claude Code', 'https://claude.com/product/claude-code'),
+            ('copilot', 'GitHub Copilot', 'https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli'),
+            ('opencode', 'OpenCode', 'https://opencode.ai'),
+            ('codex', 'OpenAI Codex', 'https://developers.openai.com/codex/cli'),
+        ]
+
+        agent_lines = []
+        for cmd, name, url in agents:
+            installed = shutil.which(cmd) is not None
+            if installed:
+                status = f"{C.GREEN}✓ installed{C.RESET}"
+            else:
+                status = link(url)
+            agent_lines.append(f"     {C.CYAN}{cmd:<11}{C.RESET} {name:<16} {status}")
+
+        agents_block = '\n'.join(agent_lines)
+
         print(f"""
 {C.BOLD}Next steps:{C.RESET}
 
@@ -1293,10 +1312,7 @@ def cmd_init(args):
   {C.BOLD}2.{C.RESET} Configure your data sources in {C.CYAN}{settings_path}{C.RESET}
 
   {C.BOLD}3.{C.RESET} Open this folder in an AI agent:
-     {C.CYAN}claude{C.RESET}      Claude Code      {link('https://claude.com/product/claude-code')}
-     {C.CYAN}copilot{C.RESET}     GitHub Copilot   {link('https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli')}
-     {C.CYAN}opencode{C.RESET}    OpenCode         {link('https://opencode.ai')}
-     {C.CYAN}codex{C.RESET}       OpenAI Codex     {link('https://developers.openai.com/codex/cli')}
+{agents_block}
      {C.DIM}Or any agent that can run command-line tools.{C.RESET}
 
   {C.BOLD}4.{C.RESET} Tell the agent: {C.GREEN}"Set up tally with my statements"{C.RESET}
