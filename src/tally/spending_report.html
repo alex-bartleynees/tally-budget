@@ -235,9 +235,10 @@
                                             <td :colspan="section.hasMonthlyColumn ? 9 : 6">
                                                 <div class="txn-detail">
                                                     <span class="txn-date">{{ formatDate(txn.date) }}</span>
+                                                    <span v-if="txn.source" class="txn-source" :class="txn.source.toLowerCase()">{{ txn.source }}</span>
                                                     <span class="txn-desc">{{ txn.description }}</span>
                                                     <span class="txn-amount">{{ formatCurrency(txn.amount) }}</span>
-                                                    <span v-if="txn.source" class="txn-source" :class="txn.source.toLowerCase()">{{ txn.source }}</span>
+                                                    <span class="txn-badge" :class="{ refund: txn.amount < 0 }">{{ txn.amount < 0 ? 'REFUND' : '' }}</span>
                                                     <span v-if="txn.location"
                                                           class="txn-location clickable"
                                                           :class="getLocationClass(txn.location)"

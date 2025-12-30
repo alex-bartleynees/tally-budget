@@ -54,6 +54,7 @@
     --accent-pink: #f093fb;
     --accent-pink-dark: #fa709a;
     --accent-red: #ff6b6b;
+    --accent-green: #4ade80;
 
     /* Special */
     --bg-amex: #006fcf;
@@ -111,6 +112,7 @@
     --accent-pink: #c026d3;
     --accent-pink-dark: #be185d;
     --accent-red: #dc2626;
+    --accent-green: #16a34a;
 }
 
 * {
@@ -720,6 +722,18 @@ th[data-tooltip] { cursor: pointer; }
     font-family: monospace;
     min-width: 5rem;
     text-align: right;
+}
+.txn-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-weight: bold;
+    min-width: 3.5rem;
+    text-align: center;
+}
+.txn-badge.refund {
+    background: var(--accent-green);
+    color: #000;
 }
 .txn-source {
     font-size: 0.7rem;
