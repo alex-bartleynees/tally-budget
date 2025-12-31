@@ -283,23 +283,67 @@ createApp({
             return spendingData.value.excludedTransactions || [];
         });
 
-        // Income transactions (credits/deposits)
+        // Helper to check if transaction passes active tag filters
+        function passesTagFilters(txn) {
+            const tagIncludes = activeFilters.value.filter(f => f.type === 'tag' && f.mode === 'include');
+            const tagExcludes = activeFilters.value.filter(f => f.type === 'tag' && f.mode === 'exclude');
+
+            // If no tag filters, pass
+            if (tagIncludes.length === 0 && tagExcludes.length === 0) return true;
+
+            const txnTags = (txn.tags || []).map(t => t.toLowerCase());
+
+            // Check excludes first
+            for (const f of tagExcludes) {
+                if (txnTags.includes(f.text.toLowerCase())) return false;
+            }
+
+            // If there are includes, must match at least one
+            if (tagIncludes.length > 0) {
+                return tagIncludes.some(f => txnTags.includes(f.text.toLowerCase()));
+            }
+
+            return true;
+        }
+
+        // Income transactions (credits/deposits) - check for 'income' tag or legacy reason
         const incomeTransactions = computed(() => {
-            return excludedTransactions.value.filter(t => t.excluded_reason === 'income');
+            return excludedTransactions.value.filter(t =>
+                (t.excluded_reason === 'income' ||
+                t.excluded_reason === 'tagged-income' ||
+                (t.tags && t.tags.includes('income'))) &&
+                passesTagFilters(t)
+            );
         });
         const incomeTotal = computed(() => {
             return incomeTransactions.value.reduce((sum, t) => sum + t.amount, 0);
         });
         const incomeCount = computed(() => incomeTransactions.value.length);
 
-        // Transfer transactions (CC payments, P2P, etc.)
+        // Transfer transactions (CC payments, P2P, etc.) - check for 'transfer' tag or legacy reason
         const transferTransactions = computed(() => {
-            return excludedTransactions.value.filter(t => t.excluded_reason === 'transfer');
+            return excludedTransactions.value.filter(t =>
+                (t.excluded_reason === 'transfer' ||
+                t.excluded_reason === 'tagged-transfer' ||
+                (t.tags && t.tags.includes('transfer'))) &&
+                passesTagFilters(t)
+            );
         });
         const transfersTotal = computed(() => {
             return transferTransactions.value.reduce((sum, t) => sum + t.amount, 0);
         });
         const transfersCount = computed(() => transferTransactions.value.length);
+
+        // Refund transactions (included in spending, shown for visibility)
+        const refundTransactions = computed(() => {
+            return (spendingData.value.refundTransactions || []).filter(t => passesTagFilters(t));
+        });
+        const refundTotal = computed(() => {
+            return refundTransactions.value.reduce((sum, t) => sum + t.amount, 0);
+        });
+        const refundCount = computed(() => {
+            return refundTransactions.value.length;
+        });
 
         // Net cash flow
         const netCashFlow = computed(() => {
@@ -331,11 +375,14 @@ createApp({
 
         const groupedIncome = computed(() => groupByMerchant(incomeTransactions.value));
         const groupedTransfers = computed(() => groupByMerchant(transferTransactions.value));
+        const groupedRefunds = computed(() => groupByMerchant(refundTransactions.value));
 
         const expandedIncome = reactive(new Set());
         const expandedTransfers = reactive(new Set());
+        const expandedRefunds = reactive(new Set());
         const showIncome = ref(false);
         const showTransfers = ref(false);
+        const showRefunds = ref(false);
 
         // Scroll to income section
         function scrollToIncome() {
@@ -353,6 +400,17 @@ createApp({
             showTransfers.value = true;
             nextTick(() => {
                 const section = document.querySelector('.transfers-section');
+                if (section) {
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+
+        // Scroll to refunds section
+        function scrollToRefunds() {
+            showRefunds.value = true;
+            nextTick(() => {
+                const section = document.querySelector('.refunds-section');
                 if (section) {
                     section.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
@@ -502,7 +560,7 @@ createApp({
                 type: 'location', filterText: l, displayText: l, id: `l:${l}`
             }));
 
-            // Tags (unique across all merchants)
+            // Tags (unique across all merchants, including excluded and refund transactions)
             const tags = new Set();
             for (const category of Object.values(categoryView)) {
                 for (const subcat of Object.values(category.subcategories || {})) {
@@ -510,6 +568,14 @@ createApp({
                         (merchant.tags || []).forEach(t => tags.add(t));
                     }
                 }
+            }
+            // Also collect tags from excluded transactions (income, transfer)
+            for (const txn of data.excludedTransactions || []) {
+                (txn.tags || []).forEach(t => tags.add(t));
+            }
+            // And from refund transactions
+            for (const txn of data.refundTransactions || []) {
+                (txn.tags || []).forEach(t => tags.add(t));
             }
             tags.forEach(t => items.push({
                 type: 'tag', filterText: t, displayText: t, id: `t:${t}`
@@ -1109,13 +1175,16 @@ createApp({
             // Cash flow
             incomeTotal, incomeCount, groupedIncome, expandedIncome,
             transfersTotal, transfersCount, groupedTransfers, expandedTransfers,
+            refundTotal, refundCount, groupedRefunds, expandedRefunds,
             netCashFlow,
+            // UI state
+            showIncome, showTransfers, showRefunds,
             // Methods
             addFilter, removeFilter, toggleFilterMode, clearFilters, addMonthFilter,
             toggleExpand, toggleSection, toggleSort, sortedMerchants,
             formatCurrency, formatDate, formatMonthLabel, formatPct, filterTypeChar, getLocationClass,
             onSearchInput, onSearchKeydown, selectAutocompleteItem,
-            toggleTheme, scrollToIncome, scrollToTransfers
+            toggleTheme, scrollToIncome, scrollToTransfers, scrollToRefunds
         };
     }
 }).mount('#app');

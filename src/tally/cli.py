@@ -569,10 +569,11 @@ def _print_deprecation_warnings(config=None):
             print()
             print(f"{C.YELLOW}⚠ {warning['message']}{C.RESET}")
             print(f"  {warning['suggestion']}")
-            print()
-            print(f"  {C.DIM}Suggested config:{C.RESET}")
-            for line in warning['example'].split('\n'):
-                print(f"  {C.GREEN}{line}{C.RESET}")
+            if 'example' in warning:
+                print()
+                print(f"  {C.DIM}Suggested config:{C.RESET}")
+                for line in warning['example'].split('\n'):
+                    print(f"  {C.GREEN}{line}{C.RESET}")
         print()
 
     # Print legacy parser warnings (if not already covered by config warnings)
@@ -1253,13 +1254,16 @@ def cmd_discover(args):
         sys.exit(0)
 
     # Group by raw description and calculate stats
-    desc_stats = defaultdict(lambda: {'count': 0, 'total': 0.0, 'examples': []})
+    desc_stats = defaultdict(lambda: {'count': 0, 'total': 0.0, 'examples': [], 'has_negative': False})
 
     for txn in unknown_txns:
         raw = txn.get('raw_description', txn.get('description', ''))
-        amount = abs(txn.get('amount', 0))
+        raw_amount = txn.get('amount', 0)
+        amount = abs(raw_amount)
         desc_stats[raw]['count'] += 1
         desc_stats[raw]['total'] += amount
+        if raw_amount < 0:
+            desc_stats[raw]['has_negative'] = True
         if len(desc_stats[raw]['examples']) < 3:
             desc_stats[raw]['examples'].append(txn)
 
@@ -1292,10 +1296,14 @@ def cmd_discover(args):
         for raw_desc, stats in sorted_descs:
             pattern = suggest_pattern(raw_desc)
             merchant = suggest_merchant_name(raw_desc)
+            # Add refund tag suggestion for negative amounts
+            suggested_tags = ['refund'] if stats['has_negative'] else []
             output.append({
                 'raw_description': raw_desc,
                 'suggested_merchant': merchant,
-                'suggested_rule': suggest_merchants_rule(merchant, pattern),
+                'suggested_rule': suggest_merchants_rule(merchant, pattern, tags=suggested_tags),
+                'suggested_tags': suggested_tags,
+                'has_negative': stats['has_negative'],
                 'count': stats['count'],
                 'total_spend': round(stats['total'], 2),
                 'examples': [
@@ -1321,13 +1329,19 @@ def cmd_discover(args):
             merchant = suggest_merchant_name(raw_desc)
 
             print(f"{i}. {raw_desc[:60]}")
-            print(f"   Count: {stats['count']} | Total: ${stats['total']:.2f}")
+            status = f"Count: {stats['count']} | Total: ${stats['total']:.2f}"
+            if stats['has_negative']:
+                status += f" {C.YELLOW}(has refunds/credits){C.RESET}"
+            print(f"   {status}")
             print(f"   Suggested merchant: {merchant}")
             print()
             print(f"   {C.DIM}[{merchant}]")
             print(f"   match: contains(\"{pattern}\")")
             print(f"   category: CATEGORY")
-            print(f"   subcategory: SUBCATEGORY{C.RESET}")
+            print(f"   subcategory: SUBCATEGORY")
+            if stats['has_negative']:
+                print(f"   {C.CYAN}tags: refund{C.RESET}")
+            print(f"{C.RESET}")
             print()
 
     _print_deprecation_warnings(config)
@@ -1394,14 +1408,17 @@ def suggest_merchant_name(description):
     return 'Unknown'
 
 
-def suggest_merchants_rule(merchant_name, pattern):
+def suggest_merchants_rule(merchant_name, pattern, tags=None):
     """Generate a suggested rule block in .rules format."""
     # Escape quotes in pattern if needed
     escaped_pattern = pattern.replace('"', '\\"')
-    return f"""[{merchant_name}]
+    rule = f"""[{merchant_name}]
 match: contains("{escaped_pattern}")
 category: CATEGORY
 subcategory: SUBCATEGORY"""
+    if tags:
+        rule += f"\ntags: {', '.join(tags)}"
+    return rule
 
 
 def _detect_file_format(filepath):
@@ -1795,11 +1812,20 @@ def cmd_inspect(args):
 
             # Show sample credits as hints
             if analysis['sample_credits']:
-                print("\n  Sample negative amounts (may be refunds/credits):")
+                print("\n  Sample negative amounts (may be refunds/credits/income):")
                 for desc, amt in analysis['sample_credits'][:5]:
                     truncated = desc[:40] + '...' if len(desc) > 40 else desc
                     print(f"    ${amt:,.2f}  {truncated}")
-                print("\n  Hint: Categorize these with rules matching amount < 0 (or amount > 0 if using {-amount})")
+                print("\n  Use special tags to handle these transactions:")
+                print(f"    {C.CYAN}refund{C.RESET}   - Returns/credits (nets against merchant spending)")
+                print(f"    {C.CYAN}income{C.RESET}   - Deposits/salary (excluded from spending)")
+                print(f"    {C.CYAN}transfer{C.RESET} - Account transfers (excluded from spending)")
+                print("\n  Example rule for refunds:")
+                print("    [Amazon Refund]")
+                print("    match: contains(\"AMAZON\") and amount < 0")
+                print("    category: Shopping")
+                print("    subcategory: Online")
+                print(f"    {C.CYAN}tags: refund{C.RESET}")
 
     except ValueError as e:
         print(f"  Could not auto-detect: {e}")
@@ -2039,15 +2065,36 @@ def cmd_diag(args):
 
                 # Tag statistics
                 rules_with_tags = sum(1 for r in engine.rules if r.tags)
+                all_tags = set()
+                for r in engine.rules:
+                    all_tags.update(r.tags)
+
+                # Special tags that affect spending analysis
+                SPECIAL_TAGS = {'income', 'refund', 'transfer'}
+                special_tags_used = all_tags & SPECIAL_TAGS
+
+                print()
                 if rules_with_tags > 0:
-                    print()
                     pct = (rules_with_tags / len(engine.rules) * 100) if engine.rules else 0
                     print(f"  Rules with tags: {rules_with_tags}/{len(engine.rules)} ({pct:.0f}%)")
-                    all_tags = set()
-                    for r in engine.rules:
-                        all_tags.update(r.tags)
                     if all_tags:
-                        print(f"  Unique tags: {', '.join(sorted(all_tags))}")
+                        # Show special tags in cyan, others normally
+                        tag_strs = []
+                        for tag in sorted(all_tags):
+                            if tag in SPECIAL_TAGS:
+                                tag_strs.append(f"{C.CYAN}{tag}{C.RESET}")
+                            else:
+                                tag_strs.append(tag)
+                        print(f"  Unique tags: {', '.join(tag_strs)}")
+
+                # Show special tag usage
+                print()
+                print(f"  {C.BOLD}Special Tags:{C.RESET} (affect spending analysis)")
+                for tag, desc in [('income', 'exclude deposits/salary'), ('refund', 'net against merchant'), ('transfer', 'exclude account transfers')]:
+                    if tag in special_tags_used:
+                        print(f"    {C.GREEN}✓{C.RESET} {C.CYAN}{tag}{C.RESET}: {C.DIM}{desc}{C.RESET}")
+                    else:
+                        print(f"    {C.DIM}○ {tag}: {desc}{C.RESET}")
 
                 print()
                 print("  MERCHANT RULES (all):")
@@ -2378,19 +2425,30 @@ def cmd_workflow(args):
     print(f"    {C.DIM}First match wins — put specific patterns before general ones{C.RESET}")
     print(f"    {C.DIM}Tags are accumulated from ALL matching rules{C.RESET}")
 
-    section("Special Categories")
-    print(f"    {C.DIM}These categories are excluded from spending analysis:{C.RESET}")
+    section("Special Tags")
+    print(f"    {C.DIM}These tags affect how transactions are treated:{C.RESET}")
     print()
-    special_cats = [
-        ('Transfers', "Credit card payments, account transfers"),
-        ('Payments', "Bill payments, loan payments"),
-        ('Cash', "ATM withdrawals (tracked separately)"),
+    special_tags = [
+        ('income', "Money coming in (salary, interest, deposits)", "Excluded from spending"),
+        ('refund', "Returns/credits on purchases", "Nets against merchant spending"),
+        ('transfer', "Moving money between accounts", "Excluded from spending"),
     ]
-    for cat, desc in special_cats:
-        print(f"      {C.CYAN}{cat:<12}{C.RESET} {C.DIM}{desc}{C.RESET}")
+    for tag, desc, effect in special_tags:
+        print(f"      {C.CYAN}{tag:<12}{C.RESET} {C.DIM}{desc}{C.RESET}")
+        print(f"      {' ':<12} {C.DIM}→ {effect}{C.RESET}")
     print()
-    print(f"    {C.DIM}Use these for transactions that aren't actual spending.{C.RESET}")
-    print(f"    {C.DIM}They appear in the Transfers section of the report.{C.RESET}")
+    print(f"    {C.DIM}Example:{C.RESET}")
+    print(f"    {C.DIM}[CC Payment]{C.RESET}")
+    print(f"    {C.DIM}match: contains(\"PAYMENT THANK YOU\"){C.RESET}")
+    print(f"    {C.DIM}category: Finance{C.RESET}")
+    print(f"    {C.DIM}subcategory: Credit Card{C.RESET}")
+    print(f"    {C.CYAN}tags: transfer{C.RESET}")
+    print()
+    print(f"    {C.DIM}[Amazon Refund]{C.RESET}")
+    print(f"    {C.DIM}match: contains(\"AMAZON\") and amount < 0{C.RESET}")
+    print(f"    {C.DIM}category: Shopping{C.RESET}")
+    print(f"    {C.DIM}subcategory: Online{C.RESET}")
+    print(f"    {C.CYAN}tags: refund{C.RESET}")
 
     section("Views (Optional)")
     print(f"    {C.DIM}Group merchants into report sections with {C.RESET}{C.CYAN}config/views.rules{C.RESET}")

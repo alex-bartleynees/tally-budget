@@ -29,13 +29,11 @@ DEFAULT_RULES = """# Tally Classification Rules
 #   [max>N]              Maximum single payment
 #   [max_avg_ratio>N]    Ratio of max to average payment
 #
-# Buckets: excluded, travel, annual, periodic, monthly, one_off, variable
+# Buckets: travel, annual, periodic, monthly, one_off, variable
 # Calc types: avg (when active), /12 (annual spread), auto (cv-based)
-
-# Excluded from spending analysis
-category=Transfers -> excluded,/12
-category=Cash -> excluded,/12
-category=Income -> excluded,/12
+#
+# Note: Transactions are excluded from spending via special tags (income, refund, transfer)
+# rather than categories. See 'tally workflow' for details.
 
 # Travel
 category=Travel -> travel,/12
@@ -121,7 +119,7 @@ class ClassificationRule:
     raw_text: str
     field_matches: List[FieldMatch]
     conditions: List[NumericCondition]
-    bucket: str            # 'excluded', 'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'
+    bucket: str            # 'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'
     calc_type: str         # 'avg', '/12', 'auto'
     is_default: bool = False  # True for wildcard rule (*)
 
@@ -137,7 +135,7 @@ FIELD_MATCH = re.compile(r'(\w+)=([^,\[\]]+)')
 MODIFIER = re.compile(r'\[(\w+)(>=|<=|>|<|=)(\d+\.?\d*)(%?)\]')
 
 # Valid values
-VALID_BUCKETS = {'excluded', 'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'}
+VALID_BUCKETS = {'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'}
 VALID_CALC_TYPES = {'avg', '/12', 'auto'}
 VALID_VARIABLES = {'months', 'count', 'total', 'cv', 'max', 'avg', 'max_avg_ratio'}
 

@@ -1136,6 +1136,24 @@ section:nth-child(5) { animation-delay: 0.4s; }
     color: var(--text-muted);
 }
 
+/* Refunds Section (included in spending, shown for visibility) */
+.refunds-section {
+    margin-top: 2rem;
+}
+.refunds-section .section-header h2 {
+    color: var(--accent-orange, #f59e0b);
+}
+.refund-amount {
+    color: var(--accent-orange, #f59e0b) !important;
+}
+
+/* Special Tags (income, refund, transfer) */
+.tag-badge.special-tag {
+    background: var(--accent-purple, #9333ea);
+    color: white;
+    font-weight: 500;
+}
+
 /* View Toggle (By Category / By View) */
 .view-toggle {
     display: flex;

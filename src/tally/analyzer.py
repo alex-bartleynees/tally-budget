@@ -507,7 +507,7 @@ def classify_by_occurrence(merchant, data, num_months=12, rules=None):
         rules: List of ClassificationRule objects (uses defaults if None)
 
     Returns: tuple of (bucket, calc_type, reasoning_dict)
-        - bucket: 'excluded', 'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'
+        - bucket: 'travel', 'annual', 'periodic', 'monthly', 'one_off', 'variable'
         - calc_type: 'avg' or '/12'
         - reasoning: dict with classification details
     """
@@ -571,20 +571,41 @@ def analyze_transactions(transactions):
 
     # Track excluded transactions separately (for transparency in UI)
     excluded_transactions = []
+    # Track refund transactions (included in spending but shown separately for visibility)
+    refund_transactions = []
+
+    # Special tags that affect spending analysis
+    EXCLUDE_TAGS = {'income', 'transfer'}  # Excluded from spending totals
+    REFUND_TAG = 'refund'  # Nets against merchant spending (still included, but negative)
 
     for txn in transactions:
         # Track excluded transactions separately but don't include in spending analysis
-        # Exclude: income/credits from bank accounts, Transfers and Payments categories
+        # Check for special tags: income, transfer -> exclude; refund -> include but nets
+        txn_tags = set(t.lower() for t in txn.get('tags', []))
         excluded_reason = txn.get('excluded')
-        if not excluded_reason and txn['category'].lower() in ('transfers', 'payments'):
-            excluded_reason = 'transfer'
+        if not excluded_reason and (txn_tags & EXCLUDE_TAGS):
+            excluded_reason = 'tagged-' + next(iter(txn_tags & EXCLUDE_TAGS))
+
+        # Track refunds for visibility (they're included in spending but shown separately)
+        if REFUND_TAG in txn_tags:
+            refund_transactions.append({
+                'date': txn['date'].strftime('%m/%d'),
+                'month': txn['date'].strftime('%Y-%m'),
+                'description': txn.get('raw_description', txn['description']),
+                'merchant': txn['merchant'],
+                'amount': txn['amount'],
+                'category': txn['category'],
+                'subcategory': txn['subcategory'],
+                'source': txn['source'],
+                'location': txn.get('location'),
+                'tags': txn.get('tags', []),
+            })
 
         if excluded_reason:
             excluded_transactions.append({
                 'date': txn['date'].strftime('%m/%d'),
                 'month': txn['date'].strftime('%Y-%m'),
-                'raw_description': txn.get('raw_description', txn['description']),
-                'description': txn['description'],
+                'description': txn.get('raw_description', txn['description']),
                 'merchant': txn['merchant'],
                 'amount': txn['amount'],
                 'category': txn['category'],
@@ -763,6 +784,10 @@ def analyze_transactions(transactions):
         'excluded_transactions': excluded_transactions,
         'excluded_count': len(excluded_transactions),
         'excluded_total': sum(t['amount'] for t in excluded_transactions),
+        # Refund transactions (included in spending but shown for visibility)
+        'refund_transactions': refund_transactions,
+        'refund_count': len(refund_transactions),
+        'refund_total': sum(t['amount'] for t in refund_transactions),
     }
 
 
@@ -1098,12 +1123,8 @@ def print_summary(stats, year=2025, filter_category=None, currency_format="${amo
     one_off_merchants = stats['one_off_merchants']
     variable_merchants = stats['variable_merchants']
 
-    # Exclude transfers and cash for "actual spending"
-    excluded_categories = {'Transfers', 'Payments', 'Cash'}
-    actual_spending = sum(
-        data['total'] for (cat, sub), data in by_category.items()
-        if cat not in excluded_categories
-    )
+    # Calculate actual spending (transactions tagged income/transfer already excluded)
+    actual_spending = sum(data['total'] for (cat, sub), data in by_category.items())
 
     # =========================================================================
     # MONTHLY BUDGET SUMMARY
@@ -1379,7 +1400,7 @@ def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, curr
                     'id': f"{merchant_id}_{i}",
                     'date': txn.get('date', ''),
                     'month': txn.get('month', ''),
-                    'description': txn.get('description', ''),
+                    'description': txn.get('raw_description', txn.get('description', '')),
                     'amount': txn.get('amount', 0),
                     'source': txn.get('source', ''),
                     'location': txn.get('location'),
@@ -1520,6 +1541,10 @@ def write_summary_file_vue(stats, filepath, year=2025, home_locations=None, curr
         'excludedTransactions': stats.get('excluded_transactions', []),
         'excludedCount': stats.get('excluded_count', 0),
         'excludedTotal': stats.get('excluded_total', 0),
+        # Refund transactions (included in spending, shown for visibility)
+        'refundTransactions': stats.get('refund_transactions', []),
+        'refundCount': stats.get('refund_count', 0),
+        'refundTotal': stats.get('refund_total', 0),
     }
 
     # Assemble final HTML
@@ -1602,8 +1627,8 @@ def write_summary_file(stats, filepath, year=2025, home_locations=None, currency
     one_off_merchants = stats['one_off_merchants']
     variable_merchants = stats['variable_merchants']
 
-    excluded = {'Transfers', 'Payments', 'Cash'}
-    actual = sum(d['total'] for (c, s), d in by_category.items() if c not in excluded)
+    # Calculate actual spending (transactions tagged income/transfer already excluded)
+    actual = sum(d['total'] for (c, s), d in by_category.items())
     uncat = by_category.get(('Other', 'Uncategorized'), {'total': 0})['total']
 
     # Group variable by category
@@ -1616,10 +1641,9 @@ def write_summary_file(stats, filepath, year=2025, home_locations=None, currency
     # Collect all unique categories and subcategories for dropdown
     all_categories = set()
     for cat, sub in by_category.keys():
-        if cat not in ('Transfers', 'Payments', 'Cash'):
-            all_categories.add(cat)
-            if sub:
-                all_categories.add(sub)
+        all_categories.add(cat)
+        if sub:
+            all_categories.add(sub)
     for data in monthly_merchants.values():
         if data.get('category'):
             all_categories.add(data['category'])
@@ -1744,7 +1768,7 @@ def write_summary_file(stats, filepath, year=2025, home_locations=None, currency
         chart_js_content = '// Chart.js not found - charts will not render'
 
     # Prepare chart data
-    # 1. Monthly spending trend (excluding Transfers, Payments, and Cash)
+    # 1. Monthly spending trend (transactions tagged income/transfer already excluded)
     # Calculate from classified merchants to match YTD totals
     spending_by_month = defaultdict(float)
     all_merchant_dicts = [
@@ -1882,7 +1906,7 @@ def write_summary_file(stats, filepath, year=2025, home_locations=None, currency
                 txns.append({
                     'date': txn.get('date', ''),
                     'month': txn.get('month', ''),
-                    'description': txn.get('description', ''),
+                    'description': txn.get('raw_description', txn.get('description', '')),
                     'amount': txn.get('amount', 0),
                     'source': txn.get('source', ''),
                     'location': txn.get('location'),

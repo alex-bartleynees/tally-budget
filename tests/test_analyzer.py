@@ -905,3 +905,142 @@ class TestAmountSignHandling:
             assert txns[1]['is_credit'] == True   # Negative = credit
         finally:
             os.unlink(f.name)
+
+
+class TestSpecialTags:
+    """Tests for special tags that affect spending analysis (income, transfer, refund)."""
+
+    def _create_transactions(self, txn_list):
+        """Helper to create transaction dicts for testing."""
+        from datetime import datetime
+        transactions = []
+        for i, (desc, amount, category, tags) in enumerate(txn_list):
+            transactions.append({
+                'date': datetime(2025, 1, 15 + i),
+                'description': desc,
+                'raw_description': desc,
+                'merchant': desc.split()[0],
+                'amount': amount,
+                'category': category,
+                'subcategory': 'Test',
+                'source': 'Test',
+                'is_credit': amount < 0,
+                'match_info': {'tags': tags} if tags else None,
+                'tags': tags or [],
+                'excluded': None,
+            })
+        return transactions
+
+    def test_income_tag_excludes_from_spending(self):
+        """Transactions with 'income' tag are excluded from spending analysis."""
+        from tally.analyzer import analyze_transactions
+
+        txns = self._create_transactions([
+            ('GROCERY STORE', 50.00, 'Food', []),
+            ('PAYCHECK DEPOSIT', 2000.00, 'Income', ['income']),
+            ('COFFEE SHOP', 5.00, 'Food', []),
+        ])
+
+        stats = analyze_transactions(txns)
+
+        # Income should be excluded
+        assert stats['excluded_count'] == 1
+        assert stats['excluded_transactions'][0]['merchant'] == 'PAYCHECK'
+        # Spending should only include grocery + coffee = $55
+        total_spending = sum(data['total'] for data in stats['by_category'].values())
+        assert total_spending == 55.00
+
+    def test_transfer_tag_excludes_from_spending(self):
+        """Transactions with 'transfer' tag are excluded from spending analysis."""
+        from tally.analyzer import analyze_transactions
+
+        txns = self._create_transactions([
+            ('GROCERY STORE', 50.00, 'Food', []),
+            ('CC PAYMENT THANK YOU', 500.00, 'Finance', ['transfer']),
+            ('COFFEE SHOP', 5.00, 'Food', []),
+        ])
+
+        stats = analyze_transactions(txns)
+
+        # Transfer should be excluded
+        assert stats['excluded_count'] == 1
+        assert stats['excluded_transactions'][0]['merchant'] == 'CC'
+        # Spending should only include grocery + coffee = $55
+        total_spending = sum(data['total'] for data in stats['by_category'].values())
+        assert total_spending == 55.00
+
+    def test_refund_tag_included_but_tracked_separately(self):
+        """Transactions with 'refund' tag are included in spending but tracked in refund_transactions."""
+        from tally.analyzer import analyze_transactions
+
+        txns = self._create_transactions([
+            ('AMAZON PURCHASE', 100.00, 'Shopping', []),
+            ('AMAZON REFUND', -25.00, 'Shopping', ['refund']),
+            ('GROCERY STORE', 50.00, 'Food', []),
+        ])
+
+        stats = analyze_transactions(txns)
+
+        # Refund should NOT be excluded
+        assert stats['excluded_count'] == 0
+        # Refund should be tracked separately
+        assert stats['refund_count'] == 1
+        assert stats['refund_total'] == -25.00
+        assert stats['refund_transactions'][0]['merchant'] == 'AMAZON'
+        # Spending should include all: 100 - 25 + 50 = 125
+        total_spending = sum(data['total'] for data in stats['by_category'].values())
+        assert total_spending == 125.00
+
+    def test_multiple_special_tags(self):
+        """Multiple transactions with different special tags."""
+        from tally.analyzer import analyze_transactions
+
+        txns = self._create_transactions([
+            ('GROCERY STORE', 50.00, 'Food', []),
+            ('SALARY DEPOSIT', 3000.00, 'Income', ['income']),
+            ('VENMO TRANSFER', 100.00, 'Finance', ['transfer']),
+            ('AMAZON REFUND', -30.00, 'Shopping', ['refund']),
+            ('COFFEE SHOP', 5.00, 'Food', []),
+        ])
+
+        stats = analyze_transactions(txns)
+
+        # Income + transfer should be excluded
+        assert stats['excluded_count'] == 2
+        # Refund should be tracked separately
+        assert stats['refund_count'] == 1
+        assert stats['refund_total'] == -30.00
+        # Spending: grocery(50) + refund(-30) + coffee(5) = 25
+        total_spending = sum(data['total'] for data in stats['by_category'].values())
+        assert total_spending == 25.00
+
+    def test_category_no_longer_excludes(self):
+        """Categories like 'Transfers' no longer auto-exclude without tags."""
+        from tally.analyzer import analyze_transactions
+
+        txns = self._create_transactions([
+            ('GROCERY STORE', 50.00, 'Food', []),
+            ('VENMO PAYMENT', 100.00, 'Transfers', []),  # No transfer tag
+            ('COFFEE SHOP', 5.00, 'Food', []),
+        ])
+
+        stats = analyze_transactions(txns)
+
+        # Nothing should be excluded (no special tags)
+        assert stats['excluded_count'] == 0
+        # All spending included: 50 + 100 + 5 = 155
+        total_spending = sum(data['total'] for data in stats['by_category'].values())
+        assert total_spending == 155.00
+
+
+class TestClassificationRulesValidBuckets:
+    """Tests for valid classification buckets."""
+
+    def test_excluded_bucket_removed(self):
+        """The 'excluded' bucket is no longer valid."""
+        from tally.classification_rules import VALID_BUCKETS
+
+        assert 'excluded' not in VALID_BUCKETS
+        assert 'travel' in VALID_BUCKETS
+        assert 'monthly' in VALID_BUCKETS
+        assert 'variable' in VALID_BUCKETS
