@@ -2346,7 +2346,8 @@ def cmd_workflow(args):
     print(f"    {C.DIM}Tags are accumulated from ALL matching rules{C.RESET}")
 
     section("Views (Optional)")
-    print(f"    {C.DIM}Create custom report views with {C.RESET}{C.CYAN}config/views.rules{C.RESET}")
+    print(f"    {C.DIM}Group merchants into report sections with {C.RESET}{C.CYAN}config/views.rules{C.RESET}")
+    print(f"    {C.DIM}Views can overlap — same merchant can appear in multiple views{C.RESET}")
     print()
     print(f"    {C.DIM}[Every Month]")
     print(f"    description: Consistent recurring expenses")
@@ -2357,7 +2358,6 @@ def cmd_workflow(args):
     print()
     print(f"    {C.DIM}Primitives: months, total, cv, category, subcategory, tags, payments{C.RESET}")
     print(f"    {C.DIM}Functions: sum(), avg(), count(), min(), max(), stddev(), by(){C.RESET}")
-    print(f"    {C.DIM}Grouping: sum(by(\"month\")) for monthly totals{C.RESET}")
     print()
 
 
