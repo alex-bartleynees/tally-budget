@@ -100,7 +100,7 @@ from .analyzer import (
 
 def _check_merchant_migration(config: dict, config_dir: str, quiet: bool = False, migrate: bool = False) -> list:
     """
-    Check if merchant rules should be migrated from CSV to .merchants format.
+    Check if merchant rules should be migrated from CSV to .rules format.
 
     Args:
         config: Loaded config dict with _merchants_file and _merchants_format
@@ -132,7 +132,7 @@ def _check_merchant_migration(config: dict, config_dir: str, quiet: bool = False
             print()
             print(f"{C.YELLOW}⚠️  Deprecation Notice:{C.RESET}")
             print(f"   {C.DIM}merchant_categories.csv is deprecated.{C.RESET}")
-            print(f"   {C.DIM}The new .merchants format supports expression-based rules like:{C.RESET}")
+            print(f"   {C.DIM}The new .rules format supports expression-based rules like:{C.RESET}")
             print(f"   {C.DIM}  match: contains(\"COSTCO\") and amount > 200{C.RESET}")
             print()
 
@@ -156,18 +156,18 @@ def _check_merchant_migration(config: dict, config_dir: str, quiet: bool = False
             # Perform migration
             from .merchant_engine import csv_to_merchants_content
 
-            # Generate .merchants content
+            # Generate .rules content
             content = csv_to_merchants_content(csv_rules)
 
             # Write new file next to settings.yaml
-            new_file = os.path.join(config_dir, 'merchants.merchants')
+            new_file = os.path.join(config_dir, 'merchants.rules')
             try:
                 with open(new_file, 'w', encoding='utf-8') as f:
                     f.write(content)
                 print(f"{C.GREEN}✓ Created {new_file}{C.RESET}")
                 print()
                 print(f"   {C.DIM}Add to settings.yaml:{C.RESET}")
-                print(f"   {C.CYAN}merchants_file: config/merchants.merchants{C.RESET}")
+                print(f"   {C.CYAN}merchants_file: config/merchants.rules{C.RESET}")
                 print()
                 print(f"   {C.DIM}Then you can delete merchant_categories.csv{C.RESET}")
                 print()
@@ -187,7 +187,7 @@ def _check_merchant_migration(config: dict, config_dir: str, quiet: bool = False
 
         return get_all_rules(merchants_file)
 
-    # New .merchants format
+    # New .rules format
     if merchants_format == 'new':
         rules = get_all_rules(merchants_file)
         if not quiet:
@@ -222,14 +222,14 @@ DIRECTORY STRUCTURE
 my-budget/
 ├── config/
 │   ├── settings.yaml           # Data sources & settings
-│   └── merchants.merchants     # Merchant categorization rules
+│   └── merchants.rules     # Merchant categorization rules
 ├── data/                       # Your statement exports
 └── output/                     # Generated reports
 
 SETTINGS.YAML
 -------------
 year: 2025
-merchants_file: config/merchants.merchants
+merchants_file: config/merchants.rules
 data_sources:
   - name: AMEX
     file: data/amex.csv
@@ -266,9 +266,9 @@ Use the discover command to find uncategorized transactions:
   tally discover --format csv  # CSV output to copy-paste
   tally discover --format json # JSON for programmatic use
 
-MERCHANT RULES (.merchants format)
+MERCHANT RULES (.rules format)
 ----------------------------------
-Define merchant patterns in config/merchants.merchants:
+Define merchant patterns in config/merchants.rules:
 
 [Netflix]
 match: contains("NETFLIX")
@@ -310,11 +310,11 @@ output_dir: output
 html_filename: spending_summary.html
 
 # Merchant rules file - expression-based categorization
-merchants_file: config/merchants.merchants
+merchants_file: config/merchants.rules
 
 # Sections file (optional) - custom spending views
-# Create config/sections.sections and uncomment:
-# sections_file: config/sections.sections
+# Create config/views.rules and uncomment:
+# views_file: config/views.rules
 
 # Home locations (auto-detected if not specified)
 # Transactions outside these locations are classified as travel
@@ -407,14 +407,14 @@ Pattern,Merchant,Category,Subcategory
 
 '''
 
-STARTER_SECTIONS = '''# Tally Sections Configuration (.sections format)
+STARTER_VIEWS = '''# Tally Views Configuration (.rules format)
 #
-# Sections define views into your spending data.
-# Each merchant is evaluated against all section filters.
-# Sections can overlap - the same merchant can appear in multiple sections.
+# Views define groups of merchants for your spending report.
+# Each merchant is evaluated against all view filters.
+# Views can overlap - the same merchant can appear in multiple views.
 #
 # SYNTAX:
-#   [Section Name]
+#   [View Name]
 #   description: Human-readable description (optional)
 #   filter: <expression>
 #
@@ -446,7 +446,7 @@ STARTER_SECTIONS = '''# Tally Sections Configuration (.sections format)
 #   Arithmetic: +  -  *  /  %
 #
 # ============================================================================
-# SAMPLE SECTIONS (uncomment and customize)
+# SAMPLE VIEWS (uncomment and customize)
 # ============================================================================
 
 # [Every Month]
@@ -696,23 +696,23 @@ def init_config(target_dir):
     else:
         files_skipped.append('config/settings.yaml')
 
-    # Write merchants.merchants (new expression-based format)
-    merchants_path = os.path.join(config_dir, 'merchants.merchants')
+    # Write merchants.rules (new expression-based format)
+    merchants_path = os.path.join(config_dir, 'merchants.rules')
     if not os.path.exists(merchants_path):
         with open(merchants_path, 'w', encoding='utf-8') as f:
             f.write(STARTER_MERCHANTS)
-        files_created.append('config/merchants.merchants')
+        files_created.append('config/merchants.rules')
     else:
-        files_skipped.append('config/merchants.merchants')
+        files_skipped.append('config/merchants.rules')
 
-    # Write sections.sections
-    sections_path = os.path.join(config_dir, 'sections.sections')
+    # Write views.rules
+    sections_path = os.path.join(config_dir, 'views.rules')
     if not os.path.exists(sections_path):
         with open(sections_path, 'w', encoding='utf-8') as f:
-            f.write(STARTER_SECTIONS)
-        files_created.append('config/sections.sections')
+            f.write(STARTER_VIEWS)
+        files_created.append('config/views.rules')
     else:
-        files_skipped.append('config/sections.sections')
+        files_skipped.append('config/views.rules')
 
     # Create .gitignore for data privacy
     gitignore_path = os.path.join(target_dir, '.gitignore')
@@ -859,7 +859,7 @@ def cmd_run(args):
         print(f"Config: {config_dir}/{args.settings}")
         print()
 
-    # Load merchant rules (with migration check for CSV -> .merchants)
+    # Load merchant rules (with migration check for CSV -> .rules)
     rules = _check_merchant_migration(config, config_dir, args.quiet, getattr(args, 'migrate', False))
 
     # Parse transactions from configured data sources
@@ -949,36 +949,36 @@ def cmd_run(args):
     # Analyze
     stats = analyze_transactions(all_txns)
 
-    # Classify by user-defined sections
-    sections_config = config.get('sections')
-    if sections_config:
+    # Classify by user-defined views
+    views_config = config.get('sections')
+    if views_config:
         from .analyzer import classify_by_sections, compute_section_totals
-        section_results = classify_by_sections(
+        view_results = classify_by_sections(
             stats['by_merchant'],
-            sections_config,
+            views_config,
             stats['num_months']
         )
-        # Compute totals for each section
+        # Compute totals for each view
         stats['sections'] = {
             name: compute_section_totals(merchants)
-            for name, merchants in section_results.items()
+            for name, merchants in view_results.items()
         }
-        stats['_sections_config'] = sections_config
+        stats['_sections_config'] = views_config
 
     # Parse filter options
     only_filter = None
     if args.only:
-        # Get valid section names from sections config
-        valid_sections = set()
-        if sections_config:
-            valid_sections = {s.name.lower() for s in sections_config.sections}
+        # Get valid view names from views config
+        valid_views = set()
+        if views_config:
+            valid_views = {s.name.lower() for s in views_config.sections}
         only_filter = [c.strip().lower() for c in args.only.split(',')]
-        invalid = [c for c in only_filter if c not in valid_sections]
+        invalid = [c for c in only_filter if c not in valid_views]
         if invalid:
-            print(f"Warning: Invalid section(s) ignored: {', '.join(invalid)}", file=sys.stderr)
-            if valid_sections:
-                print(f"  Valid sections: {', '.join(sorted(valid_sections))}", file=sys.stderr)
-            only_filter = [c for c in only_filter if c in valid_sections]
+            print(f"Warning: Invalid view(s) ignored: {', '.join(invalid)}", file=sys.stderr)
+            if valid_views:
+                print(f"  Valid views: {', '.join(sorted(valid_views))}", file=sys.stderr)
+            only_filter = [c for c in only_filter if c in valid_views]
             if not only_filter:
                 only_filter = None
     category_filter = args.category if hasattr(args, 'category') and args.category else None
@@ -1150,7 +1150,7 @@ def cmd_discover(args):
     # Output format
     if args.format == 'csv':
         # Legacy CSV output (deprecated)
-        print("# NOTE: CSV format is deprecated. Use .merchants format instead.")
+        print("# NOTE: CSV format is deprecated. Use .rules format instead.")
         print("# See 'tally workflow' for the new format.")
         print("#")
         print("# Suggested rules for unknown merchants")
@@ -1271,7 +1271,7 @@ def suggest_merchant_name(description):
 
 
 def suggest_merchants_rule(merchant_name, pattern):
-    """Generate a suggested rule block in .merchants format."""
+    """Generate a suggested rule block in .rules format."""
     # Escape quotes in pattern if needed
     escaped_pattern = pattern.replace('"', '\\"')
     return f"""[{merchant_name}]
@@ -1790,7 +1790,7 @@ def cmd_diag(args):
         print(f"  File size: {file_size} bytes")
 
         if merchants_format == 'new':
-            # New .merchants format
+            # New .rules format
             try:
                 from .merchant_engine import load_merchants_file
                 from pathlib import Path
@@ -1856,7 +1856,7 @@ def cmd_diag(args):
         print("Merchants file: not configured")
         print()
         print("  No merchant rules found.")
-        print("  Add 'merchants_file: config/merchants.merchants' to settings.yaml")
+        print("  Add 'merchants_file: config/merchants.rules' to settings.yaml")
         print("  Transactions will be categorized as 'Unknown'.")
     print()
 
@@ -1882,46 +1882,46 @@ def cmd_diag(args):
         print("  Not found - will be created with defaults on first 'tally run'")
     print()
 
-    # Sections configuration
-    print("SECTIONS")
+    # Views configuration
+    print("VIEWS")
     print("-" * 70)
-    sections_file_setting = config.get('sections_file') if config else None
-    if sections_file_setting:
+    views_file_setting = config.get('views_file') if config else None
+    if views_file_setting:
         # Resolve path relative to budget directory (parent of config dir)
         budget_dir = os.path.dirname(config_dir)
-        sections_path = os.path.join(budget_dir, sections_file_setting)
-        print(f"Configured in settings.yaml: {sections_file_setting}")
-        print(f"  Resolved path: {sections_path}")
-        print(f"  Exists: {os.path.exists(sections_path)}")
-        if os.path.exists(sections_path):
+        views_path = os.path.join(budget_dir, views_file_setting)
+        print(f"Configured in settings.yaml: {views_file_setting}")
+        print(f"  Resolved path: {views_path}")
+        print(f"  Exists: {os.path.exists(views_path)}")
+        if os.path.exists(views_path):
             try:
                 from .section_engine import load_sections
-                sections_config = load_sections(sections_path)
-                print(f"  Sections defined: {len(sections_config.sections)}")
-                if sections_config.global_variables:
+                views_config = load_sections(views_path)
+                print(f"  Views defined: {len(views_config.sections)}")
+                if views_config.global_variables:
                     print()
                     print("  Global variables:")
-                    for name, expr in sections_config.global_variables.items():
+                    for name, expr in views_config.global_variables.items():
                         print(f"    {name} = {expr}")
                 print()
-                print("  Sections:")
-                for section in sections_config.sections:
-                    print(f"    [{section.name}]")
-                    if section.description:
-                        print(f"      description: {section.description}")
-                    print(f"      filter: {section.filter_expr}")
+                print("  Views:")
+                for view in views_config.sections:
+                    print(f"    [{view.name}]")
+                    if view.description:
+                        print(f"      description: {view.description}")
+                    print(f"      filter: {view.filter_expr}")
             except Exception as e:
-                print(f"  Error loading sections: {e}")
+                print(f"  Error loading views: {e}")
         else:
             print()
-            print("  WARNING: Sections file not found!")
-            print(f"  Create {sections_file_setting} or remove sections_file from settings.yaml")
+            print("  WARNING: Views file not found!")
+            print(f"  Create {views_file_setting} or remove views_file from settings.yaml")
     else:
         print("Not configured (optional)")
-        print("  To enable sections, add to settings.yaml:")
-        print("    sections_file: config/sections.sections")
+        print("  To enable views, add to settings.yaml:")
+        print("    views_file: config/views.rules")
         print()
-        print("  Then create the file with section definitions. Example:")
+        print("  Then create the file with view definitions. Example:")
         print("    [Every Month]")
         print("    filter: months >= 6 and cv < 0.3")
     print()
@@ -1993,7 +1993,7 @@ def cmd_workflow(args):
     # Default paths (used when no config exists)
     path_data = make_path('data', trailing_sep=True) if config_dir else './data/'
     path_settings = make_path(os.path.join('config', 'settings.yaml')) if config_dir else './config/settings.yaml'
-    path_merchants = make_path(os.path.join('config', 'merchants.merchants')) if config_dir else './config/merchants.merchants'
+    path_merchants = make_path(os.path.join('config', 'merchants.rules')) if config_dir else './config/merchants.rules'
 
     if has_config:
         try:
@@ -2104,7 +2104,7 @@ def cmd_workflow(args):
     print(f"      - \"^SQ\\\\s*\\\\*\"       # Square")
     print(f"      - \"\\\\s+DES:.*$\"      # BOA suffix{C.RESET}")
 
-    section("Merchant Rules (.merchants)")
+    section("Merchant Rules (.rules)")
     print(f"    {C.DIM}Expression-based rules with full power:{C.RESET}")
     print()
     print(f"    {C.DIM}[Netflix]")
@@ -2126,8 +2126,8 @@ def cmd_workflow(args):
     print(f"    {C.DIM}First match wins — put specific patterns before general ones{C.RESET}")
     print(f"    {C.DIM}Tags are accumulated from ALL matching rules{C.RESET}")
 
-    section("Sections (Optional)")
-    print(f"    {C.DIM}Create custom spending views with {C.RESET}{C.CYAN}config/sections.sections{C.RESET}")
+    section("Views (Optional)")
+    print(f"    {C.DIM}Create custom report views with {C.RESET}{C.CYAN}config/views.rules{C.RESET}")
     print()
     print(f"    {C.DIM}[Every Month]")
     print(f"    description: Consistent recurring expenses")
@@ -2307,15 +2307,15 @@ def cmd_explain(args):
     # Get all merchants from by_merchant (the unified view)
     all_merchants = stats.get('by_merchant', {})
 
-    # Load sections config for section matching
-    sections_config = None
-    sections_file = os.path.join(config_dir, 'sections.sections')
-    if os.path.exists(sections_file):
+    # Load views config for view matching
+    views_config = None
+    views_file = os.path.join(config_dir, 'views.rules')
+    if os.path.exists(views_file):
         try:
             from .section_engine import load_sections
-            sections_config = load_sections(sections_file)
+            views_config = load_sections(views_file)
         except Exception:
-            pass  # Sections are optional
+            pass  # Views are optional
 
     verbose = args.verbose
 
@@ -2327,13 +2327,13 @@ def cmd_explain(args):
             # Try exact match first
             if merchant_query in all_merchants:
                 found_any = True
-                _print_merchant_explanation(merchant_query, all_merchants[merchant_query], args.format, verbose, stats['num_months'], sections_config)
+                _print_merchant_explanation(merchant_query, all_merchants[merchant_query], args.format, verbose, stats['num_months'], views_config)
             else:
                 # Try case-insensitive match
                 matches = [m for m in all_merchants.keys() if m.lower() == merchant_query.lower()]
                 if matches:
                     found_any = True
-                    _print_merchant_explanation(matches[0], all_merchants[matches[0]], args.format, verbose, stats['num_months'], sections_config)
+                    _print_merchant_explanation(matches[0], all_merchants[matches[0]], args.format, verbose, stats['num_months'], views_config)
                     continue
 
                 # Try substring match on merchant names (partial search)
@@ -2343,7 +2343,7 @@ def cmd_explain(args):
                     found_any = True
                     print(f"Merchants matching '{merchant_query}':\n")
                     for m in sorted(partial_matches):
-                        _print_merchant_explanation(m, all_merchants[m], args.format, verbose, stats['num_months'], sections_config)
+                        _print_merchant_explanation(m, all_merchants[m], args.format, verbose, stats['num_months'], views_config)
                     continue
 
                 # Search transactions containing the query
@@ -2397,35 +2397,35 @@ def cmd_explain(args):
             sys.exit(1)
 
     elif hasattr(args, 'section') and args.section:
-        # Show all merchants in a specific section
-        section_name = args.section
-        sections_config = config.get('sections')
+        # Show all merchants in a specific view
+        view_name = args.section
+        views_config = config.get('sections')
 
-        # Classify by sections
-        if sections_config:
+        # Classify by views
+        if views_config:
             from .analyzer import classify_by_sections, compute_section_totals
-            section_results = classify_by_sections(
+            view_results = classify_by_sections(
                 stats['by_merchant'],
-                sections_config,
+                views_config,
                 stats['num_months']
             )
 
-            # Find the matching section (case-insensitive)
-            section_match = None
-            for name in section_results.keys():
-                if name.lower() == section_name.lower():
-                    section_match = name
+            # Find the matching view (case-insensitive)
+            view_match = None
+            for name in view_results.keys():
+                if name.lower() == view_name.lower():
+                    view_match = name
                     break
 
-            if not section_match:
-                valid_sections = [s.name for s in sections_config.sections]
-                print(f"No section '{section_name}' found.", file=sys.stderr)
-                print(f"Available sections: {', '.join(valid_sections)}", file=sys.stderr)
+            if not view_match:
+                valid_views = [s.name for s in views_config.sections]
+                print(f"No view '{view_name}' found.", file=sys.stderr)
+                print(f"Available views: {', '.join(valid_views)}", file=sys.stderr)
                 sys.exit(1)
 
-            merchants_list = section_results[section_match]
+            merchants_list = view_results[view_match]
             if not merchants_list:
-                print(f"No merchants in section '{section_match}'")
+                print(f"No merchants in view '{view_match}'")
                 sys.exit(0)
 
             if args.format == 'json':
@@ -2438,7 +2438,7 @@ def cmd_explain(args):
                 merchants_dict = {name: data for name, data in merchants_list}
                 _print_classification_summary(section_match, merchants_dict, verbose, stats['num_months'])
         else:
-            print("No sections.sections found. Run 'tally run' first to generate default sections.")
+            print("No views.rules found. Run 'tally run' first to generate default sections.")
             sys.exit(1)
 
     elif args.category:
@@ -2568,9 +2568,9 @@ def _print_description_explanation(query, trace, output_format, verbose):
         print()
 
 
-def _get_matching_sections(data, sections_config, num_months):
-    """Evaluate which sections a merchant matches and return details."""
-    if not sections_config:
+def _get_matching_views(data, views_config, num_months):
+    """Evaluate which views a merchant matches and return details."""
+    if not views_config:
         return []
 
     from datetime import datetime
@@ -2614,14 +2614,14 @@ def _get_matching_sections(data, sections_config, num_months):
 
     # Evaluate global variables
     global_vars = evaluate_variables(
-        sections_config.global_variables,
+        views_config.global_variables,
         transactions,
         num_months
     )
 
     matches = []
-    for section in sections_config.sections:
-        if evaluate_section_filter(section, transactions, num_months, global_vars):
+    for view in views_config.sections:
+        if evaluate_section_filter(view, transactions, num_months, global_vars):
             # Build context values for display
             context = {
                 'months': months_active,
@@ -2632,26 +2632,26 @@ def _get_matching_sections(data, sections_config, num_months):
                 'tags': tags,
             }
             matches.append({
-                'name': section.name,
-                'filter': section.filter_expr,
-                'description': section.description,
+                'name': view.name,
+                'filter': view.filter_expr,
+                'description': view.description,
                 'context': context,
             })
 
     return matches
 
 
-def _print_merchant_explanation(name, data, output_format, verbose, num_months, sections_config=None):
+def _print_merchant_explanation(name, data, output_format, verbose, num_months, views_config=None):
     """Print explanation for a single merchant."""
     import json
     from .analyzer import build_merchant_json
 
-    # Get matching sections
-    matching_sections = _get_matching_sections(data, sections_config, num_months)
+    # Get matching views
+    matching_views = _get_matching_views(data, views_config, num_months)
 
     if output_format == 'json':
         merchant_json = build_merchant_json(name, data, verbose)
-        merchant_json['sections'] = matching_sections
+        merchant_json['views'] = matching_views
         print(json.dumps(merchant_json, indent=2))
     elif output_format == 'markdown':
         reasoning = data.get('reasoning', {})
@@ -2663,10 +2663,10 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months, 
         print(f"**YTD Total:** ${data.get('total', 0):.2f}")
         print(f"**Months Active:** {data.get('months_active', 0)}/{num_months}")
 
-        if matching_sections:
-            print(f"\n**Sections ({len(matching_sections)}):**")
-            for section in matching_sections:
-                print(f"  - **{section['name']}**: `{section['filter']}`")
+        if matching_views:
+            print(f"\n**Views ({len(matching_views)}):**")
+            for view in matching_views:
+                print(f"  - **{view['name']}**: `{view['filter']}`")
 
         if verbose >= 1:
             # Show raw description variations
@@ -2724,14 +2724,14 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months, 
         if tags:
             print(f"  Tags: {', '.join(sorted(tags))}")
 
-        # Show matching sections
-        if matching_sections:
+        # Show matching views
+        if matching_views:
             print()
-            print(f"  Sections:")
-            for section in matching_sections:
-                ctx = section['context']
-                print(f"    ✓ {section['name']}")
-                print(f"      filter: {section['filter']}")
+            print(f"  Views:")
+            for view in matching_views:
+                ctx = view['context']
+                print(f"    ✓ {view['name']}")
+                print(f"      filter: {view['filter']}")
                 print(f"      values: months={ctx['months']}, total=${ctx['total']:,.0f}, cv={ctx['cv']}")
 
         # Show pattern match info
@@ -2958,7 +2958,7 @@ def main():
     run_parser.add_argument(
         '--migrate',
         action='store_true',
-        help='Migrate merchant_categories.csv to new .merchants format (non-interactive)'
+        help='Migrate merchant_categories.csv to new .rules format (non-interactive)'
     )
     # inspect subcommand
     inspect_parser = subparsers.add_parser(
@@ -2983,7 +2983,7 @@ def main():
         'discover',
         help='List uncategorized transactions with suggested rules (use --format json for LLMs)',
         description='Analyze transactions to find unknown merchants, sorted by spend. '
-                    'Outputs suggested rules for your .merchants file.'
+                    'Outputs suggested rules for your .rules file.'
     )
     discover_parser.add_argument(
         'config',

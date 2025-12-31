@@ -1,7 +1,7 @@
 """
 Merchant rule engine for expression-based transaction categorization.
 
-Parses .merchants files and evaluates rules against transactions.
+Parses .rules files and evaluates rules against transactions.
 Supports two-pass evaluation: categorization (first match) + tagging (all matches).
 
 File format:
@@ -65,7 +65,7 @@ class MatchResult:
 
 
 class MerchantParseError(Exception):
-    """Error parsing .merchants file."""
+    """Error parsing .rules file."""
 
     def __init__(self, message: str, line_number: int = 0, line: str = ""):
         self.line_number = line_number
@@ -77,7 +77,7 @@ class MerchantParseError(Exception):
 
 class MerchantEngine:
     """
-    Engine for parsing .merchants files and matching transactions.
+    Engine for parsing .rules files and matching transactions.
 
     Uses two-pass evaluation:
     1. Categorization pass: First matching rule with category wins
@@ -90,12 +90,12 @@ class MerchantEngine:
         self._compiled_exprs: Dict[str, Any] = {}  # Cache of parsed ASTs
 
     def load_file(self, filepath: Path) -> None:
-        """Load rules from a .merchants file."""
+        """Load rules from a .rules file."""
         content = filepath.read_text(encoding='utf-8')
         self.parse(content)
 
     def parse(self, content: str) -> None:
-        """Parse .merchants file content."""
+        """Parse .rules file content."""
         self.rules = []
         self.variables = {}
         self._compiled_exprs = {}
@@ -283,14 +283,14 @@ class MerchantEngine:
 
 
 def load_merchants_file(filepath: Path) -> MerchantEngine:
-    """Load a .merchants file and return configured engine."""
+    """Load a .rules file and return configured engine."""
     engine = MerchantEngine()
     engine.load_file(filepath)
     return engine
 
 
 def parse_merchants(content: str) -> MerchantEngine:
-    """Parse .merchants content and return configured engine."""
+    """Parse .rules content and return configured engine."""
     engine = MerchantEngine()
     engine.parse(content)
     return engine
@@ -429,7 +429,7 @@ def csv_to_rules(csv_rules: List[Tuple]) -> List[MerchantRule]:
 
 def csv_to_merchants_content(csv_rules: List[Tuple]) -> str:
     """
-    Convert CSV rules to .merchants file content.
+    Convert CSV rules to .rules file content.
 
     Used for migrating existing merchant_categories.csv to new format.
 
@@ -437,7 +437,7 @@ def csv_to_merchants_content(csv_rules: List[Tuple]) -> str:
         csv_rules: List of tuples from load_merchant_rules()
 
     Returns:
-        String content for a .merchants file
+        String content for a .rules file
     """
     lines = [
         "# Tally Merchant Rules",

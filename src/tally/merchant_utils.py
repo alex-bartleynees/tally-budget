@@ -75,7 +75,7 @@ def load_merchant_rules(csv_path):
 
 
 def _expr_to_regex(match_expr: str) -> str:
-    """Convert a .merchants match expression to a regex pattern for legacy matching.
+    """Convert a .rules match expression to a regex pattern for legacy matching.
 
     Examples:
         contains("NETFLIX") -> NETFLIX
@@ -105,7 +105,7 @@ def get_all_rules(rules_path=None):
     """Get user-defined merchant rules.
 
     Args:
-        rules_path: Optional path to user's merchants file (.merchants or .csv)
+        rules_path: Optional path to user's merchants file (.rules or .csv)
 
     Returns:
         List of (pattern, merchant, category, subcategory, parsed_pattern, source, tags) tuples.
@@ -113,8 +113,8 @@ def get_all_rules(rules_path=None):
     """
     user_rules_with_source = []
     if rules_path:
-        # Check if it's the new .merchants format
-        if rules_path.endswith('.merchants'):
+        # Check if it's the new .rules format
+        if rules_path.endswith('.rules'):
             try:
                 from .merchant_engine import load_merchants_file
                 from pathlib import Path
@@ -135,7 +135,7 @@ def get_all_rules(rules_path=None):
                     ))
                 return user_rules_with_source
             except Exception:
-                pass  # Fall through to CSV handling if .merchants parsing fails
+                pass  # Fall through to CSV handling if .rules parsing fails
 
         # CSV format (legacy)
         user_rules = load_merchant_rules(rules_path)

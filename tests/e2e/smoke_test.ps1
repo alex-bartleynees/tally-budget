@@ -57,8 +57,8 @@ data_sources:
     file: data/transactions.csv
     format: "{date:%m/%d/%Y},{description},{amount}"
 
-merchants_file: config/merchants.merchants
-sections_file: config/sections.sections
+merchants_file: config/merchants.rules
+views_file: config/views.rules
 "@ | Out-File -FilePath "config/settings.yaml" -Encoding utf8
 
     @"
@@ -83,10 +83,10 @@ subcategory: Online
 match: contains("STARBUCKS")
 category: Food
 subcategory: Coffee
-"@ | Out-File -FilePath "config/merchants.merchants" -Encoding utf8
+"@ | Out-File -FilePath "config/merchants.rules" -Encoding utf8
 
     @"
-# Test sections file
+# Test views file
 [Subscriptions]
 description: Monthly subscriptions
 filter: category == "Subscriptions"
@@ -98,7 +98,7 @@ filter: months >= 2
 [All Spending]
 description: Everything
 filter: total > 0
-"@ | Out-File -FilePath "config/sections.sections" -Encoding utf8
+"@ | Out-File -FilePath "config/views.rules" -Encoding utf8
 
     Write-Host "✓ Test data created" -ForegroundColor Green
 
@@ -122,7 +122,13 @@ filter: total > 0
     # Test 6: Add rule for unknown merchant
     Write-Host ""
     Write-Host "=== Test 6: Add rule and verify ===" -ForegroundColor Yellow
-    Add-Content -Path "config/merchant_categories.csv" -Value "UNKNOWN MERCHANT,Unknown Merchant,Shopping,Other" -Encoding utf8
+    @"
+
+[Unknown Merchant]
+match: contains("UNKNOWN MERCHANT")
+category: Shopping
+subcategory: Other
+"@ | Add-Content -Path "config/merchants.rules" -Encoding utf8
     $output = tally discover
     Write-Host $output
     if ($output -match "no unknown|all merchants are categorized") {
@@ -170,22 +176,22 @@ filter: total > 0
     tally explain Netflix
     Write-Host "✓ Explain command works" -ForegroundColor Green
 
-    # Test 11: Sections - verify sections.sections is loaded
+    # Test 11: Views - verify views.rules is loaded
     Write-Host ""
-    Write-Host "=== Test 11: tally sections ===" -ForegroundColor Yellow
+    Write-Host "=== Test 11: tally views ===" -ForegroundColor Yellow
     $diagOutput = tally diag 2>&1 | Out-String
-    if ($diagOutput -match "sections.sections|Subscriptions|High Frequency") {
-        Write-Host "✓ Sections file detected in diag" -ForegroundColor Green
+    if ($diagOutput -match "views.rules|Subscriptions|High Frequency") {
+        Write-Host "✓ Views file detected in diag" -ForegroundColor Green
     } else {
-        Write-Host "Note: Sections info not in diag output (may be expected)" -ForegroundColor Yellow
+        Write-Host "Note: Views info not in diag output (may be expected)" -ForegroundColor Yellow
     }
 
-    # Check HTML report has section view toggle
+    # Check HTML report has view toggle
     $htmlContent = Get-Content "output/spending_summary.html" -Raw
     if ($htmlContent -match "By Section|section-view|sectionView") {
-        Write-Host "✓ HTML report has section view support" -ForegroundColor Green
+        Write-Host "✓ HTML report has view support" -ForegroundColor Green
     } else {
-        Write-Host "Note: Section view not found in HTML (sections may be empty)" -ForegroundColor Yellow
+        Write-Host "Note: View mode not found in HTML (views may be empty)" -ForegroundColor Yellow
     }
 
     # Test explain with --section flag

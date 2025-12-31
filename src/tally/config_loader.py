@@ -271,7 +271,7 @@ def load_config(config_dir, settings_file='settings.yaml'):
         # Don't warn - this is expected on first run
 
     # Load merchants file (optional - merchants_file in settings.yaml)
-    # This is the new .merchants format; merchant_categories.csv is deprecated
+    # This is the new .rules format; merchant_categories.csv is deprecated
     merchants_file = config.get('merchants_file')
     if merchants_file:
         budget_dir = os.path.dirname(config_dir)
@@ -298,37 +298,37 @@ def load_config(config_dir, settings_file='settings.yaml'):
             config['_merchants_file'] = None
             config['_merchants_format'] = None
 
-    # Load section definitions (optional - sections_file in settings.yaml)
-    sections_file = config.get('sections_file')
-    if sections_file:
+    # Load view definitions (optional - views_file in settings.yaml)
+    views_file = config.get('views_file')
+    if views_file:
         # Resolve path relative to config directory's parent (budget directory)
         budget_dir = os.path.dirname(config_dir)
-        sections_path = os.path.join(budget_dir, sections_file)
-        if os.path.exists(sections_path):
+        views_path = os.path.join(budget_dir, views_file)
+        if os.path.exists(views_path):
             try:
-                config['sections'] = load_sections(sections_path)
-                config['_sections_file'] = sections_path
+                config['sections'] = load_sections(views_path)
+                config['_views_file'] = views_path
             except SectionParseError as e:
                 warnings.append({
                     'type': 'error',
-                    'source': sections_file,
-                    'message': f"Error loading sections: {e}",
-                    'suggestion': f"Fix the syntax error in {sections_file}",
+                    'source': views_file,
+                    'message': f"Error loading views: {e}",
+                    'suggestion': f"Fix the syntax error in {views_file}",
                 })
                 config['sections'] = None
-                config['_sections_file'] = None
+                config['_views_file'] = None
         else:
             warnings.append({
                 'type': 'warning',
                 'source': 'settings.yaml',
-                'message': f"Sections file not found: {sections_file}",
-                'suggestion': f"Create {sections_file} or remove sections_file from settings.yaml",
+                'message': f"Views file not found: {views_file}",
+                'suggestion': f"Create {views_file} or remove views_file from settings.yaml",
             })
             config['sections'] = None
-            config['_sections_file'] = None
+            config['_views_file'] = None
     else:
-        # No sections_file configured - sections feature is optional
+        # No views_file configured - views feature is optional
         config['sections'] = None
-        config['_sections_file'] = None
+        config['_views_file'] = None
 
     return config

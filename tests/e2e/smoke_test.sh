@@ -64,11 +64,11 @@ data_sources:
     file: data/transactions.csv
     format: "{date:%m/%d/%Y},{description},{amount}"
 
-merchants_file: config/merchants.merchants
-sections_file: config/sections.sections
+merchants_file: config/merchants.rules
+views_file: config/views.rules
 EOF
 
-cat > config/merchants.merchants << 'EOF'
+cat > config/merchants.rules << 'EOF'
 # Tally Merchant Rules
 
 [Netflix]
@@ -92,8 +92,8 @@ category: Food
 subcategory: Coffee
 EOF
 
-cat > config/sections.sections << 'EOF'
-# Test sections file
+cat > config/views.rules << 'EOF'
+# Test views file
 [Subscriptions]
 description: Monthly subscriptions
 filter: category == "Subscriptions"
@@ -129,7 +129,7 @@ fi
 # Test 6: Add rule for unknown merchant
 echo ""
 echo "=== Test 6: Add rule and verify ==="
-cat >> config/merchants.merchants << 'EOF'
+cat >> config/merchants.rules << 'EOF'
 
 [Unknown Merchant]
 match: contains("UNKNOWN MERCHANT")
@@ -187,21 +187,21 @@ echo "=== Test 10: tally explain ==="
 tally explain Netflix
 echo "✓ Explain command works"
 
-# Test 11: Sections - verify sections.sections is loaded
+# Test 11: Views - verify views.rules is loaded
 echo ""
-echo "=== Test 11: tally sections ==="
+echo "=== Test 11: tally views ==="
 OUTPUT=$(tally diag 2>&1)
-if echo "$OUTPUT" | grep -qi "sections.sections\|Subscriptions\|High Frequency"; then
-    echo "✓ Sections file detected in diag"
+if echo "$OUTPUT" | grep -qi "views.rules\|Subscriptions\|High Frequency"; then
+    echo "✓ Views file detected in diag"
 else
-    echo "Note: Sections info not in diag output (may be expected)"
+    echo "Note: Views info not in diag output (may be expected)"
 fi
 
 # Check HTML report has section view toggle
 if grep -q "By Section\|section-view\|sectionView" output/spending_summary.html 2>/dev/null; then
-    echo "✓ HTML report has section view support"
+    echo "✓ HTML report has view support"
 else
-    echo "Note: Section view not found in HTML (sections may be empty)"
+    echo "Note: View mode not found in HTML (views may be empty)"
 fi
 
 # Test explain with --section flag

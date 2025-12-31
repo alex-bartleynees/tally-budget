@@ -85,8 +85,8 @@ data_sources:
                 capture_output=True,
                 text=True
             )
-            assert 'Warning: Invalid section' in result.stderr
-            # Valid sections may or may not be shown depending on whether sections.txt exists
+            assert 'Warning: Invalid view' in result.stderr
+            # Valid views may or may not be shown depending on whether views.rules exists
 
     def test_run_mixed_only_filters_invalid(self):
         """Mixed valid/invalid --only values should warn about invalid ones."""
@@ -113,10 +113,10 @@ data_sources:
                 capture_output=True,
                 text=True
             )
-            assert 'Warning: Invalid section' in result.stderr
+            assert 'Warning: Invalid view' in result.stderr
             assert 'invalid' in result.stderr
-            # Should exit since no valid sections remain
-            # (monthly and travel are not valid section names anymore)
+            # Should exit since no valid views remain
+            # (monthly and travel are not valid view names anymore)
 
     def test_explain_invalid_category_shows_available(self):
         """Invalid --category should show available categories."""

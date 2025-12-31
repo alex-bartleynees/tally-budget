@@ -45,7 +45,7 @@ class TestMerchantRule:
 
 
 class TestParsing:
-    """Tests for parsing .merchants files."""
+    """Tests for parsing .rules files."""
 
     def test_simple_rule(self):
         """Parse a simple rule."""
@@ -632,7 +632,7 @@ class TestCSVConversion:
         assert "entertainment" in rules[0].tags
 
     def test_csv_to_merchants_content(self):
-        """Convert CSV rules to .merchants file content."""
+        """Convert CSV rules to .rules file content."""
         csv_rules = [
             ("NETFLIX", "Netflix", "Subscriptions", "Streaming",
              parse_pattern_with_modifiers("NETFLIX"), "user", ["entertainment", "recurring"]),

@@ -565,11 +565,11 @@ class TestExprToRegex:
         assert _expr_to_regex('NETFLIX') == 'NETFLIX'
 
 
-class TestGetAllRulesMerchantsFormat:
-    """Tests for get_all_rules loading .merchants files."""
+class TestGetAllRulesRulesFormat:
+    """Tests for get_all_rules loading .rules files."""
 
-    def test_load_simple_merchants_file(self):
-        """Load rules from .merchants file."""
+    def test_load_simple_rules_file(self):
+        """Load rules from .rules file."""
         content = """[Netflix]
 match: contains("NETFLIX")
 category: Subscriptions
@@ -580,7 +580,7 @@ match: contains("SPOTIFY")
 category: Subscriptions
 subcategory: Music
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -599,15 +599,15 @@ subcategory: Music
         finally:
             os.unlink(f.name)
 
-    def test_load_merchants_with_tags(self):
-        """Load .merchants file with tags."""
+    def test_load_rules_with_tags(self):
+        """Load .rules file with tags."""
         content = """[Netflix]
 match: contains("NETFLIX")
 category: Subscriptions
 subcategory: Streaming
 tags: entertainment, recurring
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -620,14 +620,14 @@ tags: entertainment, recurring
         finally:
             os.unlink(f.name)
 
-    def test_load_merchants_regex_pattern(self):
-        """Load .merchants file with regex() match expression."""
+    def test_load_rules_regex_pattern(self):
+        """Load .rules file with regex() match expression."""
         content = r"""[Uber Rides]
 match: regex("UBER(?!.*EATS)")
 category: Transportation
 subcategory: Rideshare
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -640,14 +640,14 @@ subcategory: Rideshare
         finally:
             os.unlink(f.name)
 
-    def test_merchants_rules_can_match_transactions(self):
-        """Rules loaded from .merchants should work with normalize_merchant."""
+    def test_rules_can_match_transactions(self):
+        """Rules loaded from .rules should work with normalize_merchant."""
         content = """[Netflix]
 match: contains("NETFLIX")
 category: Subscriptions
 subcategory: Streaming
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -663,7 +663,7 @@ subcategory: Streaming
 
 
 class TestNegativeLookaheadMatching:
-    """Tests for negative lookahead patterns in .merchants format."""
+    """Tests for negative lookahead patterns in .rules format."""
 
     def test_uber_not_uber_eats_matching(self):
         """Negative lookahead should match Uber but not Uber Eats."""
@@ -677,7 +677,7 @@ match: contains("UBER") and contains("EATS")
 category: Food
 subcategory: Delivery
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -704,7 +704,7 @@ match: regex("UBER(?!.*EATS)")
 category: Transportation
 subcategory: Rideshare
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
@@ -724,8 +724,8 @@ subcategory: Rideshare
             os.unlink(f.name)
 
 
-class TestMerchantsFormatComplexConditions:
-    """Tests for .merchants format with conditions (amount, date, etc.)."""
+class TestRulesFormatComplexConditions:
+    """Tests for .rules format with conditions (amount, date, etc.)."""
 
     def test_amount_condition_in_expression(self):
         """Amount conditions in match expression should be preserved."""
@@ -739,7 +739,7 @@ match: contains("COSTCO")
 category: Food
 subcategory: Grocery
 """
-        f = tempfile.NamedTemporaryFile(mode='w', suffix='.merchants', delete=False)
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
         try:
             f.write(content)
             f.close()
