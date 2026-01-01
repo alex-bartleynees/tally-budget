@@ -163,6 +163,8 @@ def resolve_source_format(source, warnings=None):
                 format_spec.has_header = source['has_header']
             if 'negate_amount' in source:
                 format_spec.negate_amount = source['negate_amount']
+            if 'tags_from_fields' in source:
+                format_spec.tags_from_fields = source['tags_from_fields']
 
             source['_format_spec'] = format_spec
             source['_parser_type'] = 'generic'

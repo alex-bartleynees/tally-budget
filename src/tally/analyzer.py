@@ -27,7 +27,7 @@ def get_template_dir():
         # Running as normal Python
         return Path(__file__).parent
 
-from .merchant_utils import normalize_merchant
+from .merchant_utils import normalize_merchant, get_tag_only_rules, apply_tag_rules
 from .format_parser import FormatSpec
 from . import section_engine
 
@@ -329,6 +329,8 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
                 required_cols.append(format_spec.description_column)
             if format_spec.custom_captures:
                 required_cols.extend(format_spec.custom_captures.values())
+            if format_spec.extra_fields:
+                required_cols.extend(format_spec.extra_fields.values())
             if format_spec.location_column is not None:
                 required_cols.append(format_spec.location_column)
             max_col = max(required_cols)
@@ -344,8 +346,12 @@ def parse_generic_csv(filepath, format_spec, rules, home_locations=None, source_
             # Also capture custom fields for use in rule expressions (field.name)
             captures = {}
             if format_spec.description_column is not None:
-                # Mode 1: Simple {description}
+                # Mode 1: Simple {description} with optional extra fields
                 description = row[format_spec.description_column].strip()
+                # Capture extra fields (e.g., {cardholder}) for rule expressions
+                if format_spec.extra_fields:
+                    for name, col_idx in format_spec.extra_fields.items():
+                        captures[name] = row[col_idx].strip() if col_idx < len(row) else ''
             else:
                 # Mode 2: Custom captures + template
                 for name, col_idx in format_spec.custom_captures.items():

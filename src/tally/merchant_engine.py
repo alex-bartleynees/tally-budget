@@ -156,8 +156,28 @@ class MerchantEngine:
                 elif key == 'merchant':
                     current_rule['merchant'] = value
                 elif key == 'tags':
-                    # Parse comma-separated tags
-                    tags = {t.strip().lower() for t in value.split(',') if t.strip()}
+                    # Parse comma-separated tags, but don't split inside parentheses
+                    tags = set()
+                    depth = 0
+                    current = []
+                    for char in value:
+                        if char == '(':
+                            depth += 1
+                            current.append(char)
+                        elif char == ')':
+                            depth -= 1
+                            current.append(char)
+                        elif char == ',' and depth == 0:
+                            tag = ''.join(current).strip()
+                            if tag:
+                                tags.add(tag)
+                            current = []
+                        else:
+                            current.append(char)
+                    # Don't forget the last tag
+                    tag = ''.join(current).strip()
+                    if tag:
+                        tags.add(tag)
                     current_rule['tags'] = tags
                 else:
                     raise MerchantParseError(

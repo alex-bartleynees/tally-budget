@@ -130,7 +130,8 @@ def get_all_rules(rules_path=None):
                 from pathlib import Path
                 engine = load_merchants_file(Path(rules_path))
                 # Convert MerchantRule objects to the tuple format used by parsing code
-                for rule in engine.rules:
+                # Only include categorization rules (skip tag-only rules)
+                for rule in engine.rules:  # Include ALL rules (categorization + tag-only)
                     # Preserve the full match_expr for expression-based rules
                     # This allows amount/date conditions like "regex(...) and amount == 1500" to work
                     pattern = rule.match_expr
@@ -139,8 +140,8 @@ def get_all_rules(rules_path=None):
                     user_rules_with_source.append((
                         pattern,          # Full expression (for expr matching)
                         rule.name,        # merchant name
-                        rule.category,
-                        rule.subcategory,
+                        rule.category,    # Empty for tag-only rules
+                        rule.subcategory, # Empty for tag-only rules
                         parsed,
                         'user',
                         list(rule.tags)
@@ -167,6 +168,69 @@ def get_all_rules(rules_path=None):
                 user_rules_with_source.append((pattern, merchant, category, subcategory, parsed, 'user', []))
 
     return user_rules_with_source
+
+
+def get_tag_only_rules(rules_path):
+    """Get tag-only rules from a .rules file.
+
+    Tag-only rules add tags to transactions without changing their category.
+
+    Returns:
+        List of MerchantRule objects that are tag-only (no category).
+    """
+    if not rules_path or not rules_path.endswith('.rules'):
+        return []
+
+    try:
+        from .merchant_engine import load_merchants_file
+        from pathlib import Path
+        engine = load_merchants_file(Path(rules_path))
+        return engine.tag_only_rules
+    except Exception:
+        return []
+
+
+def apply_tag_rules(transaction, tag_rules):
+    """Apply tag-only rules to a transaction, adding matching tags.
+
+    Args:
+        transaction: Transaction dict with description, amount, date, field, source
+        tag_rules: List of MerchantRule objects (tag-only rules)
+
+    Returns:
+        List of additional tags from matching tag-only rules.
+    """
+    from tally import expr_parser
+
+    additional_tags = []
+    description = transaction.get('raw_description', transaction.get('description', ''))
+    amount = transaction.get('amount', 0)
+    txn_date = transaction.get('date')
+    if txn_date and hasattr(txn_date, 'date'):
+        txn_date = txn_date.date()
+    field = transaction.get('field')
+    source = transaction.get('source')
+
+    for rule in tag_rules:
+        try:
+            # Build context for expression matching
+            ctx = {
+                'description': description,
+                'amount': amount,
+                'field': field,
+                'source': source,
+            }
+            if txn_date:
+                ctx['date'] = txn_date
+
+            if expr_parser.matches_transaction(rule.match_expr, ctx):
+                # Resolve dynamic tags
+                resolved = _resolve_dynamic_tags(list(rule.tags), ctx)
+                additional_tags.extend(resolved)
+        except Exception:
+            continue
+
+    return additional_tags
 
 
 def diagnose_rules(csv_path=None):
@@ -337,6 +401,10 @@ def normalize_merchant(
 ) -> Tuple[str, str, str, Optional[dict]]:
     """Normalize a merchant description to (name, category, subcategory, match_info).
 
+    Two-pass matching:
+    1. First categorization rule that matches sets merchant/category/subcategory
+    2. Tags are collected from ALL matching rules (including tag-only rules)
+
     Args:
         description: Raw transaction description
         rules: List of (pattern, merchant, category, subcategory, parsed_pattern, source, tags) tuples
@@ -358,7 +426,24 @@ def normalize_merchant(
     desc_upper = description.upper()
     cleaned_upper = cleaned.upper()
 
-    # Try pattern matching against both original and cleaned
+    # Build transaction context once
+    transaction = {'description': description, 'amount': amount or 0, 'field': field, 'source': data_source}
+    if txn_date:
+        transaction['date'] = txn_date
+    transaction_cleaned = {'description': cleaned, 'amount': amount or 0, 'field': field, 'source': data_source}
+    if txn_date:
+        transaction_cleaned['date'] = txn_date
+
+    # Result from first categorization match
+    result_merchant = None
+    result_category = None
+    result_subcategory = None
+    result_pattern = None
+    result_source = None
+
+    # Collect tags from ALL matching rules
+    all_tags = []
+
     for rule in rules:
         # Handle various formats: 4-tuple, 5-tuple, 6-tuple, 7-tuple (with tags)
         tags = []
@@ -375,51 +460,58 @@ def normalize_merchant(
             source = 'unknown'
 
         try:
-            # Determine if this is an expression pattern or a regex pattern
+            # Check if rule matches
+            matches = False
+
             if _is_expression_pattern(pattern):
                 # Use expression parser for expression-based rules
-                transaction = {'description': description, 'amount': amount or 0, 'field': field, 'source': data_source}
-                if txn_date:
-                    transaction['date'] = txn_date
-                matches_original = expr_parser.matches_transaction(pattern, transaction)
-
-                # Also try with cleaned description
-                transaction_cleaned = {'description': cleaned, 'amount': amount or 0, 'field': field, 'source': data_source}
-                if txn_date:
-                    transaction_cleaned['date'] = txn_date
-                matches_cleaned = expr_parser.matches_transaction(pattern, transaction_cleaned)
-
-                if not (matches_original or matches_cleaned):
-                    continue
+                matches = (expr_parser.matches_transaction(pattern, transaction) or
+                          expr_parser.matches_transaction(pattern, transaction_cleaned))
             else:
                 # Legacy regex pattern matching
                 regex_matches = (
                     re.search(pattern, desc_upper, re.IGNORECASE) or
                     re.search(pattern, cleaned_upper, re.IGNORECASE)
                 )
-                if not regex_matches:
-                    continue
+                if regex_matches:
+                    # Check modifiers if present
+                    if parsed and (parsed.amount_conditions or parsed.date_conditions):
+                        matches = check_all_conditions(parsed, amount, txn_date)
+                    else:
+                        matches = True
 
-                # If pattern has modifiers, check them
-                if parsed and (parsed.amount_conditions or parsed.date_conditions):
-                    if not check_all_conditions(parsed, amount, txn_date):
-                        continue
+            if not matches:
+                continue
 
-            # Build transaction dict for dynamic tag resolution
-            transaction = {'description': description, 'amount': amount or 0, 'field': field, 'source': data_source}
-            if txn_date:
-                transaction['date'] = txn_date
+            # Rule matched - collect tags
+            if tags:
+                resolved_tags = _resolve_dynamic_tags(tags, transaction)
+                all_tags.extend(resolved_tags)
 
-            # Resolve any dynamic tags (e.g., {field.txn_type})
-            resolved_tags = _resolve_dynamic_tags(tags, transaction) if tags else []
+            # Use first categorization rule for merchant/category/subcategory
+            # Tag-only rules have empty category
+            if result_merchant is None and category:
+                result_merchant = merchant
+                result_category = category
+                result_subcategory = subcategory
+                result_pattern = pattern
+                result_source = source
 
-            return (merchant, category, subcategory, {'pattern': pattern, 'source': source, 'tags': resolved_tags})
         except (re.error, expr_parser.ExpressionError):
             # Invalid pattern, skip
             continue
 
+    # Return matched result with all collected tags (deduplicated, order preserved)
+    unique_tags = list(dict.fromkeys(all_tags))
+    if result_merchant is not None:
+        return (result_merchant, result_category, result_subcategory,
+                {'pattern': result_pattern, 'source': result_source, 'tags': unique_tags})
+
     # Fallback: extract merchant name from description, categorize as Unknown
+    # Still include any tags from tag-only rules that matched
     merchant_name = extract_merchant_name(description, cleaning_patterns)
+    if unique_tags:
+        return (merchant_name, 'Unknown', 'Unknown', {'pattern': None, 'source': 'auto', 'tags': unique_tags})
     return (merchant_name, 'Unknown', 'Unknown', None)
 
 
@@ -431,8 +523,11 @@ def _is_expression_pattern(pattern: str) -> bool:
     # - Field access like field.txn_type
     # - Boolean operators like 'and', 'or'
     # - Parenthesized expressions
+    # - Variable comparisons like amount > 500, month == 12, source == "Amex"
     function_pattern = r'^(contains|normalized|anyof|startswith|fuzzy|regex|extract|split|substring|trim|exists)\s*\('
+    variable_pattern = r'^(amount|month|year|day|source|description)\s*[<>=!]'
     return bool(re.match(function_pattern, pattern)) or \
+           bool(re.match(variable_pattern, pattern)) or \
            pattern.startswith('field.') or \
            ' and ' in pattern or ' or ' in pattern or pattern.startswith('(')
 

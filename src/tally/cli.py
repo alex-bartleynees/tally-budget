@@ -84,7 +84,7 @@ from ._version import (
 from .config_loader import load_config
 
 BANNER = ''
-from .merchant_utils import get_all_rules, diagnose_rules, explain_description, load_merchant_rules
+from .merchant_utils import get_all_rules, diagnose_rules, explain_description, load_merchant_rules, get_tag_only_rules, apply_tag_rules
 from .analyzer import (
     parse_amex,
     parse_boa,

@@ -791,3 +791,277 @@ subcategory: Grocery
             assert rules[1][0] == 'contains("COSTCO")'
         finally:
             os.unlink(f.name)
+
+
+class TestTwoPassTagging:
+    """Tests for two-pass tagging in normalize_merchant (collect tags from ALL matching rules)."""
+
+    def test_tags_from_multiple_matching_rules(self):
+        """Tags are collected from ALL matching rules, not just the first."""
+        content = """[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+subcategory: Streaming
+tags: entertainment
+
+[Large Purchase]
+match: amount > 500
+tags: large
+
+[Holiday Season]
+match: month >= 11 and month <= 12
+tags: holiday
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            rules = get_all_rules(f.name)
+
+            # Match Netflix + Large + Holiday
+            merchant, category, subcategory, match_info = normalize_merchant(
+                'NETFLIX PREMIUM',
+                rules,
+                amount=600.00,
+                txn_date=date(2025, 12, 15)
+            )
+
+            # Category from first categorization rule (Netflix)
+            assert merchant == 'Netflix'
+            assert category == 'Subscriptions'
+
+            # Tags from ALL matching rules
+            assert 'entertainment' in match_info['tags']
+            assert 'large' in match_info['tags']
+            assert 'holiday' in match_info['tags']
+        finally:
+            os.unlink(f.name)
+
+    def test_tag_only_rules_dont_set_category(self):
+        """Tag-only rules (no category) don't affect categorization."""
+        content = """[Large Purchase]
+match: amount > 500
+tags: large, expensive
+
+[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+subcategory: Streaming
+tags: entertainment
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            rules = get_all_rules(f.name)
+
+            # Large Purchase matches first, but shouldn't set category
+            merchant, category, subcategory, match_info = normalize_merchant(
+                'NETFLIX PREMIUM',
+                rules,
+                amount=600.00
+            )
+
+            # Category from Netflix rule (first with category)
+            assert merchant == 'Netflix'
+            assert category == 'Subscriptions'
+            assert subcategory == 'Streaming'
+
+            # Tags from both matching rules
+            assert 'large' in match_info['tags']
+            assert 'expensive' in match_info['tags']
+            assert 'entertainment' in match_info['tags']
+        finally:
+            os.unlink(f.name)
+
+    def test_unknown_merchant_still_gets_tags(self):
+        """Unknown merchants can have tags from tag-only rules."""
+        content = """[Large Purchase]
+match: amount > 500
+tags: large
+
+[Holiday Season]
+match: month == 12
+tags: holiday
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            rules = get_all_rules(f.name)
+
+            # No categorization rule matches, but tag-only rules do
+            merchant, category, subcategory, match_info = normalize_merchant(
+                'RANDOM UNKNOWN MERCHANT',
+                rules,
+                amount=750.00,
+                txn_date=date(2025, 12, 25)
+            )
+
+            # No categorization - Unknown
+            assert category == 'Unknown'
+            assert subcategory == 'Unknown'
+
+            # But tags from matching tag-only rules
+            assert match_info is not None
+            assert 'large' in match_info['tags']
+            assert 'holiday' in match_info['tags']
+        finally:
+            os.unlink(f.name)
+
+    def test_tags_deduplicated_order_preserved(self):
+        """Duplicate tags are removed, order preserved."""
+        content = """[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+tags: recurring, entertainment
+
+[Streaming Service]
+match: contains("NETFLIX") or contains("HULU")
+tags: entertainment, streaming
+
+[Monthly Bill]
+match: amount < 50
+tags: recurring, small
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            rules = get_all_rules(f.name)
+
+            merchant, category, subcategory, match_info = normalize_merchant(
+                'NETFLIX.COM',
+                rules,
+                amount=15.99
+            )
+
+            # Tags should be deduplicated
+            tags = match_info['tags']
+            assert tags.count('recurring') == 1
+            assert tags.count('entertainment') == 1
+
+            # All unique tags present
+            assert 'recurring' in tags
+            assert 'entertainment' in tags
+            assert 'streaming' in tags
+            assert 'small' in tags
+        finally:
+            os.unlink(f.name)
+
+    def test_no_matching_rules_returns_none_match_info(self):
+        """When no rules match, match_info is None."""
+        content = """[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+tags: entertainment
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            rules = get_all_rules(f.name)
+
+            # No rule matches
+            merchant, category, subcategory, match_info = normalize_merchant(
+                'RANDOM MERCHANT',
+                rules
+            )
+
+            assert category == 'Unknown'
+            assert match_info is None  # No tags either
+        finally:
+            os.unlink(f.name)
+
+
+class TestApplyTagRules:
+    """Tests for apply_tag_rules function."""
+
+    def test_apply_tag_rules_basic(self):
+        """Apply tag-only rules to a transaction."""
+        from tally.merchant_utils import apply_tag_rules, get_tag_only_rules
+
+        content = """[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+tags: entertainment
+
+[Large Purchase]
+match: amount > 500
+tags: large
+
+[Holiday]
+match: month == 12
+tags: holiday
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            tag_rules = get_tag_only_rules(f.name)
+
+            # Should have 2 tag-only rules (Large Purchase and Holiday)
+            assert len(tag_rules) == 2
+
+            txn = {
+                'description': 'RANDOM MERCHANT',
+                'amount': 750.00,
+                'date': date(2025, 12, 25)
+            }
+            additional_tags = apply_tag_rules(txn, tag_rules)
+
+            assert 'large' in additional_tags
+            assert 'holiday' in additional_tags
+            # entertainment not included (Netflix has category, not tag-only)
+            assert 'entertainment' not in additional_tags
+        finally:
+            os.unlink(f.name)
+
+    def test_apply_tag_rules_with_dynamic_tags(self):
+        """Apply tag-only rules with dynamic tag expressions."""
+        from tally.merchant_utils import apply_tag_rules, get_tag_only_rules
+
+        content = """[Tag By Source]
+match: source != ""
+tags: {source}
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.rules', delete=False)
+        try:
+            f.write(content)
+            f.close()
+
+            tag_rules = get_tag_only_rules(f.name)
+            assert len(tag_rules) == 1
+
+            txn = {
+                'description': 'PURCHASE',
+                'amount': 50.00,
+                'source': 'AmexGold'
+            }
+            additional_tags = apply_tag_rules(txn, tag_rules)
+
+            assert 'amexgold' in additional_tags
+        finally:
+            os.unlink(f.name)
+
+    def test_get_tag_only_rules_empty_for_csv(self):
+        """get_tag_only_rules returns empty for non-.rules files."""
+        from tally.merchant_utils import get_tag_only_rules
+
+        # CSV file
+        result = get_tag_only_rules('/path/to/file.csv')
+        assert result == []
+
+        # None
+        result = get_tag_only_rules(None)
+        assert result == []
+
+        # Empty string
+        result = get_tag_only_rules('')
+        assert result == []

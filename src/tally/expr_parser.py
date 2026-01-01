@@ -25,6 +25,10 @@ from datetime import date as date_type
 from typing import Any, Dict, List, Optional, Set, Callable, Union
 
 
+# Cache for parsed expressions (expression string -> validated AST)
+_expression_cache: Dict[str, ast.Expression] = {}
+
+
 # =============================================================================
 # Whitelist of allowed AST nodes
 # =============================================================================
@@ -102,7 +106,12 @@ def parse_expression(expr: str) -> ast.Expression:
     Parse an expression string into a validated AST.
 
     Returns the AST if valid, raises ExpressionError otherwise.
+    Results are cached for performance (same expression = same AST).
     """
+    # Check cache first
+    if expr in _expression_cache:
+        return _expression_cache[expr]
+
     try:
         # Suppress SyntaxWarnings for invalid escape sequences in regex patterns
         # e.g., regex("UBER\s*EATS") contains \s which isn't a valid Python escape
@@ -115,6 +124,7 @@ def parse_expression(expr: str) -> ast.Expression:
             )
             tree = ast.parse(expr, mode='eval')
         validate_ast(tree)
+        _expression_cache[expr] = tree
         return tree
     except SyntaxError as e:
         raise ExpressionError(f"Syntax error: {e.msg} at position {e.offset}")

@@ -704,3 +704,95 @@ class TestCSVConversion:
 
         assert engine.match(uber_rides).matched
         assert not engine.match(uber_eats).matched
+
+
+class TestTagParsingWithExpressions:
+    """Tests for parsing tags that contain expressions with commas."""
+
+    def test_tag_with_expression_containing_comma(self):
+        """Expression with comma inside parentheses is preserved as single tag."""
+        content = '''
+[Test Rule]
+match: exists(field.name)
+category: Test
+subcategory: Test
+tags: {split(field.name, " ", 0)}
+'''
+        engine = parse_merchants(content)
+        assert len(engine.rules) == 1
+        assert engine.rules[0].tags == {'{split(field.name, " ", 0)}'}
+
+    def test_multiple_tags_with_expression(self):
+        """Multiple tags where one contains an expression with commas."""
+        content = '''
+[Test Rule]
+match: exists(field.cardholder)
+category: Test
+subcategory: Test
+tags: static_tag, {split(field.cardholder, " ", 0)}, another_tag
+'''
+        engine = parse_merchants(content)
+        assert len(engine.rules) == 1
+        expected = {'static_tag', '{split(field.cardholder, " ", 0)}', 'another_tag'}
+        assert engine.rules[0].tags == expected
+
+    def test_expression_with_nested_parentheses(self):
+        """Expression with nested function calls is preserved."""
+        content = '''
+[Test Rule]
+match: true
+category: Test
+subcategory: Test
+tags: {lower(split(field.name, " ", 0))}
+'''
+        engine = parse_merchants(content)
+        assert engine.rules[0].tags == {'{lower(split(field.name, " ", 0))}'}
+
+    def test_multiple_expressions_as_tags(self):
+        """Multiple expression tags each with commas inside."""
+        content = '''
+[Test Rule]
+match: true
+category: Test
+subcategory: Test
+tags: {split(field.first, ",", 0)}, {split(field.second, " ", 1)}
+'''
+        engine = parse_merchants(content)
+        expected = {'{split(field.first, ",", 0)}', '{split(field.second, " ", 1)}'}
+        assert engine.rules[0].tags == expected
+
+    def test_tag_only_rule_with_expression(self):
+        """Tag-only rule with expression tag."""
+        content = '''
+[Cardholder Tag]
+match: source == "AMEX" and exists(field.cardholder)
+tags: {split(field.cardholder, " ", 0)}
+'''
+        engine = parse_merchants(content)
+        assert len(engine.rules) == 1
+        assert not engine.rules[0].is_categorization_rule
+        assert engine.rules[0].tags == {'{split(field.cardholder, " ", 0)}'}
+
+    def test_simple_tags_still_work(self):
+        """Simple comma-separated tags without expressions still work."""
+        content = '''
+[Simple Tags]
+match: true
+category: Test
+subcategory: Test
+tags: tag1, tag2, tag3
+'''
+        engine = parse_merchants(content)
+        assert engine.rules[0].tags == {'tag1', 'tag2', 'tag3'}
+
+    def test_single_tag_no_comma(self):
+        """Single tag without commas works."""
+        content = '''
+[Single Tag]
+match: true
+category: Test
+subcategory: Test
+tags: solo
+'''
+        engine = parse_merchants(content)
+        assert engine.rules[0].tags == {'solo'}

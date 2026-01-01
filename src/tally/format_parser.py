@@ -19,6 +19,7 @@ class FormatSpec:
     description_column: Optional[int] = None  # Mode 1: single {description}
     custom_captures: Optional[dict] = None    # Mode 2: {type}, {merchant}, etc.
     description_template: Optional[str] = None  # Mode 2: "{merchant} - {type}"
+    extra_fields: Optional[dict] = None  # Extra field captures alongside {description}
     location_column: Optional[int] = None
     has_header: bool = True
     source_name: Optional[str] = None  # Optional override for transaction source
@@ -28,7 +29,7 @@ class FormatSpec:
 
 
 # Reserved field names that cannot be used for custom captures
-RESERVED_NAMES = {'date', 'amount', 'location', 'description', '_'}
+RESERVED_NAMES = {'date', 'amount', 'location', 'description', '_', 'field'}
 
 
 def parse_format_string(format_str: str, description_template: Optional[str] = None) -> FormatSpec:
@@ -115,16 +116,16 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
                 raise ValueError(f"Duplicate custom capture '{field_name}' at column {idx}")
             custom_captures[field_name] = idx
 
-    # Validate: can't mix {description} with custom captures
     has_description = 'description' in field_positions
     has_custom = len(custom_captures) > 0
 
+    # If we have {description} + custom captures, treat custom captures as extra fields
+    # They become accessible as field.* in rule expressions
+    extra_fields = None
     if has_description and has_custom:
-        first_custom = list(custom_captures.keys())[0]
-        raise ValueError(
-            f"Cannot mix {{description}} with custom captures like {{{first_custom}}}. "
-            f"Use {{description}} alone, or use custom captures with columns.description template."
-        )
+        extra_fields = custom_captures
+        custom_captures = {}  # Clear - not used for description template mode
+        has_custom = False
 
     # Validate: need either {description} or custom captures
     if not has_description and not has_custom:
@@ -133,7 +134,7 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
             "Add {description} for simple mode, or use named captures like {merchant}, {type}."
         )
 
-    # Validate: custom captures require description_template
+    # Validate: custom captures (without {description}) require description_template
     if has_custom and not description_template:
         first_custom = list(custom_captures.keys())[0]
         raise ValueError(
@@ -166,6 +167,7 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
         description_column=field_positions.get('description'),
         custom_captures=custom_captures if custom_captures else None,
         description_template=description_template,
+        extra_fields=extra_fields,
         location_column=field_positions.get('location'),
         has_header=True,
         negate_amount=negate_amount,

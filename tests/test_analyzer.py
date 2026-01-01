@@ -519,12 +519,16 @@ class TestCustomCaptures:
         finally:
             os.unlink(f.name)
 
-    def test_mixed_mode_error(self):
-        """Cannot mix {description} with custom captures."""
-        with pytest.raises(ValueError) as exc_info:
-            parse_format_string('{date},{description},{merchant},{amount}')
+    def test_mixed_mode_creates_extra_fields(self):
+        """Mixing {description} with custom captures creates extra_fields for field.* access."""
+        format_spec = parse_format_string('{date},{description},{merchant},{amount}')
 
-        assert 'Cannot mix {description}' in str(exc_info.value)
+        # {description} is captured directly
+        assert format_spec.description_column == 1
+        # Other captures become extra_fields for field.* access in rules
+        assert format_spec.extra_fields == {'merchant': 2}
+        # No custom_captures (that's only for template mode)
+        assert format_spec.custom_captures is None
 
     def test_custom_captures_require_template(self):
         """Custom captures without template raises error."""
