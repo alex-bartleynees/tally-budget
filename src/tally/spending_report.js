@@ -304,15 +304,9 @@ createApp({
                 .reduce((sum, cat) => sum + (cat.filteredTotal || 0), 0);
         });
 
-        // Credits total (sum of negative category totals, shown as positive)
+        // Credits total (sum of all credit merchants, shown as positive)
         const creditsTotal = computed(() => {
-            let credits = 0;
-            for (const cat of Object.values(filteredCategoryView.value)) {
-                if (cat.filteredTotal < 0) {
-                    credits += Math.abs(cat.filteredTotal);
-                }
-            }
-            return credits;
+            return creditMerchants.value.reduce((sum, m) => sum + m.creditAmount, 0);
         });
 
         // Gross spending (before credits)

@@ -385,6 +385,7 @@
                             <tr>
                                 <th>Source</th>
                                 <th>Category</th>
+                                <th>Tags</th>
                                 <th>Count</th>
                                 <th class="money">Amount</th>
                             </tr>
@@ -397,6 +398,9 @@
                                         {{ credit.displayName }}
                                     </td>
                                     <td class="category">{{ credit.subcategory }}</td>
+                                    <td class="tags">
+                                        <span v-for="tag in [...new Set(credit.filteredTxns.flatMap(t => t.tags || []))]" :key="tag" class="tag-badge">{{ tag }}</span>
+                                    </td>
                                     <td>{{ credit.filteredCount }}</td>
                                     <td class="money credit-amount">+{{ formatCurrency(credit.creditAmount) }}</td>
                                 </tr>
@@ -404,7 +408,7 @@
                                     :key="txn.id"
                                     class="txn-row"
                                     :class="{ hidden: !expandedMerchants.has(credit.id) }">
-                                    <td colspan="4">
+                                    <td colspan="5">
                                         <div class="txn-detail">
                                             <span class="txn-date">{{ formatDate(txn.date) }}</span>
                                             <span class="txn-source" :class="txn.source.toLowerCase()">{{ txn.source }}</span>
@@ -417,7 +421,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="total-row">
-                                <td colspan="3">Total Credits</td>
+                                <td colspan="4">Total Credits</td>
                                 <td class="money credit-amount">+{{ formatCurrency(creditsTotal) }}</td>
                             </tr>
                         </tfoot>
