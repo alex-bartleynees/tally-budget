@@ -259,7 +259,7 @@ QUICK START
 1. Run: tally init ./my-budget
 2. Add CSV/TXT statements to my-budget/data/
 3. Edit my-budget/config/settings.yaml with your data sources
-4. Run: tally run ./my-budget/config
+4. Run: tally up ./my-budget/config
 
 DIRECTORY STRUCTURE
 -------------------
@@ -864,11 +864,74 @@ def main():
         help='Directory to initialize (default: ./tally)'
     )
 
-    # run subcommand
-    run_parser = subparsers.add_parser(
-        'run',
+    # up subcommand (primary command)
+    up_parser = subparsers.add_parser(
+        'up',
         help='Parse transactions, categorize them, and generate HTML spending report'
     )
+    up_parser.add_argument(
+        'config',
+        nargs='?',
+        help='Path to config directory (default: ./config)'
+    )
+    up_parser.add_argument(
+        '--settings', '-s',
+        default='settings.yaml',
+        help='Settings file name (default: settings.yaml)'
+    )
+    up_parser.add_argument(
+        '--summary',
+        action='store_true',
+        help='Print summary only, do not generate HTML'
+    )
+    up_parser.add_argument(
+        '--output', '-o',
+        help='Override output file path'
+    )
+    up_parser.add_argument(
+        '--quiet', '-q',
+        action='store_true',
+        help='Minimal output'
+    )
+    up_parser.add_argument(
+        '--format', '-f',
+        choices=['html', 'json', 'markdown', 'summary'],
+        default='html',
+        help='Output format: html (default), json (with reasoning), markdown, summary (text)'
+    )
+    up_parser.add_argument(
+        '-v', '--verbose',
+        action='count',
+        default=0,
+        help='Increase output verbosity (use -v for trace, -vv for full details)'
+    )
+    up_parser.add_argument(
+        '--only',
+        help='Filter to specific classifications (comma-separated: monthly,variable,travel)'
+    )
+    up_parser.add_argument(
+        '--category',
+        help='Filter to specific category'
+    )
+    up_parser.add_argument(
+        '--tags',
+        help='Filter by tags (comma-separated, e.g., --tags business,reimbursable)'
+    )
+    up_parser.add_argument(
+        '--no-embedded-html',
+        dest='embedded_html',
+        action='store_false',
+        default=True,
+        help='Output CSS/JS as separate files instead of embedding (easier to iterate on styling)'
+    )
+    up_parser.add_argument(
+        '--migrate',
+        action='store_true',
+        help='Migrate merchant_categories.csv to new .rules format (non-interactive)'
+    )
+
+    # run subcommand (deprecated alias for 'up' - hidden from help)
+    run_parser = subparsers.add_parser('run')
     run_parser.add_argument(
         'config',
         nargs='?',
@@ -1135,7 +1198,12 @@ def main():
     if args.command == 'init':
         from .commands import cmd_init
         cmd_init(args)
+    elif args.command == 'up':
+        from .commands import cmd_run
+        cmd_run(args)
     elif args.command == 'run':
+        # Deprecated alias for 'up'
+        print(f"{C.YELLOW}Note:{C.RESET} 'tally run' is deprecated. Use 'tally up' instead.", file=sys.stderr)
         from .commands import cmd_run
         cmd_run(args)
     elif args.command == 'inspect':

@@ -137,16 +137,26 @@ subcategory: Other
         throw "Should have no unknown merchants after adding rule"
     }
 
-    # Test 7: tally run --summary
+    # Test 7: tally up --summary
     Write-Host ""
-    Write-Host "=== Test 7: tally run --summary ===" -ForegroundColor Yellow
-    tally run --summary | Select-Object -First 30
+    Write-Host "=== Test 7: tally up --summary ===" -ForegroundColor Yellow
+    tally up --summary | Select-Object -First 30
     Write-Host "✓ Run summary works" -ForegroundColor Green
 
-    # Test 8: tally run (HTML report)
+    # Test 8: tally run (deprecated - verify still works)
     Write-Host ""
-    Write-Host "=== Test 8: tally run (HTML report) ===" -ForegroundColor Yellow
-    tally run
+    Write-Host "=== Test 8: tally run (deprecated alias) ===" -ForegroundColor Yellow
+    $output = tally run --summary 2>&1 | Out-String
+    if ($output -match "deprecated") {
+        Write-Host "✓ Deprecation warning shown" -ForegroundColor Green
+    } else {
+        Write-Host "Note: Deprecation warning not captured (may be on stderr)" -ForegroundColor Yellow
+    }
+
+    # Test 9: tally up (HTML report)
+    Write-Host ""
+    Write-Host "=== Test 9: tally up (HTML report) ===" -ForegroundColor Yellow
+    tally up
     if (-not (Test-Path "output/spending_summary.html")) {
         throw "HTML report not generated"
     }
@@ -157,11 +167,11 @@ subcategory: Other
         throw "HTML report missing expected content"
     }
 
-    # Test 9: tally run --no-embedded-html
+    # Test 10: tally up --no-embedded-html
     Write-Host ""
-    Write-Host "=== Test 9: tally run --no-embedded-html ===" -ForegroundColor Yellow
+    Write-Host "=== Test 10: tally up --no-embedded-html ===" -ForegroundColor Yellow
     Remove-Item "output/*" -Force
-    tally run --no-embedded-html
+    tally up --no-embedded-html
     if (-not (Test-Path "output/spending_report.css")) {
         throw "External CSS not generated"
     }
@@ -170,15 +180,15 @@ subcategory: Other
     }
     Write-Host "✓ External assets mode works" -ForegroundColor Green
 
-    # Test 10: tally explain
+    # Test 11: tally explain
     Write-Host ""
-    Write-Host "=== Test 10: tally explain ===" -ForegroundColor Yellow
+    Write-Host "=== Test 11: tally explain ===" -ForegroundColor Yellow
     tally explain Netflix
     Write-Host "✓ Explain command works" -ForegroundColor Green
 
-    # Test 11: Views - verify views.rules is loaded
+    # Test 12: Views - verify views.rules is loaded
     Write-Host ""
-    Write-Host "=== Test 11: tally views ===" -ForegroundColor Yellow
+    Write-Host "=== Test 12: tally views ===" -ForegroundColor Yellow
     $diagOutput = tally diag 2>&1 | Out-String
     if ($diagOutput -match "views.rules|Subscriptions|High Frequency") {
         Write-Host "✓ Views file detected in diag" -ForegroundColor Green

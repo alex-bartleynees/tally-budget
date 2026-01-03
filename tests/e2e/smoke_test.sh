@@ -145,16 +145,26 @@ else
     exit 1
 fi
 
-# Test 7: tally run --summary
+# Test 7: tally up --summary
 echo ""
-echo "=== Test 7: tally run --summary ==="
-tally run --summary | head -30
+echo "=== Test 7: tally up --summary ==="
+tally up --summary | head -30
 echo "✓ Run summary works"
 
-# Test 8: tally run (HTML report)
+# Test 8: tally run (deprecated - verify still works)
 echo ""
-echo "=== Test 8: tally run (HTML report) ==="
-tally run
+echo "=== Test 8: tally run (deprecated alias) ==="
+OUTPUT=$(tally run --summary 2>&1)
+if echo "$OUTPUT" | grep -qi "deprecated"; then
+    echo "✓ Deprecation warning shown"
+else
+    echo "Note: Deprecation warning not captured (may be on stderr)"
+fi
+
+# Test 9: tally up (HTML report)
+echo ""
+echo "=== Test 9: tally up (HTML report) ==="
+tally up
 if [ ! -f "output/spending_summary.html" ]; then
     echo "✗ HTML report not generated"
     exit 1
@@ -166,11 +176,11 @@ else
     exit 1
 fi
 
-# Test 9: tally run --no-embedded-html
+# Test 10: tally up --no-embedded-html
 echo ""
-echo "=== Test 9: tally run --no-embedded-html ==="
+echo "=== Test 10: tally up --no-embedded-html ==="
 rm -rf output/*
-tally run --no-embedded-html
+tally up --no-embedded-html
 if [ ! -f "output/spending_report.css" ]; then
     echo "✗ External CSS not generated"
     exit 1
@@ -181,15 +191,15 @@ if [ ! -f "output/spending_report.js" ]; then
 fi
 echo "✓ External assets mode works"
 
-# Test 10: tally explain
+# Test 11: tally explain
 echo ""
-echo "=== Test 10: tally explain ==="
+echo "=== Test 11: tally explain ==="
 tally explain Netflix
 echo "✓ Explain command works"
 
-# Test 11: Views - verify views.rules is loaded
+# Test 12: Views - verify views.rules is loaded
 echo ""
-echo "=== Test 11: tally views ==="
+echo "=== Test 12: tally views ==="
 OUTPUT=$(tally diag 2>&1)
 if echo "$OUTPUT" | grep -qi "views.rules\|Subscriptions\|High Frequency"; then
     echo "✓ Views file detected in diag"

@@ -6,8 +6,8 @@ Project-specific guidance for Claude when working on this codebase.
 
 ```bash
 uv run tally --help              # Show all commands
-uv run tally run /path/to/config # Run analysis
-uv run tally run --format json -v /path/to/config  # JSON output with reasoning
+uv run tally up /path/to/config  # Run analysis
+uv run tally up --format json -v /path/to/config   # JSON output with reasoning
 uv run tally explain /path/to/config               # Classification summary
 uv run tally explain Netflix /path/to/config       # Explain specific merchant
 uv run tally explain Netflix -vv /path/to/config   # Full details + which rule matched
@@ -78,7 +78,7 @@ WHOLEFDS,Whole Foods,Food,Grocery,
 **HTML Report Development:**
 - Use `--no-embedded-html` to output separate CSS/JS/data files for easier iteration:
   ```bash
-  uv run tally run --no-embedded-html -o /tmp/dev-report/spending.html /path/to/config
+  uv run tally up --no-embedded-html -o /tmp/dev-report/spending.html /path/to/config
   ```
   This creates:
   - `spending.html` - HTML with external `<link>` and `<script>` references

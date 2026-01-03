@@ -59,7 +59,7 @@ data_sources:
             assert 'Did you mean' in result.stderr
             assert 'Netflix' in result.stderr
 
-    def test_run_invalid_only_shows_warning(self):
+    def test_up_invalid_only_shows_warning(self):
         """Invalid --only value should warn and show valid options."""
         with tempfile.TemporaryDirectory() as tmpdir:
             # Set up minimal config
@@ -81,14 +81,14 @@ data_sources:
                 f.write("2025-01-15,TEST,10.00\n")
 
             result = subprocess.run(
-                ['uv', 'run', 'tally', 'run', '--only', 'invalid', '--format', 'summary', config_dir],
+                ['uv', 'run', 'tally', 'up', '--only', 'invalid', '--format', 'summary', config_dir],
                 capture_output=True,
                 text=True
             )
             assert 'Warning: Invalid view' in result.stderr
             # Valid views may or may not be shown depending on whether views.rules exists
 
-    def test_run_mixed_only_filters_invalid(self):
+    def test_up_mixed_only_filters_invalid(self):
         """Mixed valid/invalid --only values should warn about invalid ones."""
         with tempfile.TemporaryDirectory() as tmpdir:
             config_dir = os.path.join(tmpdir, 'config')
@@ -109,7 +109,7 @@ data_sources:
                 f.write("2025-01-15,TEST,10.00\n")
 
             result = subprocess.run(
-                ['uv', 'run', 'tally', 'run', '--only', 'monthly,invalid,travel', '--format', 'summary', config_dir],
+                ['uv', 'run', 'tally', 'up', '--only', 'monthly,invalid,travel', '--format', 'summary', config_dir],
                 capture_output=True,
                 text=True
             )
