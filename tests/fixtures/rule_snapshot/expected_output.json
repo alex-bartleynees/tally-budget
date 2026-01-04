@@ -1,0 +1,4628 @@
+{
+  "by_category": [
+    {
+      "category": "Charity",
+      "percentage": 0.3,
+      "subcategory": "Donation",
+      "total": 600.0
+    },
+    {
+      "category": "Education",
+      "percentage": 0.1,
+      "subcategory": "Parking",
+      "total": 250.0
+    },
+    {
+      "category": "Education",
+      "percentage": 1.4,
+      "subcategory": "Tuition",
+      "total": 2500.0
+    },
+    {
+      "category": "Entertainment",
+      "percentage": 0.0,
+      "subcategory": "Activities",
+      "total": 65.0
+    },
+    {
+      "category": "Entertainment",
+      "percentage": 0.0,
+      "subcategory": "Gaming",
+      "total": 69.98
+    },
+    {
+      "category": "Entertainment",
+      "percentage": 0.1,
+      "subcategory": "Movies",
+      "total": 230.0
+    },
+    {
+      "category": "Entertainment",
+      "percentage": 0.0,
+      "subcategory": "Museum",
+      "total": 35.0
+    },
+    {
+      "category": "Fees",
+      "percentage": 0.0,
+      "subcategory": "Brokerage Fee",
+      "total": 14.85
+    },
+    {
+      "category": "Fees",
+      "percentage": 0.1,
+      "subcategory": "Credit Card",
+      "total": 95.0
+    },
+    {
+      "category": "Food",
+      "percentage": 0.0,
+      "subcategory": "Coffee",
+      "total": 16.35
+    },
+    {
+      "category": "Food",
+      "percentage": 0.1,
+      "subcategory": "Delivery",
+      "total": 211.5
+    },
+    {
+      "category": "Food",
+      "percentage": 0.5,
+      "subcategory": "Dining",
+      "total": 935.0
+    },
+    {
+      "category": "Food",
+      "percentage": 0.0,
+      "subcategory": "Fast Food",
+      "total": 46.0
+    },
+    {
+      "category": "Food",
+      "percentage": 2.2,
+      "subcategory": "Grocery",
+      "total": 4004.2
+    },
+    {
+      "category": "Healthcare",
+      "percentage": 0.0,
+      "subcategory": "Doctor",
+      "total": 35.0
+    },
+    {
+      "category": "Healthcare",
+      "percentage": 0.1,
+      "subcategory": "Fitness",
+      "total": 185.0
+    },
+    {
+      "category": "Healthcare",
+      "percentage": 0.1,
+      "subcategory": "Lab",
+      "total": 125.0
+    },
+    {
+      "category": "Healthcare",
+      "percentage": 0.1,
+      "subcategory": "Pharmacy",
+      "total": 176.67
+    },
+    {
+      "category": "Healthcare",
+      "percentage": 0.3,
+      "subcategory": "Vision",
+      "total": 575.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.1,
+      "subcategory": "Lawn",
+      "total": 250.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.2,
+      "subcategory": "Maintenance",
+      "total": 335.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.1,
+      "subcategory": "Pest Control",
+      "total": 95.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.2,
+      "subcategory": "Repair",
+      "total": 275.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.0,
+      "subcategory": "Security",
+      "total": 65.0
+    },
+    {
+      "category": "Home",
+      "percentage": 0.0,
+      "subcategory": "Smart Home",
+      "total": 12.0
+    },
+    {
+      "category": "Housing",
+      "percentage": 0.2,
+      "subcategory": "HOA",
+      "total": 350.0
+    },
+    {
+      "category": "Housing",
+      "percentage": 14.7,
+      "subcategory": "Rent",
+      "total": 26905.0
+    },
+    {
+      "category": "Income",
+      "percentage": 4.9,
+      "subcategory": "Bonus",
+      "total": 9000.0
+    },
+    {
+      "category": "Income",
+      "percentage": 0.7,
+      "subcategory": "Dividends",
+      "total": 1339.75
+    },
+    {
+      "category": "Income",
+      "percentage": 2.5,
+      "subcategory": "Employer Match",
+      "total": 4500.0
+    },
+    {
+      "category": "Income",
+      "percentage": 0.1,
+      "subcategory": "Interest",
+      "total": 166.25
+    },
+    {
+      "category": "Income",
+      "percentage": 0.1,
+      "subcategory": "P2P",
+      "total": 195.0
+    },
+    {
+      "category": "Income",
+      "percentage": 32.8,
+      "subcategory": "Salary",
+      "total": 60000.0
+    },
+    {
+      "category": "Income",
+      "percentage": 4.2,
+      "subcategory": "Stock Compensation",
+      "total": 7700.0
+    },
+    {
+      "category": "Income",
+      "percentage": 1.0,
+      "subcategory": "Tax Refund",
+      "total": 1850.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.6,
+      "subcategory": "Auto",
+      "total": 1020.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.1,
+      "subcategory": "Dental",
+      "total": 230.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.2,
+      "subcategory": "Health",
+      "total": 450.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.0,
+      "subcategory": "Home Warranty",
+      "total": 55.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.0,
+      "subcategory": "Life",
+      "total": 85.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.0,
+      "subcategory": "Pet",
+      "total": 65.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.1,
+      "subcategory": "Roadside",
+      "total": 145.0
+    },
+    {
+      "category": "Insurance",
+      "percentage": 0.0,
+      "subcategory": "Umbrella",
+      "total": 45.0
+    },
+    {
+      "category": "Pets",
+      "percentage": 0.1,
+      "subcategory": "Care",
+      "total": 150.0
+    },
+    {
+      "category": "Pets",
+      "percentage": 0.1,
+      "subcategory": "Supplies",
+      "total": 210.0
+    },
+    {
+      "category": "Pets",
+      "percentage": 0.1,
+      "subcategory": "Vet",
+      "total": 195.0
+    },
+    {
+      "category": "Shopping",
+      "percentage": 0.6,
+      "subcategory": "Clothing",
+      "total": 1140.0
+    },
+    {
+      "category": "Shopping",
+      "percentage": 1.3,
+      "subcategory": "Electronics",
+      "total": 2285.0
+    },
+    {
+      "category": "Shopping",
+      "percentage": 0.3,
+      "subcategory": "Home Improvement",
+      "total": 526.0
+    },
+    {
+      "category": "Shopping",
+      "percentage": 3.8,
+      "subcategory": "Online",
+      "total": 6878.83
+    },
+    {
+      "category": "Shopping",
+      "percentage": 0.3,
+      "subcategory": "Retail",
+      "total": 619.5
+    },
+    {
+      "category": "Shopping",
+      "percentage": 0.0,
+      "subcategory": "Seasonal",
+      "total": 85.0
+    },
+    {
+      "category": "Shopping",
+      "percentage": 1.2,
+      "subcategory": "Warehouse",
+      "total": 2167.5
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "AI",
+      "total": 20.0
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 1.3,
+      "subcategory": "Apps",
+      "total": 2339.43
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Books",
+      "total": 14.95
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Cloud Storage",
+      "total": 14.98
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Developer",
+      "total": 4.0
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Education",
+      "total": 15.0
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Music",
+      "total": 65.94
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Social",
+      "total": 9.99
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.0,
+      "subcategory": "Sports",
+      "total": 10.99
+    },
+    {
+      "category": "Subscriptions",
+      "percentage": 0.2,
+      "subcategory": "Streaming",
+      "total": 353.76
+    },
+    {
+      "category": "Taxes",
+      "percentage": 1.9,
+      "subcategory": "Federal",
+      "total": 3400.0
+    },
+    {
+      "category": "Taxes",
+      "percentage": 0.0,
+      "subcategory": "Filing",
+      "total": 89.0
+    },
+    {
+      "category": "Taxes",
+      "percentage": 0.7,
+      "subcategory": "Property",
+      "total": 1250.0
+    },
+    {
+      "category": "Taxes",
+      "percentage": 0.7,
+      "subcategory": "State",
+      "total": 1300.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 4.9,
+      "subcategory": "401k",
+      "total": 9000.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 0.3,
+      "subcategory": "529",
+      "total": 500.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 0.5,
+      "subcategory": "Cash",
+      "total": 900.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 0.1,
+      "subcategory": "HSA",
+      "total": 250.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 0.5,
+      "subcategory": "IRA",
+      "total": 1000.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 3.3,
+      "subcategory": "Internal",
+      "total": 6000.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 0.6,
+      "subcategory": "P2P",
+      "total": 1085.0
+    },
+    {
+      "category": "Transfers",
+      "percentage": 3.3,
+      "subcategory": "Savings",
+      "total": 6000.0
+    },
+    {
+      "category": "Transport",
+      "percentage": 0.8,
+      "subcategory": "Gas",
+      "total": 1399.0
+    },
+    {
+      "category": "Transport",
+      "percentage": 0.4,
+      "subcategory": "Maintenance",
+      "total": 725.0
+    },
+    {
+      "category": "Transport",
+      "percentage": 0.0,
+      "subcategory": "Parts",
+      "total": 45.0
+    },
+    {
+      "category": "Transport",
+      "percentage": 0.2,
+      "subcategory": "Registration",
+      "total": 285.0
+    },
+    {
+      "category": "Transport",
+      "percentage": 0.4,
+      "subcategory": "Rideshare",
+      "total": 763.5
+    },
+    {
+      "category": "Travel",
+      "percentage": 0.1,
+      "subcategory": "Fees",
+      "total": 185.0
+    },
+    {
+      "category": "Travel",
+      "percentage": 0.5,
+      "subcategory": "Flights",
+      "total": 975.0
+    },
+    {
+      "category": "Travel",
+      "percentage": 0.6,
+      "subcategory": "Hotels",
+      "total": 1075.0
+    },
+    {
+      "category": "Unknown",
+      "percentage": 0.0,
+      "subcategory": "Unknown",
+      "total": 45.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 1.2,
+      "subcategory": "Electric",
+      "total": 2130.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.2,
+      "subcategory": "Gas",
+      "total": 417.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.6,
+      "subcategory": "Internet",
+      "total": 1079.88
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.1,
+      "subcategory": "Phone",
+      "total": 125.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.0,
+      "subcategory": "Sewer",
+      "total": 38.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.0,
+      "subcategory": "Trash",
+      "total": 35.0
+    },
+    {
+      "category": "Utilities",
+      "percentage": 0.2,
+      "subcategory": "Water",
+      "total": 280.0
+    }
+  ],
+  "by_month": {
+    "2025-01": {
+      "total": 8890.39
+    },
+    "2025-02": {
+      "total": 11481.89
+    },
+    "2025-03": {
+      "total": 15955.38
+    },
+    "2025-04": {
+      "total": 14625.45
+    },
+    "2025-05": {
+      "total": 14671.94
+    },
+    "2025-06": {
+      "total": 12640.41
+    },
+    "2025-07": {
+      "total": 15197.44
+    },
+    "2025-08": {
+      "total": 13041.43
+    },
+    "2025-09": {
+      "total": 17079.44
+    },
+    "2025-10": {
+      "total": 16666.89
+    },
+    "2025-11": {
+      "total": 11969.45
+    },
+    "2025-12": {
+      "total": 20264.69
+    }
+  },
+  "credits": [
+    {
+      "amount": 10300.0,
+      "category": "Transfers",
+      "merchant": "Stock Sale Generic"
+    }
+  ],
+  "merchants": [
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 41.67,
+      "months_active": 1,
+      "name": "529 College Savings",
+      "pattern": {
+        "matched": "contains(\"529\") and contains(\"COLLEGE\")",
+        "source": "user",
+        "tags": [
+          "529",
+          "education",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "529",
+      "tags": [
+        "529",
+        "education",
+        "transfer"
+      ],
+      "total": 500.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 12.08,
+      "months_active": 1,
+      "name": "AAA",
+      "pattern": {
+        "matched": "contains(\"AAA\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "insurance",
+          "membership"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Roadside",
+      "tags": [
+        "auto",
+        "insurance",
+        "membership"
+      ],
+      "total": 145.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 75.0,
+      "months_active": 3,
+      "name": "ATM",
+      "pattern": {
+        "matched": "contains(\"ATM\")",
+        "source": "user",
+        "tags": [
+          "cash",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Cash",
+      "tags": [
+        "cash",
+        "transfer"
+      ],
+      "total": 900.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 10.42,
+      "months_active": 1,
+      "name": "ATT Phone",
+      "pattern": {
+        "matched": "contains(\"ATT\") and contains(\"CELL\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Phone",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 125.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Travel",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 81.25,
+      "months_active": 2,
+      "name": "Airlines",
+      "pattern": {
+        "matched": "contains(\"SOUTHWEST\") or contains(\"UNITED\") or contains(\"DELTA\") or contains(\"AMERICAN\") or contains(\"AIRLINES\")",
+        "source": "user",
+        "tags": [
+          "flights",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Flights",
+      "tags": [
+        "flights",
+        "travel"
+      ],
+      "total": 975.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 27,
+      "monthly_value": 565.82,
+      "months_active": 12,
+      "name": "Amazon",
+      "pattern": {
+        "matched": "contains(\"AMAZON\")",
+        "source": "user",
+        "tags": [
+          "online"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Online",
+      "tags": [
+        "bills",
+        "books",
+        "brokerage",
+        "business",
+        "christmas",
+        "education",
+        "entertainment",
+        "food",
+        "gifts",
+        "grocery",
+        "housing",
+        "membership",
+        "online",
+        "recurring",
+        "shopping",
+        "stock",
+        "tech",
+        "transfer"
+      ],
+      "total": 6789.83
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 10,
+      "monthly_value": 194.95,
+      "months_active": 8,
+      "name": "Apple Apps",
+      "pattern": {
+        "matched": "contains(\"APPLE\") and (contains(\"APP\") or contains(\"STORE\"))",
+        "source": "user",
+        "tags": [
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Apps",
+      "tags": [
+        "brokerage",
+        "christmas",
+        "cloud",
+        "dividends",
+        "entertainment",
+        "gaming",
+        "gifts",
+        "income",
+        "insurance",
+        "music",
+        "recurring",
+        "shopping",
+        "tech"
+      ],
+      "total": 2339.43
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.83,
+      "months_active": 1,
+      "name": "Apple TV",
+      "pattern": {
+        "matched": "contains(\"APPLE TV\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming",
+        "tech"
+      ],
+      "total": 9.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.25,
+      "months_active": 1,
+      "name": "Audible",
+      "pattern": {
+        "matched": "contains(\"AUDIBLE\")",
+        "source": "user",
+        "tags": [
+          "books",
+          "entertainment",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Books",
+      "tags": [
+        "books",
+        "entertainment",
+        "recurring"
+      ],
+      "total": 14.95
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 3.75,
+      "months_active": 1,
+      "name": "Auto Parts",
+      "pattern": {
+        "matched": "contains(\"AUTOZONE\") or contains(\"AUTO PARTS\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Parts",
+      "tags": [
+        "auto",
+        "transport"
+      ],
+      "total": 45.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 20.0,
+      "months_active": 4,
+      "name": "BP Station",
+      "pattern": {
+        "matched": "contains(\"BP#\") or (contains(\"BP\") and contains(\"GAS\"))",
+        "source": "user",
+        "tags": [
+          "gas",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "gas",
+        "transport"
+      ],
+      "total": 240.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 70.83,
+      "months_active": 2,
+      "name": "Best Buy",
+      "pattern": {
+        "matched": "contains(\"BEST BUY\")",
+        "source": "user",
+        "tags": [
+          "electronics",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Electronics",
+      "tags": [
+        "electronics",
+        "shopping"
+      ],
+      "total": 850.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 750.0,
+      "months_active": 3,
+      "name": "Bonus",
+      "pattern": {
+        "matched": "contains(\"BONUS\")",
+        "source": "user",
+        "tags": [
+          "bonus",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Bonus",
+      "tags": [
+        "bonus",
+        "income"
+      ],
+      "total": 9000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Entertainment",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 5.42,
+      "months_active": 1,
+      "name": "Bowling",
+      "pattern": {
+        "matched": "contains(\"BOWLING\")",
+        "source": "user",
+        "tags": [
+          "activities",
+          "entertainment"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Activities",
+      "tags": [
+        "activities",
+        "entertainment"
+      ],
+      "total": 65.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 6.25,
+      "months_active": 1,
+      "name": "Car Maintenance",
+      "pattern": {
+        "matched": "contains(\"JIFFY LUBE\") or contains(\"OIL CHANGE\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "maintenance",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Maintenance",
+      "tags": [
+        "auto",
+        "maintenance",
+        "transport"
+      ],
+      "total": 75.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Charity",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 50.0,
+      "months_active": 2,
+      "name": "Charity",
+      "pattern": {
+        "matched": "contains(\"CHARITY\") or contains(\"DONATION\") or contains(\"RED CROSS\") or contains(\"FOOD BANK\") or contains(\"SALVATION ARMY\")",
+        "source": "user",
+        "tags": [
+          "charity",
+          "donation",
+          "tax-deductible"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Donation",
+      "tags": [
+        "charity",
+        "donation",
+        "tax-deductible"
+      ],
+      "total": 600.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 31.17,
+      "months_active": 6,
+      "name": "Chevron Gas",
+      "pattern": {
+        "matched": "contains(\"CHEVRON\")",
+        "source": "user",
+        "tags": [
+          "gas",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "gas",
+        "transport"
+      ],
+      "total": 374.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Pets",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.08,
+      "months_active": 1,
+      "name": "Chewy",
+      "pattern": {
+        "matched": "contains(\"CHEWY\")",
+        "source": "user",
+        "tags": [
+          "online",
+          "pets",
+          "supplies"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Supplies",
+      "tags": [
+        "online",
+        "pets",
+        "supplies"
+      ],
+      "total": 85.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 2.58,
+      "months_active": 2,
+      "name": "Chipotle",
+      "pattern": {
+        "matched": "contains(\"CHIPOTLE\")",
+        "source": "user",
+        "tags": [
+          "dining",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Fast Food",
+      "tags": [
+        "dining",
+        "food"
+      ],
+      "total": 31.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.08,
+      "months_active": 1,
+      "name": "Christmas Tree",
+      "pattern": {
+        "matched": "contains(\"CHRISTMAS TREE\")",
+        "source": "user",
+        "tags": [
+          "christmas",
+          "holiday",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Seasonal",
+      "tags": [
+        "christmas",
+        "holiday",
+        "shopping"
+      ],
+      "total": 85.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 180.62,
+      "months_active": 6,
+      "name": "Costco",
+      "pattern": {
+        "matched": "contains(\"COSTCO\") and not contains(\"GAS\")",
+        "source": "user",
+        "tags": [
+          "shopping",
+          "warehouse"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Warehouse",
+      "tags": [
+        "shopping",
+        "warehouse"
+      ],
+      "total": 2167.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 27.17,
+      "months_active": 6,
+      "name": "Costco Gas",
+      "pattern": {
+        "matched": "contains(\"COSTCO\") and contains(\"GAS\")",
+        "source": "user",
+        "tags": [
+          "gas",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "gas",
+        "transport"
+      ],
+      "total": 326.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Fees",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.92,
+      "months_active": 1,
+      "name": "Credit Card Fee",
+      "pattern": {
+        "matched": "contains(\"ANNUAL FEE\")",
+        "source": "user",
+        "tags": [
+          "credit",
+          "fees"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Credit Card",
+      "tags": [
+        "credit",
+        "fees"
+      ],
+      "total": 95.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 23.75,
+      "months_active": 1,
+      "name": "DMV",
+      "pattern": {
+        "matched": "contains(\"DMV\") or contains(\"REGISTRATION\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "fees",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Registration",
+      "tags": [
+        "auto",
+        "fees",
+        "transport"
+      ],
+      "total": 285.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 19.17,
+      "months_active": 2,
+      "name": "Dental Insurance",
+      "pattern": {
+        "matched": "contains(\"DENTAL\")",
+        "source": "user",
+        "tags": [
+          "dental",
+          "flights",
+          "insurance",
+          "recurring",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dental",
+      "tags": [
+        "dental",
+        "flights",
+        "healthcare",
+        "insurance",
+        "recurring",
+        "travel"
+      ],
+      "total": 230.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.83,
+      "months_active": 1,
+      "name": "Discord",
+      "pattern": {
+        "matched": "contains(\"DISCORD\")",
+        "source": "user",
+        "tags": [
+          "recurring",
+          "social"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Social",
+      "tags": [
+        "recurring",
+        "social"
+      ],
+      "total": 9.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 2.33,
+      "months_active": 2,
+      "name": "Disney Plus",
+      "pattern": {
+        "matched": "contains(\"DISNEY\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 27.98
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Healthcare",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 2.92,
+      "months_active": 1,
+      "name": "Doctor",
+      "pattern": {
+        "matched": "contains(\"DOCTOR\") or contains(\"COPAY\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "medical"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Doctor",
+      "tags": [
+        "healthcare",
+        "medical"
+      ],
+      "total": 35.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 8.88,
+      "months_active": 3,
+      "name": "DoorDash",
+      "pattern": {
+        "matched": "contains(\"DOORDASH\")",
+        "source": "user",
+        "tags": [
+          "delivery",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Delivery",
+      "tags": [
+        "delivery",
+        "food"
+      ],
+      "total": 106.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.0,
+      "months_active": 1,
+      "name": "Dropbox",
+      "pattern": {
+        "matched": "contains(\"DROPBOX\")",
+        "source": "user",
+        "tags": [
+          "cloud",
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Cloud Storage",
+      "tags": [
+        "cloud",
+        "recurring",
+        "tech"
+      ],
+      "total": 11.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.92,
+      "months_active": 1,
+      "name": "ESPN Plus",
+      "pattern": {
+        "matched": "contains(\"ESPN\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "sports"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Sports",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "sports"
+      ],
+      "total": 10.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 177.5,
+      "months_active": 12,
+      "name": "Electric",
+      "pattern": {
+        "matched": "contains(\"ELECTRIC\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Electric",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 2130.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 375.0,
+      "months_active": 12,
+      "name": "Employer Match",
+      "pattern": {
+        "matched": "contains(\"EMPLOYER\") and contains(\"401K MATCH\")",
+        "source": "user",
+        "tags": [
+          "income",
+          "retirement"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Employer Match",
+      "tags": [
+        "income",
+        "retirement"
+      ],
+      "total": 4500.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 5000.0,
+      "months_active": 12,
+      "name": "Employer Salary",
+      "pattern": {
+        "matched": "contains(\"EMPLOYER\") and contains(\"DIRECT DEPOSIT\")",
+        "source": "user",
+        "tags": [
+          "income",
+          "salary"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Salary",
+      "tags": [
+        "income",
+        "salary"
+      ],
+      "total": 60000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 4.58,
+      "months_active": 1,
+      "name": "Exxon Gas",
+      "pattern": {
+        "matched": "contains(\"EXXON\")",
+        "source": "user",
+        "tags": [
+          "gas",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "gas",
+        "transport"
+      ],
+      "total": 55.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Healthcare",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 47.92,
+      "months_active": 1,
+      "name": "Eye Care",
+      "pattern": {
+        "matched": "contains(\"OPTOMETRIST\") or contains(\"LENSCRAFTERS\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "vision"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Vision",
+      "tags": [
+        "healthcare",
+        "vision"
+      ],
+      "total": 575.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 83.33,
+      "months_active": 2,
+      "name": "Fidelity IRA",
+      "pattern": {
+        "matched": "contains(\"FIDELITY\") and contains(\"IRA\")",
+        "source": "user",
+        "tags": [
+          "ira",
+          "retirement",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "IRA",
+      "tags": [
+        "ira",
+        "retirement",
+        "transfer"
+      ],
+      "total": 1000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 10.42,
+      "months_active": 1,
+      "name": "Foot Locker",
+      "pattern": {
+        "matched": "contains(\"FOOT LOCKER\")",
+        "source": "user",
+        "tags": [
+          "athletic",
+          "clothing",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Clothing",
+      "tags": [
+        "athletic",
+        "clothing",
+        "shopping"
+      ],
+      "total": 125.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 34.75,
+      "months_active": 6,
+      "name": "Gas Utility",
+      "pattern": {
+        "matched": "contains(\"GAS UTILITY\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 417.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 12.08,
+      "months_active": 1,
+      "name": "Geico",
+      "pattern": {
+        "matched": "contains(\"GEICO\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "insurance",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Auto",
+      "tags": [
+        "auto",
+        "insurance",
+        "recurring"
+      ],
+      "total": 145.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.33,
+      "months_active": 1,
+      "name": "GitHub",
+      "pattern": {
+        "matched": "contains(\"GITHUB\")",
+        "source": "user",
+        "tags": [
+          "developer",
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Developer",
+      "tags": [
+        "developer",
+        "recurring",
+        "tech"
+      ],
+      "total": 4.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Travel",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 8.33,
+      "months_active": 1,
+      "name": "Global Entry",
+      "pattern": {
+        "matched": "contains(\"GLOBAL ENTRY\")",
+        "source": "user",
+        "tags": [
+          "fees",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Fees",
+      "tags": [
+        "fees",
+        "travel"
+      ],
+      "total": 100.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.25,
+      "months_active": 1,
+      "name": "Google Storage",
+      "pattern": {
+        "matched": "contains(\"GOOGLE\") and contains(\"STORAGE\")",
+        "source": "user",
+        "tags": [
+          "cloud",
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Cloud Storage",
+      "tags": [
+        "cloud",
+        "recurring",
+        "tech"
+      ],
+      "total": 2.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 6.42,
+      "months_active": 2,
+      "name": "Grubhub",
+      "pattern": {
+        "matched": "contains(\"GRUBHUB\")",
+        "source": "user",
+        "tags": [
+          "delivery",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Delivery",
+      "tags": [
+        "delivery",
+        "food"
+      ],
+      "total": 77.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 12.5,
+      "months_active": 1,
+      "name": "Gutter",
+      "pattern": {
+        "matched": "contains(\"GUTTER\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "maintenance"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Maintenance",
+      "tags": [
+        "home",
+        "maintenance"
+      ],
+      "total": 150.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Healthcare",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 15.42,
+      "months_active": 1,
+      "name": "Gym",
+      "pattern": {
+        "matched": "contains(\"GYM\") or contains(\"EQUINOX\") or contains(\"FITNESS\")",
+        "source": "user",
+        "tags": [
+          "fitness",
+          "health",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Fitness",
+      "tags": [
+        "fitness",
+        "health",
+        "recurring"
+      ],
+      "total": 185.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 2.67,
+      "months_active": 2,
+      "name": "HBO Max",
+      "pattern": {
+        "matched": "contains(\"HBO\") or contains(\"MAX SUBSCRIPTION\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 31.98
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Housing",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 29.17,
+      "months_active": 1,
+      "name": "HOA",
+      "pattern": {
+        "matched": "contains(\"HOA\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "housing",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "HOA",
+      "tags": [
+        "bills",
+        "housing",
+        "recurring"
+      ],
+      "total": 350.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 20.83,
+      "months_active": 1,
+      "name": "HSA Contribution",
+      "pattern": {
+        "matched": "contains(\"HSA\") and contains(\"CONTRIBUTION\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "hsa",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "HSA",
+      "tags": [
+        "healthcare",
+        "hsa",
+        "transfer"
+      ],
+      "total": 250.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 15.42,
+      "months_active": 1,
+      "name": "HVAC",
+      "pattern": {
+        "matched": "contains(\"HVAC\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "maintenance"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Maintenance",
+      "tags": [
+        "home",
+        "maintenance"
+      ],
+      "total": 185.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 37.5,
+      "months_active": 1,
+      "name": "Health Insurance",
+      "pattern": {
+        "matched": "contains(\"BLUE CROSS\") or contains(\"HEALTH INS\")",
+        "source": "user",
+        "tags": [
+          "health",
+          "insurance",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Health",
+      "tags": [
+        "health",
+        "insurance",
+        "recurring"
+      ],
+      "total": 450.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 20.42,
+      "months_active": 1,
+      "name": "Home Depot",
+      "pattern": {
+        "matched": "contains(\"HOME DEPOT\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Home Improvement",
+      "tags": [
+        "home",
+        "shopping"
+      ],
+      "total": 245.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 4.58,
+      "months_active": 1,
+      "name": "Home Warranty",
+      "pattern": {
+        "matched": "contains(\"HOME WARRANTY\")",
+        "source": "user",
+        "tags": [
+          "flights",
+          "housing",
+          "insurance",
+          "recurring",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Home Warranty",
+      "tags": [
+        "flights",
+        "housing",
+        "insurance",
+        "recurring",
+        "travel"
+      ],
+      "total": 55.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Travel",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 89.58,
+      "months_active": 2,
+      "name": "Hotels",
+      "pattern": {
+        "matched": "contains(\"MARRIOTT\") or contains(\"HILTON\") or contains(\"HOTEL\")",
+        "source": "user",
+        "tags": [
+          "lodging",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Hotels",
+      "tags": [
+        "lodging",
+        "travel"
+      ],
+      "total": 1075.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 4.5,
+      "months_active": 3,
+      "name": "Hulu",
+      "pattern": {
+        "matched": "contains(\"HULU\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 53.97
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Taxes",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 283.33,
+      "months_active": 4,
+      "name": "IRS Tax Payment",
+      "pattern": {
+        "matched": "contains(\"IRS\") and (contains(\"TAX\") or contains(\"EST\"))",
+        "source": "user",
+        "tags": [
+          "federal",
+          "tax"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Federal",
+      "tags": [
+        "federal",
+        "tax"
+      ],
+      "total": 3400.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 3,
+      "monthly_value": 13.85,
+      "months_active": 3,
+      "name": "Interest Income",
+      "pattern": {
+        "matched": "contains(\"INTEREST\") and contains(\"SAVINGS\")",
+        "source": "user",
+        "tags": [
+          "income",
+          "interest"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Interest",
+      "tags": [
+        "income",
+        "interest"
+      ],
+      "total": 166.25
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 89.99,
+      "months_active": 12,
+      "name": "Internet",
+      "pattern": {
+        "matched": "contains(\"XFINITY\") or contains(\"COMCAST\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Internet",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 1079.88
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 18.75,
+      "months_active": 1,
+      "name": "Invesco QQQ",
+      "pattern": {
+        "matched": "contains(\"INVESCO\") or contains(\"QQQ\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "dividends",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dividends",
+      "tags": [
+        "brokerage",
+        "dividends",
+        "income"
+      ],
+      "total": 225.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Healthcare",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 10.42,
+      "months_active": 1,
+      "name": "Lab Work",
+      "pattern": {
+        "matched": "contains(\"QUEST\") or contains(\"DIAGNOSTICS\") or contains(\"LAB\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "medical"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Lab",
+      "tags": [
+        "healthcare",
+        "medical"
+      ],
+      "total": 125.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 20.83,
+      "months_active": 2,
+      "name": "Lawn Care",
+      "pattern": {
+        "matched": "contains(\"LAWN\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "services"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Lawn",
+      "tags": [
+        "home",
+        "services"
+      ],
+      "total": 250.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.08,
+      "months_active": 1,
+      "name": "Life Insurance",
+      "pattern": {
+        "matched": "contains(\"LIFE INSURANCE\")",
+        "source": "user",
+        "tags": [
+          "insurance",
+          "life",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Life",
+      "tags": [
+        "insurance",
+        "life",
+        "recurring"
+      ],
+      "total": 85.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 23.42,
+      "months_active": 2,
+      "name": "Lowes",
+      "pattern": {
+        "matched": "contains(\"LOWE\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Home Improvement",
+      "tags": [
+        "home",
+        "seasonal",
+        "shopping"
+      ],
+      "total": 281.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 5,
+      "monthly_value": 12.04,
+      "months_active": 5,
+      "name": "Lyft",
+      "pattern": {
+        "matched": "contains(\"LYFT\")",
+        "source": "user",
+        "tags": [
+          "rideshare",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Rideshare",
+      "tags": [
+        "rideshare",
+        "transport"
+      ],
+      "total": 144.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 13.75,
+      "months_active": 1,
+      "name": "Macys",
+      "pattern": {
+        "matched": "normalized(\"MACYS\")",
+        "source": "user",
+        "tags": [
+          "clothing",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Clothing",
+      "tags": [
+        "clothing",
+        "shopping"
+      ],
+      "total": 165.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.25,
+      "months_active": 1,
+      "name": "Masterclass",
+      "pattern": {
+        "matched": "contains(\"MASTERCLASS\")",
+        "source": "user",
+        "tags": [
+          "education",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Education",
+      "tags": [
+        "education",
+        "recurring"
+      ],
+      "total": 15.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 104.17,
+      "months_active": 1,
+      "name": "Micro Center",
+      "pattern": {
+        "matched": "contains(\"MICRO CENTER\")",
+        "source": "user",
+        "tags": [
+          "electronics",
+          "shopping",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Electronics",
+      "tags": [
+        "electronics",
+        "shopping",
+        "tech"
+      ],
+      "total": 1250.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Entertainment",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 19.17,
+      "months_active": 2,
+      "name": "Movie Theater",
+      "pattern": {
+        "matched": "contains(\"AMC\") or contains(\"MOVIE\") or contains(\"THEATER\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "movies"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Movies",
+      "tags": [
+        "entertainment",
+        "movies"
+      ],
+      "total": 230.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Entertainment",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 2.92,
+      "months_active": 1,
+      "name": "Museum",
+      "pattern": {
+        "matched": "contains(\"MUSEUM\")",
+        "source": "user",
+        "tags": [
+          "culture",
+          "entertainment"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Museum",
+      "tags": [
+        "culture",
+        "entertainment"
+      ],
+      "total": 35.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.0,
+      "months_active": 1,
+      "name": "Nest",
+      "pattern": {
+        "matched": "contains(\"NEST\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Smart Home",
+      "tags": [
+        "home",
+        "recurring",
+        "tech"
+      ],
+      "total": 12.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 15.99,
+      "months_active": 12,
+      "name": "Netflix",
+      "pattern": {
+        "matched": "contains(\"NETFLIX\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 191.88
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 15.42,
+      "months_active": 1,
+      "name": "Newegg",
+      "pattern": {
+        "matched": "contains(\"NEWEGG\")",
+        "source": "user",
+        "tags": [
+          "electronics",
+          "online",
+          "shopping",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Electronics",
+      "tags": [
+        "electronics",
+        "online",
+        "shopping",
+        "tech"
+      ],
+      "total": 185.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 12.08,
+      "months_active": 1,
+      "name": "Nike",
+      "pattern": {
+        "matched": "contains(\"NIKE\")",
+        "source": "user",
+        "tags": [
+          "athletic",
+          "clothing",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Clothing",
+      "tags": [
+        "athletic",
+        "clothing",
+        "shopping"
+      ],
+      "total": 145.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 50.83,
+      "months_active": 2,
+      "name": "Nordstrom",
+      "pattern": {
+        "matched": "contains(\"NORDSTROM\")",
+        "source": "user",
+        "tags": [
+          "clothing",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Clothing",
+      "tags": [
+        "christmas",
+        "clothing",
+        "gifts",
+        "shopping"
+      ],
+      "total": 610.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.67,
+      "months_active": 1,
+      "name": "OpenAI",
+      "pattern": {
+        "matched": "contains(\"OPENAI\")",
+        "source": "user",
+        "tags": [
+          "ai",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "AI",
+      "tags": [
+        "ai",
+        "tech"
+      ],
+      "total": 20.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.25,
+      "months_active": 1,
+      "name": "Panera",
+      "pattern": {
+        "matched": "contains(\"PANERA\")",
+        "source": "user",
+        "tags": [
+          "dining",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Fast Food",
+      "tags": [
+        "dining",
+        "food"
+      ],
+      "total": 15.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.0,
+      "months_active": 1,
+      "name": "Paramount Plus",
+      "pattern": {
+        "matched": "contains(\"PARAMOUNT\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 11.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Education",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 20.83,
+      "months_active": 1,
+      "name": "Parking Permit",
+      "pattern": {
+        "matched": "contains(\"PARKING PERMIT\")",
+        "source": "user",
+        "tags": [
+          "education",
+          "fees"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Parking",
+      "tags": [
+        "education",
+        "fees"
+      ],
+      "total": 250.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.08,
+      "months_active": 1,
+      "name": "PayPal",
+      "pattern": {
+        "matched": "contains(\"PAYPAL\")",
+        "source": "user",
+        "tags": [
+          "p2p",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "P2P",
+      "tags": [
+        "p2p",
+        "transfer"
+      ],
+      "total": 85.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 1.0,
+      "months_active": 2,
+      "name": "Peacock",
+      "pattern": {
+        "matched": "contains(\"PEACOCK\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 11.98
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.92,
+      "months_active": 1,
+      "name": "Pest Control",
+      "pattern": {
+        "matched": "contains(\"TERMINIX\") or contains(\"PEST\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "services"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Pest Control",
+      "tags": [
+        "home",
+        "services"
+      ],
+      "total": 95.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 5.42,
+      "months_active": 1,
+      "name": "Pet Insurance",
+      "pattern": {
+        "matched": "contains(\"PET INSURANCE\")",
+        "source": "user",
+        "tags": [
+          "insurance",
+          "pet",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Pet",
+      "tags": [
+        "insurance",
+        "pet",
+        "recurring"
+      ],
+      "total": 65.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Pets",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 12.5,
+      "months_active": 1,
+      "name": "Pet Sitting",
+      "pattern": {
+        "matched": "contains(\"ROVER\") or contains(\"PET SITTING\")",
+        "source": "user",
+        "tags": [
+          "pets",
+          "services"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Care",
+      "tags": [
+        "pets",
+        "services"
+      ],
+      "total": 150.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Pets",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 10.42,
+      "months_active": 1,
+      "name": "Petco",
+      "pattern": {
+        "matched": "contains(\"PETCO\")",
+        "source": "user",
+        "tags": [
+          "pets",
+          "supplies"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Supplies",
+      "tags": [
+        "pets",
+        "supplies"
+      ],
+      "total": 125.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Healthcare",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 14.72,
+      "months_active": 4,
+      "name": "Pharmacy",
+      "pattern": {
+        "matched": "contains(\"CVS\") or contains(\"WALGREENS\") or contains(\"PHARMACY\") or contains(\"PRESCRIPTION\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "pharmacy"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Pharmacy",
+      "tags": [
+        "healthcare",
+        "pharmacy"
+      ],
+      "total": 176.67
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Entertainment",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.83,
+      "months_active": 1,
+      "name": "PlayStation",
+      "pattern": {
+        "matched": "contains(\"PLAYSTATION\") or contains(\"PSN\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "gaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gaming",
+      "tags": [
+        "entertainment",
+        "gaming"
+      ],
+      "total": 9.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 22.92,
+      "months_active": 1,
+      "name": "Plumber",
+      "pattern": {
+        "matched": "contains(\"PLUMBER\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "repair"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Repair",
+      "tags": [
+        "home",
+        "repair"
+      ],
+      "total": 275.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 2.33,
+      "months_active": 1,
+      "name": "Postmates",
+      "pattern": {
+        "matched": "contains(\"POSTMATES\")",
+        "source": "user",
+        "tags": [
+          "delivery",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Delivery",
+      "tags": [
+        "delivery",
+        "food"
+      ],
+      "total": 28.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Taxes",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 104.17,
+      "months_active": 1,
+      "name": "Property Tax",
+      "pattern": {
+        "matched": "contains(\"PROPERTY TAX\")",
+        "source": "user",
+        "tags": [
+          "housing",
+          "property",
+          "tax"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Property",
+      "tags": [
+        "housing",
+        "property",
+        "tax"
+      ],
+      "total": 1250.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 641.67,
+      "months_active": 2,
+      "name": "RSU Vest",
+      "pattern": {
+        "matched": "contains(\"RSU\") and contains(\"VEST\")",
+        "source": "user",
+        "tags": [
+          "income",
+          "rsu",
+          "stock"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Stock Compensation",
+      "tags": [
+        "income",
+        "rsu",
+        "stock"
+      ],
+      "total": 7700.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Housing",
+      "classification": "variable",
+      "count": 15,
+      "monthly_value": 2242.08,
+      "months_active": 12,
+      "name": "Rent",
+      "pattern": {
+        "matched": "contains(\"RENT\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "housing",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Rent",
+      "tags": [
+        "bills",
+        "housing",
+        "insurance",
+        "recurring",
+        "rental",
+        "travel"
+      ],
+      "total": 26905.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 5,
+      "monthly_value": 77.92,
+      "months_active": 4,
+      "name": "Restaurant",
+      "pattern": {
+        "matched": "contains(\"RESTAURANT\") or contains(\"DINNER\")",
+        "source": "user",
+        "tags": [
+          "dining",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dining",
+      "tags": [
+        "dining",
+        "food"
+      ],
+      "total": 935.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.83,
+      "months_active": 1,
+      "name": "Ring",
+      "pattern": {
+        "matched": "contains(\"RING\") and contains(\"DOORBELL\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "recurring",
+          "tech"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Security",
+      "tags": [
+        "home",
+        "recurring",
+        "tech"
+      ],
+      "total": 10.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 9.38,
+      "months_active": 1,
+      "name": "SPY SPDR",
+      "pattern": {
+        "matched": "contains(\"SPDR\") or contains(\"S&P 500 ETF\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "dividends",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dividends",
+      "tags": [
+        "brokerage",
+        "dividends",
+        "income"
+      ],
+      "total": 112.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 49.79,
+      "months_active": 4,
+      "name": "Safeway",
+      "pattern": {
+        "matched": "contains(\"SAFEWAY\")",
+        "source": "user",
+        "tags": [
+          "food",
+          "grocery"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Grocery",
+      "tags": [
+        "food",
+        "grocery"
+      ],
+      "total": 597.45
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Fees",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 0.41,
+      "months_active": 1,
+      "name": "Schwab Commission",
+      "pattern": {
+        "matched": "contains(\"SCHWAB\") and contains(\"COMMISSION\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "fees"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Brokerage Fee",
+      "tags": [
+        "brokerage",
+        "fees"
+      ],
+      "total": 4.95
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 5.71,
+      "months_active": 1,
+      "name": "Schwab Dividend",
+      "pattern": {
+        "matched": "contains(\"SCHWAB\") and contains(\"DIVIDEND\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "dividends",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dividends",
+      "tags": [
+        "brokerage",
+        "dividends",
+        "income"
+      ],
+      "total": 68.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Fees",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 0.83,
+      "months_active": 2,
+      "name": "Schwab Fee",
+      "pattern": {
+        "matched": "contains(\"SCHWAB\") and contains(\"FEE\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "fees"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Brokerage Fee",
+      "tags": [
+        "brokerage",
+        "fees"
+      ],
+      "total": 9.9
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Home",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 4.58,
+      "months_active": 1,
+      "name": "Security",
+      "pattern": {
+        "matched": "contains(\"ADT\") or contains(\"SECURITY\")",
+        "source": "user",
+        "tags": [
+          "home",
+          "recurring",
+          "services"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Security",
+      "tags": [
+        "home",
+        "recurring",
+        "services"
+      ],
+      "total": 55.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 3.17,
+      "months_active": 1,
+      "name": "Sewer Utility",
+      "pattern": {
+        "matched": "contains(\"SEWER\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Sewer",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 38.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 7,
+      "monthly_value": 33.67,
+      "months_active": 7,
+      "name": "Shell Gas",
+      "pattern": {
+        "matched": "contains(\"SHELL\")",
+        "source": "user",
+        "tags": [
+          "gas",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gas",
+      "tags": [
+        "gas",
+        "transport"
+      ],
+      "total": 404.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 5.5,
+      "months_active": 6,
+      "name": "Spotify",
+      "pattern": {
+        "matched": "contains(\"SPOTIFY\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "music",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Music",
+      "tags": [
+        "entertainment",
+        "music",
+        "recurring"
+      ],
+      "total": 65.94
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 1.36,
+      "months_active": 2,
+      "name": "Starbucks",
+      "pattern": {
+        "matched": "contains(\"STARBUCKS\")",
+        "source": "user",
+        "tags": [
+          "coffee",
+          "food"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Coffee",
+      "tags": [
+        "coffee",
+        "food"
+      ],
+      "total": 16.35
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 7,
+      "monthly_value": 72.92,
+      "months_active": 7,
+      "name": "State Farm",
+      "pattern": {
+        "matched": "contains(\"STATE FARM\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "insurance",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Auto",
+      "tags": [
+        "auto",
+        "insurance",
+        "recurring"
+      ],
+      "total": 875.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Taxes",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 108.33,
+      "months_active": 4,
+      "name": "State Tax",
+      "pattern": {
+        "matched": "contains(\"STATE TAX\")",
+        "source": "user",
+        "tags": [
+          "state",
+          "tax"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "State",
+      "tags": [
+        "state",
+        "tax"
+      ],
+      "total": 1300.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Entertainment",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 5.0,
+      "months_active": 1,
+      "name": "Steam",
+      "pattern": {
+        "matched": "contains(\"STEAM\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "gaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Gaming",
+      "tags": [
+        "entertainment",
+        "gaming"
+      ],
+      "total": 59.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.44,
+      "months_active": 1,
+      "name": "Stock Dividend Generic",
+      "pattern": {
+        "matched": "contains(\"DIVIDEND\") and (contains(\"APPLE\") or contains(\"MICROSOFT\") or contains(\"VANGUARD\") or contains(\"SPDR\") or contains(\"INVESCO\") or contains(\"ETF\"))",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "dividends",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dividends",
+      "tags": [
+        "brokerage",
+        "dividends",
+        "income"
+      ],
+      "total": 89.25
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": -858.33,
+      "months_active": 4,
+      "name": "Stock Sale Generic",
+      "pattern": {
+        "matched": "contains(\"ALPHABET\") or contains(\"NVIDIA\") or contains(\"TESLA\") or contains(\"META PLATFORMS\") or contains(\"AMAZON.COM INC\")",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "stock",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Stock Sale",
+      "tags": [
+        "brokerage",
+        "stock",
+        "transfer"
+      ],
+      "total": -10300.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Travel",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.08,
+      "months_active": 1,
+      "name": "TSA PreCheck",
+      "pattern": {
+        "matched": "contains(\"TSA\") or contains(\"PRECHECK\")",
+        "source": "user",
+        "tags": [
+          "fees",
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Fees",
+      "tags": [
+        "fees",
+        "travel"
+      ],
+      "total": 85.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 51.62,
+      "months_active": 4,
+      "name": "Target",
+      "pattern": {
+        "matched": "contains(\"TARGET\")",
+        "source": "user",
+        "tags": [
+          "retail",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Retail",
+      "tags": [
+        "home",
+        "retail",
+        "seasonal",
+        "shopping"
+      ],
+      "total": 619.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Taxes",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.42,
+      "months_active": 1,
+      "name": "Tax Filing",
+      "pattern": {
+        "matched": "contains(\"TURBOTAX\")",
+        "source": "user",
+        "tags": [
+          "filing",
+          "tax"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Filing",
+      "tags": [
+        "filing",
+        "tax"
+      ],
+      "total": 89.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 154.17,
+      "months_active": 1,
+      "name": "Tax Refund",
+      "pattern": {
+        "matched": "contains(\"TAX REFUND\") or contains(\"REFUND IRS\")",
+        "source": "user",
+        "tags": [
+          "federal",
+          "income",
+          "tax"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Tax Refund",
+      "tags": [
+        "federal",
+        "income",
+        "tax"
+      ],
+      "total": 1850.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 54.17,
+      "months_active": 1,
+      "name": "Tires",
+      "pattern": {
+        "matched": "contains(\"TIRE\")",
+        "source": "user",
+        "tags": [
+          "auto",
+          "maintenance",
+          "transport"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Maintenance",
+      "tags": [
+        "auto",
+        "maintenance",
+        "transport"
+      ],
+      "total": 650.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 4,
+      "monthly_value": 42.33,
+      "months_active": 4,
+      "name": "Trader Joes",
+      "pattern": {
+        "matched": "contains(\"TRADER JOE\")",
+        "source": "user",
+        "tags": [
+          "food",
+          "grocery"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Grocery",
+      "tags": [
+        "food",
+        "grocery"
+      ],
+      "total": 508.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 500.0,
+      "months_active": 12,
+      "name": "Transfer From Checking",
+      "pattern": {
+        "matched": "contains(\"TRANSFER\") and contains(\"CHECKING\")",
+        "source": "user",
+        "tags": [
+          "internal",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Internal",
+      "tags": [
+        "internal",
+        "transfer"
+      ],
+      "total": 6000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 500.0,
+      "months_active": 12,
+      "name": "Transfer to Savings",
+      "pattern": {
+        "matched": "contains(\"TRANSFER\") and contains(\"SAVINGS\")",
+        "source": "user",
+        "tags": [
+          "savings",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Savings",
+      "tags": [
+        "savings",
+        "transfer"
+      ],
+      "total": 6000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 2.92,
+      "months_active": 1,
+      "name": "Trash Service",
+      "pattern": {
+        "matched": "contains(\"TRASH\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Trash",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 35.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Education",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 208.33,
+      "months_active": 1,
+      "name": "Tuition",
+      "pattern": {
+        "matched": "contains(\"TUITION\")",
+        "source": "user",
+        "tags": [
+          "education",
+          "tuition"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Tuition",
+      "tags": [
+        "education",
+        "tuition"
+      ],
+      "total": 2500.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transport",
+      "classification": "variable",
+      "count": 15,
+      "monthly_value": 51.58,
+      "months_active": 12,
+      "name": "Uber",
+      "pattern": {
+        "matched": "contains(\"UBER\")",
+        "source": "user",
+        "tags": [
+          "travel"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Rideshare",
+      "tags": [
+        "delivery",
+        "food",
+        "travel"
+      ],
+      "total": 619.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Insurance",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 3.75,
+      "months_active": 1,
+      "name": "Umbrella Insurance",
+      "pattern": {
+        "matched": "contains(\"UMBRELLA INSURANCE\")",
+        "source": "user",
+        "tags": [
+          "insurance",
+          "recurring"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Umbrella",
+      "tags": [
+        "insurance",
+        "recurring"
+      ],
+      "total": 45.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.92,
+      "months_active": 1,
+      "name": "Uniqlo",
+      "pattern": {
+        "matched": "contains(\"UNIQLO\")",
+        "source": "user",
+        "tags": [
+          "clothing",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Clothing",
+      "tags": [
+        "clothing",
+        "shopping"
+      ],
+      "total": 95.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Unknown",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 3.75,
+      "months_active": 1,
+      "name": "Unknown Merchant Test",
+      "pattern": {
+        "matched": "contains(\"UNKNOWN MERCHANT\")",
+        "source": "user",
+        "tags": [
+          "unclassified"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Unknown",
+      "tags": [
+        "unclassified"
+      ],
+      "total": 45.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 12,
+      "monthly_value": 750.0,
+      "months_active": 12,
+      "name": "Vanguard 401k",
+      "pattern": {
+        "matched": "contains(\"VANGUARD\") and contains(\"401K\")",
+        "source": "user",
+        "tags": [
+          "401k",
+          "retirement",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "401k",
+      "tags": [
+        "401k",
+        "retirement",
+        "transfer"
+      ],
+      "total": 9000.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 5,
+      "monthly_value": 70.38,
+      "months_active": 4,
+      "name": "Vanguard ETF Dividend",
+      "pattern": {
+        "matched": "contains(\"VANGUARD\") and (contains(\"ETF\") or contains(\"DIV\") or contains(\"STOCK\"))",
+        "source": "user",
+        "tags": [
+          "brokerage",
+          "dividends",
+          "income"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Dividends",
+      "tags": [
+        "brokerage",
+        "dividends",
+        "income"
+      ],
+      "total": 844.5
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 2,
+      "monthly_value": 7.92,
+      "months_active": 2,
+      "name": "Venmo Receive",
+      "pattern": {
+        "matched": "contains(\"VENMO\") and (contains(\"RECEIVED\") or contains(\"FROM\"))",
+        "source": "user",
+        "tags": [
+          "income",
+          "p2p"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "P2P",
+      "tags": [
+        "income",
+        "p2p"
+      ],
+      "total": 95.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 16.67,
+      "months_active": 1,
+      "name": "Venmo Send",
+      "pattern": {
+        "matched": "contains(\"VENMO\") and contains(\"PAYMENT TO\")",
+        "source": "user",
+        "tags": [
+          "p2p",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "P2P",
+      "tags": [
+        "p2p",
+        "transfer"
+      ],
+      "total": 200.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Pets",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 16.25,
+      "months_active": 1,
+      "name": "Vet",
+      "pattern": {
+        "matched": "contains(\"VET\") and contains(\"CLINIC\")",
+        "source": "user",
+        "tags": [
+          "healthcare",
+          "pets"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Vet",
+      "tags": [
+        "healthcare",
+        "pets"
+      ],
+      "total": 195.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Utilities",
+      "classification": "variable",
+      "count": 6,
+      "monthly_value": 23.33,
+      "months_active": 6,
+      "name": "Water Utility",
+      "pattern": {
+        "matched": "contains(\"WATER UTILITY\")",
+        "source": "user",
+        "tags": [
+          "bills",
+          "recurring",
+          "utilities"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Water",
+      "tags": [
+        "bills",
+        "recurring",
+        "utilities"
+      ],
+      "total": 280.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Food",
+      "classification": "variable",
+      "count": 13,
+      "monthly_value": 241.56,
+      "months_active": 12,
+      "name": "Whole Foods",
+      "pattern": {
+        "matched": "contains(\"WHOLE FOODS\")",
+        "source": "user",
+        "tags": [
+          "food",
+          "grocery",
+          "organic"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Grocery",
+      "tags": [
+        "food",
+        "grocery",
+        "organic"
+      ],
+      "total": 2898.75
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Subscriptions",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 1.17,
+      "months_active": 1,
+      "name": "YouTube Premium",
+      "pattern": {
+        "matched": "contains(\"YOUTUBE\")",
+        "source": "user",
+        "tags": [
+          "entertainment",
+          "recurring",
+          "streaming"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Streaming",
+      "tags": [
+        "entertainment",
+        "recurring",
+        "streaming"
+      ],
+      "total": 13.99
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Income",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 8.33,
+      "months_active": 1,
+      "name": "Zelle Receive",
+      "pattern": {
+        "matched": "contains(\"ZELLE\") and contains(\"FROM\")",
+        "source": "user",
+        "tags": [
+          "income",
+          "p2p"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "P2P",
+      "tags": [
+        "income",
+        "p2p"
+      ],
+      "total": 100.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Transfers",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 66.67,
+      "months_active": 1,
+      "name": "Zelle Send",
+      "pattern": {
+        "matched": "contains(\"ZELLE\") and contains(\"TO\")",
+        "source": "user",
+        "tags": [
+          "p2p",
+          "transfer"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "P2P",
+      "tags": [
+        "p2p",
+        "transfer"
+      ],
+      "total": 800.0
+    },
+    {
+      "calculation": {
+        "reason": "Spread over 12 months",
+        "type": "/12"
+      },
+      "category": "Shopping",
+      "classification": "variable",
+      "count": 1,
+      "monthly_value": 7.42,
+      "months_active": 1,
+      "name": "eBay",
+      "pattern": {
+        "matched": "contains(\"EBAY\")",
+        "source": "user",
+        "tags": [
+          "online",
+          "shopping"
+        ]
+      },
+      "reasoning": {
+        "decision": ""
+      },
+      "subcategory": "Online",
+      "tags": [
+        "online",
+        "shopping"
+      ],
+      "total": 89.0
+    }
+  ],
+  "summary": {
+    "cash_flow": 13703.2,
+    "credits_total": 0.0,
+    "gross_spending": 182784.8,
+    "income_total": 84876.5,
+    "monthly_budget": 14373.73,
+    "num_months": 12,
+    "spending_total": 71173.3,
+    "total_spending": 2731.8,
+    "transfers_total": 10300.0
+  }
+}

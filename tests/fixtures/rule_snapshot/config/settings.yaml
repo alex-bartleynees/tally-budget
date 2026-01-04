@@ -1,0 +1,32 @@
+# Rule Engine Snapshot Test Configuration
+# This config tests multiple data sources with different formats
+# to ensure rule processing stability across diverse inputs
+
+year: 2025
+
+data_sources:
+  # Checking account - US date format with Post Date and Balance columns
+  - name: Wells Fargo Checking
+    file: data/checking.csv
+    format: "{date:%m/%d/%Y},{_},{description},{amount},{_}"
+    has_header: true
+
+  # Credit card - ISO dates, extra Category/Type columns
+  - name: Chase Sapphire
+    file: data/credit_card.csv
+    format: "{date:%Y-%m-%d},{_},{description},{_},{_},{amount}"
+    has_header: true
+
+  # Brokerage account - European-style date, multiple columns
+  - name: Charles Schwab Brokerage
+    file: data/brokerage.csv
+    format: "{date:%d-%b-%Y},{_},{_},{_},{description},{_},{_},{amount}"
+    has_header: true
+
+  # Savings account - different date format
+  - name: Ally Savings
+    file: data/savings.csv
+    format: "{date:%Y/%m/%d},{_},{description},{amount}"
+    has_header: true
+
+merchants_file: config/merchants.rules

@@ -1,0 +1,89 @@
+[Best Buy Online]
+match: regex("BESTBUYCOM")
+category: Shopping
+subcategory: Electronics
+
+[Shuttle Express]
+match: regex("SHUTTLE EXPRESS")
+category: Transport
+subcategory: Shuttle
+
+[Microsoft]
+match: regex("MICROSOFT CORP")
+category: Subscriptions
+subcategory: Software
+
+[Vida by Esquire]
+match: regex("VIDABYESQUIRE")
+category: Shopping
+subcategory: Clothing
+
+[Metropolitan Market]
+match: regex("METROPOLITAN")
+category: Food
+subcategory: Groceries
+
+[Apple Store]
+match: regex("APPLE STORE")
+category: Shopping
+subcategory: Electronics
+
+[Kidvantage]
+match: regex("KIDVANTAGE")
+category: Shopping
+subcategory: Kids
+
+[Wynn Las Vegas]
+match: regex("WYNN LAS VEGAS")
+category: Entertainment
+subcategory: Casino
+
+[Ascend Prime]
+match: regex("ASCEND PRIME")
+category: Food
+subcategory: Dining
+
+[Park Plaza Hotel]
+match: regex("PARK PLAZA")
+category: Travel
+subcategory: Hotels
+
+[Cantina Monarca]
+match: regex("CANTINA MONARCA")
+category: Food
+subcategory: Dining
+
+[Ziply Fiber]
+match: regex("ZIPLY FIBER")
+category: Home
+subcategory: Utilities
+
+[Santas Sidekicks]
+match: regex("SANTAS SIDEKICKS")
+category: Shopping
+subcategory: Gifts
+
+[Crate and Barrel]
+match: regex("CRATE AND BARREL")
+category: Home
+subcategory: Furniture
+
+[ADT Security]
+match: regex("ADTSECURITY")
+category: Home
+subcategory: Security
+
+[Garage Door Pros]
+match: regex("GARAGE DOOR PROS")
+category: Home
+subcategory: Improvement
+
+[TeamSnap]
+match: regex("TEAMSNAP")
+category: Subscriptions
+subcategory: Software
+
+[Din Tai Fung]
+match: regex("DIN TAI FUNG")
+category: Food
+subcategory: Dining

@@ -171,6 +171,9 @@ def analyze_transactions(transactions):
     total_transactions = sum(d['total'] for d in by_merchant.values())
     monthly_avg = sum(d.get('monthly_value', 0) for d in by_merchant.values())
 
+    # Gross spending = sum of all positive merchant totals (for percentage calculations)
+    gross_spending = sum(d['total'] for d in by_merchant.values() if d['total'] > 0)
+
     return {
         'by_category': dict(by_category),
         'by_merchant': {k: dict(v) for k, v in by_merchant.items()},
@@ -193,6 +196,8 @@ def analyze_transactions(transactions):
         'transfers_net': calculate_transfers_net(transfers_in, transfers_out),
         # Investments (401K, IRA contributions - excluded from spending)
         'investment_total': investment_total,
+        # Gross spending (for percentage calculations in output formats)
+        'gross_spending': gross_spending,
     }
 
 
@@ -316,6 +321,8 @@ def build_merchant_json(merchant_name, data, verbose=0):
     tags = data.get('tags', [])
     if isinstance(tags, set):
         tags = sorted(tags)
+    else:
+        tags = sorted(set(tags))
 
     result = {
         'name': merchant_name,
@@ -360,10 +367,13 @@ def build_merchant_json(merchant_name, data, verbose=0):
     # Add pattern match info if available
     match_info = data.get('match_info')
     if match_info:
+        pattern_tags = match_info.get('tags', [])
+        if isinstance(pattern_tags, set):
+            pattern_tags = sorted(pattern_tags)
         result['pattern'] = {
             'matched': match_info.get('pattern', ''),
             'source': match_info.get('source', 'unknown'),
-            'tags': match_info.get('tags', []),
+            'tags': pattern_tags,
         }
 
     return result
@@ -386,15 +396,16 @@ def export_json(stats, verbose=0, category_filter=None, merchant_filter=None):
     by_month = stats.get('by_month', {})
     by_category = stats.get('by_category', {})
 
-    # Calculate gross spending and credits
-    gross_spending = sum(d['total'] for d in by_merchant.values() if d['total'] > 0)
-    credits_total = abs(sum(d['total'] for d in by_merchant.values() if d['total'] < 0))
+    # Use values from stats
+    gross_spending = stats.get('gross_spending', 0)
+    credits_total = stats.get('credits_total', 0)
 
-    # Calculate income and transfers from merchants by tag
-    income_total = sum(d['total'] for d in by_merchant.values()
-                       if 'income' in [t.lower() for t in d.get('tags', set())])
-    transfers_total = abs(sum(d['total'] for d in by_merchant.values()
-                              if 'transfer' in [t.lower() for t in d.get('tags', set())]))
+    # Use income and transfers from stats (same as other output formats)
+    income_total = stats.get('income_total', 0)
+    transfers_out = stats.get('transfers_out', 0)
+
+    spending_total = stats.get('spending_total', 0)
+    cash_flow = stats.get('cash_flow', 0)
 
     output = {
         'summary': {
@@ -403,9 +414,12 @@ def export_json(stats, verbose=0, category_filter=None, merchant_filter=None):
             'credits_total': round(credits_total, 2),
             'monthly_budget': round(stats['monthly_avg'], 2),
             'num_months': stats['num_months'],
-            'income_total': round(income_total, 2),
-            'transfers_total': round(transfers_total, 2),
-            'net_cash_flow': round(income_total - stats['total'], 2) if income_total > 0 else None,  # transfers excluded
+            # Cash flow (matches other formats)
+            'income_total': round(abs(income_total), 2),
+            'spending_total': round(spending_total, 2),
+            'cash_flow': round(cash_flow, 2),
+            # Transfers
+            'transfers_total': round(transfers_out, 2),
         },
         'by_month': {month: {'total': round(total, 2)}
                      for month, total in sorted(by_month.items())},
@@ -469,7 +483,8 @@ def export_markdown(stats, verbose=0, category_filter=None, merchant_filter=None
     by_month = stats.get('by_month', {})
     by_category = stats.get('by_category', {})
 
-    # Use cash flow values from stats
+    # Use values from stats
+    gross_spending = stats.get('gross_spending', 0)
     income_total = stats.get('income_total', 0)
     spending_total = stats.get('spending_total', 0)
     credits_total = stats.get('credits_total', 0)
@@ -604,9 +619,7 @@ def print_summary(stats, year=2025, filter_category=None, currency_format="${amo
     transfers_in = stats.get('transfers_in', 0)
     transfers_out = stats.get('transfers_out', 0)
     transfers_net = stats.get('transfers_net', 0)
-
-    # Calculate gross spending (positive merchants only) for display
-    gross_spending = sum(d['total'] for d in by_merchant.values() if d['total'] > 0)
+    gross_spending = stats.get('gross_spending', 0)
 
     # =========================================================================
     # FINANCIAL SUMMARY

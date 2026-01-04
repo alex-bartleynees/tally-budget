@@ -1,0 +1,1138 @@
+# Rule Engine Snapshot Test - Comprehensive Merchant Rules
+# This file tests the full spectrum of rule matching scenarios:
+#
+# KEY TESTS:
+# - Overlapping patterns (UBER vs UBER EATS, AMAZON vs AMAZON PRIME)
+# - First-match-wins behavior (rule order matters)
+# - Tag accumulation from multiple matching rules
+# - Negative patterns (COSTCO but not GAS)
+# - Income detection (negative amounts)
+# - Transfer tagging (brokerage, P2P, savings)
+# - Refund handling (credit card refunds)
+# - Complex financial instruments (401k, IRA, HSA, 529, RSU)
+#
+# If you change rule matching behavior, these tests WILL break.
+# That's the point - backwards compatibility is critical.
+
+# ============================================================
+# OVERLAPPING PATTERN TESTS
+# These rules test first-match-wins vs most-specific-wins
+# Rule order is intentional - DO NOT REORDER
+# ============================================================
+
+[Uber]
+match: contains("UBER")
+category: Transport
+subcategory: Rideshare
+tags: travel
+
+[Uber Eats]
+match: contains("UBER") and contains("EATS")
+category: Food
+subcategory: Delivery
+tags: food, delivery
+
+[Amazon]
+match: contains("AMAZON")
+category: Shopping
+subcategory: Online
+tags: online
+
+[Amazon Prime]
+match: contains("AMAZON") and contains("PRIME")
+category: Subscriptions
+subcategory: Membership
+tags: recurring, membership
+
+[Amazon Fresh]
+match: contains("AMAZON") and contains("FRESH")
+category: Food
+subcategory: Grocery
+tags: food, grocery
+
+[Amazon Web Services]
+match: contains("AMAZON") and contains("WEB SERVICES")
+category: Business
+subcategory: Cloud
+tags: business, tech
+
+# ============================================================
+# INCOME - Salary, Bonuses, RSU, Employer Match
+# ============================================================
+
+[Employer Salary]
+match: contains("EMPLOYER") and contains("DIRECT DEPOSIT")
+category: Income
+subcategory: Salary
+tags: income, salary
+
+[Employer Match]
+match: contains("EMPLOYER") and contains("401K MATCH")
+category: Income
+subcategory: Employer Match
+tags: income, retirement
+
+[Bonus]
+match: contains("BONUS")
+category: Income
+subcategory: Bonus
+tags: income, bonus
+
+[RSU Vest]
+match: contains("RSU") and contains("VEST")
+category: Income
+subcategory: Stock Compensation
+tags: income, stock, rsu
+
+[Tax Refund]
+match: contains("TAX REFUND") or contains("REFUND IRS")
+category: Income
+subcategory: Tax Refund
+tags: income, tax
+
+# ============================================================
+# BROKERAGE & INVESTMENTS
+# Stock sales, dividends, fees, purchases
+# ============================================================
+
+[Schwab Stock Sale]
+match: contains("SCHWAB") and contains("STOCK SALE")
+category: Transfers
+subcategory: Stock Sale
+tags: transfer, brokerage, stock
+
+[Schwab Dividend]
+match: contains("SCHWAB") and contains("DIVIDEND")
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+[Schwab Fee]
+match: contains("SCHWAB") and contains("FEE")
+category: Fees
+subcategory: Brokerage Fee
+tags: fees, brokerage
+
+[Fidelity Dividend]
+match: contains("FIDELITY") and contains("DIVIDEND")
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+[Fidelity Stock Purchase]
+match: contains("FIDELITY") and contains("STOCK PURCHASE")
+category: Transfers
+subcategory: Investment
+tags: transfer, brokerage, investment
+
+[Fidelity IRA]
+match: contains("FIDELITY") and contains("IRA")
+category: Transfers
+subcategory: IRA
+tags: transfer, retirement, ira
+
+[Vanguard 401k]
+match: contains("VANGUARD") and contains("401K")
+category: Transfers
+subcategory: 401k
+tags: transfer, retirement, 401k
+
+[529 College Savings]
+match: contains("529") and contains("COLLEGE")
+category: Transfers
+subcategory: 529
+tags: transfer, education, 529
+
+[HSA Contribution]
+match: contains("HSA") and contains("CONTRIBUTION")
+category: Transfers
+subcategory: HSA
+tags: transfer, healthcare, hsa
+
+[Interest Income]
+match: contains("INTEREST") and contains("SAVINGS")
+category: Income
+subcategory: Interest
+tags: income, interest
+
+# ============================================================
+# P2P TRANSFERS & ATM
+# ============================================================
+
+[Transfer to Savings]
+match: contains("TRANSFER") and contains("SAVINGS")
+category: Transfers
+subcategory: Savings
+tags: transfer, savings
+
+[Venmo Send]
+match: contains("VENMO") and contains("PAYMENT TO")
+category: Transfers
+subcategory: P2P
+tags: transfer, p2p
+
+[Venmo Receive]
+match: contains("VENMO") and (contains("RECEIVED") or contains("FROM"))
+category: Income
+subcategory: P2P
+tags: income, p2p
+
+[Zelle Send]
+match: contains("ZELLE") and contains("TO")
+category: Transfers
+subcategory: P2P
+tags: transfer, p2p
+
+[Zelle Receive]
+match: contains("ZELLE") and contains("FROM")
+category: Income
+subcategory: P2P
+tags: income, p2p
+
+[PayPal]
+match: contains("PAYPAL")
+category: Transfers
+subcategory: P2P
+tags: transfer, p2p
+
+[ATM]
+match: contains("ATM")
+category: Transfers
+subcategory: Cash
+tags: transfer, cash
+
+# ============================================================
+# REFUNDS & RETURNS
+# Credit card refunds, store returns
+# ============================================================
+
+[Credit Card Refund]
+match: contains("CREDIT CARD") and contains("REFUND")
+category: Refunds
+subcategory: Credit Card
+tags: refund, credit
+
+[Return Refund]
+match: contains("RETURN") and contains("REFUND")
+category: Refunds
+subcategory: Return
+tags: refund, return
+
+[Cashback Reward]
+match: contains("CASHBACK") and contains("REWARD")
+category: Income
+subcategory: Rewards
+tags: income, rewards, cashback
+
+# ============================================================
+# TAXES
+# Federal, state, quarterly estimated
+# ============================================================
+
+[IRS Tax Payment]
+match: contains("IRS") and (contains("TAX") or contains("EST"))
+category: Taxes
+subcategory: Federal
+tags: tax, federal
+
+[State Tax]
+match: contains("STATE TAX")
+category: Taxes
+subcategory: State
+tags: tax, state
+
+[Tax Filing]
+match: contains("TURBOTAX")
+category: Taxes
+subcategory: Filing
+tags: tax, filing
+
+# ============================================================
+# HOUSING
+# Rent, utilities, property tax, HOA
+# ============================================================
+
+[Rent]
+match: contains("RENT")
+category: Housing
+subcategory: Rent
+tags: bills, housing, recurring
+
+[Electric]
+match: contains("ELECTRIC")
+category: Utilities
+subcategory: Electric
+tags: bills, utilities, recurring
+
+[Gas Utility]
+match: contains("GAS UTILITY")
+category: Utilities
+subcategory: Gas
+tags: bills, utilities, recurring
+
+[Water Utility]
+match: contains("WATER UTILITY")
+category: Utilities
+subcategory: Water
+tags: bills, utilities, recurring
+
+[Sewer Utility]
+match: contains("SEWER")
+category: Utilities
+subcategory: Sewer
+tags: bills, utilities, recurring
+
+[Trash Service]
+match: contains("TRASH")
+category: Utilities
+subcategory: Trash
+tags: bills, utilities, recurring
+
+[Internet]
+match: contains("XFINITY") or contains("COMCAST")
+category: Utilities
+subcategory: Internet
+tags: bills, utilities, recurring
+
+[Cell Phone]
+match: contains("ATT BILL") or contains("VERIZON") or contains("T-MOBILE")
+category: Utilities
+subcategory: Phone
+tags: bills, utilities, recurring
+
+[HOA]
+match: contains("HOA")
+category: Housing
+subcategory: HOA
+tags: bills, housing, recurring
+
+[Property Tax]
+match: contains("PROPERTY TAX")
+category: Taxes
+subcategory: Property
+tags: tax, property, housing
+
+# ============================================================
+# INSURANCE
+# Auto, home, health, life, pet
+# ============================================================
+
+[State Farm]
+match: contains("STATE FARM")
+category: Insurance
+subcategory: Auto
+tags: insurance, auto, recurring
+
+[Geico]
+match: contains("GEICO")
+category: Insurance
+subcategory: Auto
+tags: insurance, auto, recurring
+
+[Health Insurance]
+match: contains("BLUE CROSS") or contains("HEALTH INS")
+category: Insurance
+subcategory: Health
+tags: insurance, health, recurring
+
+[Dental Insurance]
+match: contains("DENTAL")
+category: Insurance
+subcategory: Dental
+tags: insurance, dental, recurring
+
+[Life Insurance]
+match: contains("LIFE INSURANCE")
+category: Insurance
+subcategory: Life
+tags: insurance, life, recurring
+
+[Umbrella Insurance]
+match: contains("UMBRELLA INSURANCE")
+category: Insurance
+subcategory: Umbrella
+tags: insurance, recurring
+
+[Renters Insurance]
+match: contains("RENTERS INSURANCE")
+category: Insurance
+subcategory: Renters
+tags: insurance, housing, recurring
+
+[Pet Insurance]
+match: contains("PET INSURANCE")
+category: Insurance
+subcategory: Pet
+tags: insurance, pet, recurring
+
+[Home Warranty]
+match: contains("HOME WARRANTY")
+category: Insurance
+subcategory: Home Warranty
+tags: insurance, housing, recurring
+
+[AAA]
+match: contains("AAA")
+category: Insurance
+subcategory: Roadside
+tags: insurance, auto, membership
+
+# ============================================================
+# HEALTHCARE
+# Doctor, dental, vision, pharmacy
+# ============================================================
+
+[Doctor]
+match: contains("DOCTOR") or contains("COPAY")
+category: Healthcare
+subcategory: Doctor
+tags: healthcare, medical
+
+[Lab Work]
+match: contains("QUEST") or contains("DIAGNOSTICS") or contains("LAB")
+category: Healthcare
+subcategory: Lab
+tags: healthcare, medical
+
+[Pharmacy]
+match: contains("CVS") or contains("WALGREENS") or contains("PHARMACY") or contains("PRESCRIPTION")
+category: Healthcare
+subcategory: Pharmacy
+tags: healthcare, pharmacy
+
+[Dentist]
+match: contains("DENTIST")
+category: Healthcare
+subcategory: Dental
+tags: healthcare, dental
+
+[Eye Care]
+match: contains("OPTOMETRIST") or contains("LENSCRAFTERS")
+category: Healthcare
+subcategory: Vision
+tags: healthcare, vision
+
+[Gym]
+match: contains("GYM") or contains("EQUINOX") or contains("FITNESS")
+category: Healthcare
+subcategory: Fitness
+tags: health, fitness, recurring
+
+# ============================================================
+# GROCERIES
+# Different store types
+# ============================================================
+
+[Whole Foods]
+match: contains("WHOLE FOODS")
+category: Food
+subcategory: Grocery
+tags: food, grocery, organic
+
+[Trader Joes]
+match: contains("TRADER JOE")
+category: Food
+subcategory: Grocery
+tags: food, grocery
+
+[Safeway]
+match: contains("SAFEWAY")
+category: Food
+subcategory: Grocery
+tags: food, grocery
+
+[Costco]
+match: contains("COSTCO") and not contains("GAS")
+category: Shopping
+subcategory: Warehouse
+tags: shopping, warehouse
+
+[Costco Gas]
+match: contains("COSTCO") and contains("GAS")
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+# ============================================================
+# RESTAURANTS & FOOD DELIVERY
+# ============================================================
+
+[Starbucks]
+match: contains("STARBUCKS")
+category: Food
+subcategory: Coffee
+tags: food, coffee
+
+[Chipotle]
+match: contains("CHIPOTLE")
+category: Food
+subcategory: Fast Food
+tags: food, dining
+
+[Panera]
+match: contains("PANERA")
+category: Food
+subcategory: Fast Food
+tags: food, dining
+
+[Restaurant]
+match: contains("RESTAURANT") or contains("DINNER")
+category: Food
+subcategory: Dining
+tags: food, dining
+
+[DoorDash]
+match: contains("DOORDASH")
+category: Food
+subcategory: Delivery
+tags: food, delivery
+
+[Grubhub]
+match: contains("GRUBHUB")
+category: Food
+subcategory: Delivery
+tags: food, delivery
+
+[Postmates]
+match: contains("POSTMATES")
+category: Food
+subcategory: Delivery
+tags: food, delivery
+
+# ============================================================
+# TRANSPORT
+# Gas stations, rideshare, car maintenance
+# ============================================================
+
+[Shell Gas]
+match: contains("SHELL")
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+[Chevron Gas]
+match: contains("CHEVRON")
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+[BP Gas]
+match: contains("BP GAS")
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+[Exxon Gas]
+match: contains("EXXON")
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+[Lyft]
+match: contains("LYFT")
+category: Transport
+subcategory: Rideshare
+tags: transport, rideshare
+
+[Car Maintenance]
+match: contains("JIFFY LUBE") or contains("OIL CHANGE")
+category: Transport
+subcategory: Maintenance
+tags: transport, auto, maintenance
+
+[Tires]
+match: contains("TIRE")
+category: Transport
+subcategory: Maintenance
+tags: transport, auto, maintenance
+
+[Auto Parts]
+match: contains("AUTOZONE") or contains("AUTO PARTS")
+category: Transport
+subcategory: Parts
+tags: transport, auto
+
+[DMV]
+match: contains("DMV") or contains("REGISTRATION")
+category: Transport
+subcategory: Registration
+tags: transport, auto, fees
+
+# ============================================================
+# TRAVEL
+# Airlines, hotels, car rental
+# ============================================================
+
+[Airlines]
+match: contains("SOUTHWEST") or contains("UNITED") or contains("DELTA") or contains("AMERICAN") or contains("AIRLINES")
+category: Travel
+subcategory: Flights
+tags: travel, flights
+
+[Hotels]
+match: contains("MARRIOTT") or contains("HILTON") or contains("HOTEL")
+category: Travel
+subcategory: Hotels
+tags: travel, lodging
+
+[Car Rental]
+match: contains("HERTZ") or contains("ENTERPRISE") or contains("CAR RENTAL")
+category: Travel
+subcategory: Car Rental
+tags: travel, rental
+
+[TSA PreCheck]
+match: contains("TSA") or contains("PRECHECK")
+category: Travel
+subcategory: Fees
+tags: travel, fees
+
+[Global Entry]
+match: contains("GLOBAL ENTRY")
+category: Travel
+subcategory: Fees
+tags: travel, fees
+
+# ============================================================
+# SUBSCRIPTIONS & STREAMING
+# ============================================================
+
+[Netflix]
+match: contains("NETFLIX")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Spotify]
+match: contains("SPOTIFY")
+category: Subscriptions
+subcategory: Music
+tags: recurring, entertainment, music
+
+[Hulu]
+match: contains("HULU")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Disney Plus]
+match: contains("DISNEY")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[HBO Max]
+match: contains("HBO") or contains("MAX SUBSCRIPTION")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Paramount Plus]
+match: contains("PARAMOUNT")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Peacock]
+match: contains("PEACOCK")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Apple TV]
+match: contains("APPLE TV")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[YouTube Premium]
+match: contains("YOUTUBE")
+category: Subscriptions
+subcategory: Streaming
+tags: recurring, entertainment, streaming
+
+[Audible]
+match: contains("AUDIBLE")
+category: Subscriptions
+subcategory: Books
+tags: recurring, entertainment, books
+
+[Kindle Unlimited]
+match: contains("KINDLE")
+category: Subscriptions
+subcategory: Books
+tags: recurring, entertainment, books
+
+[Masterclass]
+match: contains("MASTERCLASS")
+category: Subscriptions
+subcategory: Education
+tags: recurring, education
+
+[Discord]
+match: contains("DISCORD")
+category: Subscriptions
+subcategory: Social
+tags: recurring, social
+
+[ESPN Plus]
+match: contains("ESPN")
+category: Subscriptions
+subcategory: Sports
+tags: recurring, entertainment, sports
+
+# ============================================================
+# TECH SUBSCRIPTIONS
+# Cloud storage, developer tools
+# ============================================================
+
+[Apple Apps]
+match: contains("APPLE") and (contains("APP") or contains("STORE"))
+category: Subscriptions
+subcategory: Apps
+tags: recurring, tech
+
+[Apple iCloud]
+match: contains("APPLE") and contains("ICLOUD")
+category: Subscriptions
+subcategory: Cloud Storage
+tags: recurring, tech, cloud
+
+[Apple Music]
+match: contains("APPLE MUSIC")
+category: Subscriptions
+subcategory: Music
+tags: recurring, entertainment, music
+
+[Apple Arcade]
+match: contains("APPLE ARCADE")
+category: Subscriptions
+subcategory: Gaming
+tags: recurring, entertainment, gaming
+
+[Apple Care]
+match: contains("APPLE CARE")
+category: Insurance
+subcategory: Tech
+tags: insurance, tech, recurring
+
+[Google Storage]
+match: contains("GOOGLE") and contains("STORAGE")
+category: Subscriptions
+subcategory: Cloud Storage
+tags: recurring, tech, cloud
+
+[Dropbox]
+match: contains("DROPBOX")
+category: Subscriptions
+subcategory: Cloud Storage
+tags: recurring, tech, cloud
+
+[GitHub]
+match: contains("GITHUB")
+category: Subscriptions
+subcategory: Developer
+tags: recurring, tech, developer
+
+[OpenAI]
+match: contains("OPENAI")
+category: Subscriptions
+subcategory: AI
+tags: tech, ai
+
+# ============================================================
+# GAMING
+# ============================================================
+
+[Steam]
+match: contains("STEAM")
+category: Entertainment
+subcategory: Gaming
+tags: entertainment, gaming
+
+[PlayStation]
+match: contains("PLAYSTATION") or contains("PSN")
+category: Entertainment
+subcategory: Gaming
+tags: entertainment, gaming
+
+# ============================================================
+# SHOPPING - RETAIL
+# ============================================================
+
+[Target]
+match: contains("TARGET")
+category: Shopping
+subcategory: Retail
+tags: shopping, retail
+
+[Walmart]
+match: contains("WALMART")
+category: Shopping
+subcategory: Retail
+tags: shopping, retail
+
+[Home Depot]
+match: contains("HOME DEPOT")
+category: Shopping
+subcategory: Home Improvement
+tags: shopping, home
+
+[Lowes]
+match: contains("LOWE")
+category: Shopping
+subcategory: Home Improvement
+tags: shopping, home
+
+[Best Buy]
+match: contains("BEST BUY")
+category: Shopping
+subcategory: Electronics
+tags: shopping, electronics
+
+[Microcenter]
+match: contains("MICROCENTER")
+category: Shopping
+subcategory: Electronics
+tags: shopping, electronics, tech
+
+[Newegg]
+match: contains("NEWEGG")
+category: Shopping
+subcategory: Electronics
+tags: shopping, electronics, tech, online
+
+[eBay]
+match: contains("EBAY")
+category: Shopping
+subcategory: Online
+tags: shopping, online
+
+# ============================================================
+# CLOTHING
+# ============================================================
+
+[Nordstrom]
+match: contains("NORDSTROM")
+category: Shopping
+subcategory: Clothing
+tags: shopping, clothing
+
+[Macys]
+match: normalized("MACYS")
+category: Shopping
+subcategory: Clothing
+tags: shopping, clothing
+
+[Nike]
+match: contains("NIKE")
+category: Shopping
+subcategory: Clothing
+tags: shopping, clothing, athletic
+
+[Foot Locker]
+match: contains("FOOT LOCKER")
+category: Shopping
+subcategory: Clothing
+tags: shopping, clothing, athletic
+
+[Uniqlo]
+match: contains("UNIQLO")
+category: Shopping
+subcategory: Clothing
+tags: shopping, clothing
+
+[Spirit Halloween]
+match: contains("SPIRIT HALLOWEEN")
+category: Shopping
+subcategory: Seasonal
+tags: shopping, seasonal
+
+# ============================================================
+# HOME SERVICES
+# ============================================================
+
+[Lawn Care]
+match: contains("LAWN")
+category: Home
+subcategory: Lawn
+tags: home, services
+
+[Pest Control]
+match: contains("TERMINIX") or contains("PEST")
+category: Home
+subcategory: Pest Control
+tags: home, services
+
+[Security]
+match: contains("ADT") or contains("SECURITY")
+category: Home
+subcategory: Security
+tags: home, services, recurring
+
+[Ring]
+match: contains("RING") and contains("DOORBELL")
+category: Home
+subcategory: Security
+tags: home, tech, recurring
+
+[Nest]
+match: contains("NEST")
+category: Home
+subcategory: Smart Home
+tags: home, tech, recurring
+
+[Gutter]
+match: contains("GUTTER")
+category: Home
+subcategory: Maintenance
+tags: home, maintenance
+
+[HVAC]
+match: contains("HVAC")
+category: Home
+subcategory: Maintenance
+tags: home, maintenance
+
+[Plumber]
+match: contains("PLUMBER")
+category: Home
+subcategory: Repair
+tags: home, repair
+
+# ============================================================
+# PETS
+# ============================================================
+
+[Petco]
+match: contains("PETCO")
+category: Pets
+subcategory: Supplies
+tags: pets, supplies
+
+[Chewy]
+match: contains("CHEWY")
+category: Pets
+subcategory: Supplies
+tags: pets, supplies, online
+
+[Vet]
+match: contains("VET") and contains("CLINIC")
+category: Pets
+subcategory: Vet
+tags: pets, healthcare
+
+[Pet Sitting]
+match: contains("ROVER") or contains("PET SITTING")
+category: Pets
+subcategory: Care
+tags: pets, services
+
+# ============================================================
+# ENTERTAINMENT
+# ============================================================
+
+[Movie Theater]
+match: contains("AMC") or contains("MOVIE") or contains("THEATER")
+category: Entertainment
+subcategory: Movies
+tags: entertainment, movies
+
+[Museum]
+match: contains("MUSEUM")
+category: Entertainment
+subcategory: Museum
+tags: entertainment, culture
+
+[Bowling]
+match: contains("BOWLING")
+category: Entertainment
+subcategory: Activities
+tags: entertainment, activities
+
+# ============================================================
+# EDUCATION
+# ============================================================
+
+[Tuition]
+match: contains("TUITION")
+category: Education
+subcategory: Tuition
+tags: education, tuition
+
+[Textbooks]
+match: contains("TEXTBOOK")
+category: Education
+subcategory: Books
+tags: education, books
+
+[Parking Permit]
+match: contains("PARKING PERMIT")
+category: Education
+subcategory: Parking
+tags: education, fees
+
+# ============================================================
+# CHARITY
+# ============================================================
+
+[Charity]
+match: contains("CHARITY") or contains("DONATION") or contains("RED CROSS") or contains("FOOD BANK") or contains("SALVATION ARMY")
+category: Charity
+subcategory: Donation
+tags: charity, donation, tax-deductible
+
+# ============================================================
+# FEES
+# ============================================================
+
+[Credit Card Fee]
+match: contains("ANNUAL FEE")
+category: Fees
+subcategory: Credit Card
+tags: fees, credit
+
+[Internet Upgrade]
+match: contains("UPGRADE") and contains("INTERNET")
+category: Fees
+subcategory: Service
+tags: fees, internet
+
+# ============================================================
+# CHRISTMAS/HOLIDAY (for seasonal testing)
+# ============================================================
+
+[Christmas Tree]
+match: contains("CHRISTMAS TREE")
+category: Shopping
+subcategory: Seasonal
+tags: shopping, holiday, christmas
+
+[Christmas Gifts]
+match: contains("CHRISTMAS GIFTS")
+category: Shopping
+subcategory: Gifts
+tags: shopping, gifts, christmas
+
+[Decorations]
+match: contains("DECORATIONS")
+category: Shopping
+subcategory: Seasonal
+tags: shopping, seasonal
+
+# ============================================================
+# ADDITIONAL RULES FOR MULTI-SOURCE TESTING
+# ============================================================
+
+# Savings account transfers (from checking)
+[Transfer From Checking]
+match: contains("TRANSFER") and contains("CHECKING")
+category: Transfers
+subcategory: Internal
+tags: transfer, internal
+
+# Brokerage stock transactions (for testing multi-source)
+[Stock Dividend Generic]
+match: contains("DIVIDEND") and (contains("APPLE") or contains("MICROSOFT") or contains("VANGUARD") or contains("SPDR") or contains("INVESCO") or contains("ETF"))
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+[Stock Sale Generic]
+match: contains("ALPHABET") or contains("NVIDIA") or contains("TESLA") or contains("META PLATFORMS") or contains("AMAZON.COM INC")
+category: Transfers
+subcategory: Stock Sale
+tags: transfer, brokerage, stock
+
+# Gas utility variations
+[SoCal Gas]
+match: contains("SOCALGAS")
+category: Utilities
+subcategory: Gas
+tags: bills, utilities, recurring
+
+[Pacific Gas Electric]
+match: contains("PACIFIC GAS")
+category: Utilities
+subcategory: Electric
+tags: bills, utilities, recurring
+
+[City Water]
+match: contains("CITY WATER")
+category: Utilities
+subcategory: Water
+tags: bills, utilities, recurring
+
+[Waste Management]
+match: contains("WASTE MGMT")
+category: Utilities
+subcategory: Trash
+tags: bills, utilities, recurring
+
+# Rent variation
+[Rent ACH]
+match: contains("RENT PAYMENT")
+category: Housing
+subcategory: Rent
+tags: bills, housing, recurring
+
+# More ETF/Stock dividends
+[Vanguard ETF Dividend]
+match: contains("VANGUARD") and (contains("ETF") or contains("DIV") or contains("STOCK"))
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+[SCHD ETF]
+match: contains("SCHWAB") and contains("DIVIDEND") and contains("ETF")
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+# BP gas station pattern
+[BP Station]
+match: contains("BP#") or (contains("BP") and contains("GAS"))
+category: Transport
+subcategory: Gas
+tags: transport, gas
+
+# Micro Center variation
+[Micro Center]
+match: contains("MICRO CENTER")
+category: Shopping
+subcategory: Electronics
+tags: shopping, electronics, tech
+
+# More specific dividend rules
+[Invesco QQQ]
+match: contains("INVESCO") or contains("QQQ")
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+[SPY SPDR]
+match: contains("SPDR") or contains("S&P 500 ETF")
+category: Income
+subcategory: Dividends
+tags: income, dividends, brokerage
+
+# Schwab commission
+[Schwab Commission]
+match: contains("SCHWAB") and contains("COMMISSION")
+category: Fees
+subcategory: Brokerage Fee
+tags: fees, brokerage
+
+# ATT cell phone
+[ATT Phone]
+match: contains("ATT") and contains("CELL")
+category: Utilities
+subcategory: Phone
+tags: bills, utilities, recurring
+
+# Unknown fallback for testing
+[Unknown Merchant Test]
+match: contains("UNKNOWN MERCHANT")
+category: Unknown
+subcategory: Unknown
+tags: unclassified

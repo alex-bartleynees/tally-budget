@@ -108,6 +108,16 @@ WHOLEFDS,Whole Foods,Food,Grocery,
 - YOU MUST document new options in `config/settings.yaml.example`
 - YOU MUST update AGENTS.md in `cli.py` for new user-facing features
 
+**Rule Engine (CRITICAL):**
+- The rule engine is the CORE VALUE of tally - users carry personalized rules across versions
+- YOU MUST NOT change rule matching behavior without making it opt-in
+- YOU MUST run snapshot tests (`tests/test_rule_snapshots.py`) before committing rule engine changes
+- Breaking changes to `merchant_engine.py` or `merchant_utils.py` require:
+  1. New behavior behind a flag (e.g., `rule_mode` in settings.yaml)
+  2. Default behavior unchanged
+  3. Snapshot tests passing
+- Historical example: commit 952c508 broke customers by changing "first match wins" to "most specific wins"
+
 ## Release Process
 
 1. **Check commits since last release:**
