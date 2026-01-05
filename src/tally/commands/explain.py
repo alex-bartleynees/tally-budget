@@ -1,5 +1,5 @@
 """
-Tally 'explain' command - Explain merchant classifications.
+Tally 'explain' command - Show merchant categorization and matching rules.
 """
 
 import os
@@ -19,7 +19,7 @@ from ..analyzer import analyze_transactions, export_json, export_markdown, build
 
 
 def cmd_explain(args):
-    """Handle the 'explain' subcommand - explain merchant classifications."""
+    """Handle the 'explain' subcommand - show merchant categorization and matching rules."""
     from difflib import get_close_matches
 
     # Handle merchant args - check if last arg looks like a config path
@@ -699,8 +699,6 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months, 
         reasoning = data.get('reasoning', {})
         print(f"## {name}")
         print(f"**Category:** {data.get('category', '')} > {data.get('subcategory', '')}")
-        print(f"**Frequency:** {data.get('classification', 'unknown').replace('_', ' ').title()}")
-        print(f"**Reason:** {reasoning.get('decision', 'N/A')}")
         print(f"**Monthly Value:** ${data.get('monthly_value', 0):.2f}")
         print(f"**YTD Total:** ${data.get('total', 0):.2f}")
         print(f"**Months Active:** {data.get('months_active', 0)}/{num_months}")
@@ -751,15 +749,11 @@ def _print_merchant_explanation(name, data, output_format, verbose, num_months, 
             print(f"\n**Pattern:** `{pattern}` ({source})")
         print()
     else:
-        # Text format - show category first, then frequency classification
+        # Text format
         category = data.get('category', 'Unknown')
         subcategory = data.get('subcategory', 'Unknown')
-        classification = data.get('classification', 'unknown').replace('_', ' ').title()
-        reasoning = data.get('reasoning', {})
         print(f"{name}")
         print(f"  Category: {category} > {subcategory}")
-        print(f"  Frequency: {classification}")
-        print(f"  Reason: {reasoning.get('decision', 'N/A')}")
 
         # Show tags
         tags = data.get('tags', [])

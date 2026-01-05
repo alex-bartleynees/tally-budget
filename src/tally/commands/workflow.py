@@ -132,10 +132,10 @@ def cmd_workflow(args):
 
     section("Commands")
     cmds = [
-        ("tally run", "Generate HTML spending report"),
-        ("tally run --summary", "Quick text summary"),
+        ("tally up", "Generate HTML spending report"),
+        ("tally up --summary", "Quick text summary"),
         ("tally discover", "Find unknown merchants"),
-        ("tally explain <merchant>", "Debug classification"),
+        ("tally explain <merchant>", "Show category and rules"),
         ("tally diag", "Diagnose config issues"),
     ]
     for cmd, desc in cmds:

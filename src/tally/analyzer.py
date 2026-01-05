@@ -153,7 +153,6 @@ def analyze_transactions(transactions):
     # All merchants use YTD/12 for monthly value calculation
     # Custom grouping/views are defined in views.rules
     for merchant, data in by_merchant.items():
-        data['classification'] = 'variable'
         data['calc_type'] = '/12'
         monthly_value = data['total'] / 12
         data['monthly_value'] = monthly_value
@@ -326,7 +325,6 @@ def build_merchant_json(merchant_name, data, verbose=0):
 
     result = {
         'name': merchant_name,
-        'classification': data.get('classification', 'unknown'),
         'category': data.get('category', ''),
         'subcategory': data.get('subcategory', ''),
         'tags': tags,

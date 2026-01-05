@@ -122,7 +122,7 @@ def main():
     )
     up_parser.add_argument(
         '--only',
-        help='Filter to specific classifications (comma-separated: monthly,variable,travel)'
+        help='Filter to specific views (comma-separated view names from views.rules)'
     )
     up_parser.add_argument(
         '--category',
@@ -191,7 +191,7 @@ def main():
     )
     run_parser.add_argument(
         '--only',
-        help='Filter to specific classifications (comma-separated: monthly,variable,travel)'
+        help='Filter to specific views (comma-separated view names from views.rules)'
     )
     run_parser.add_argument(
         '--category',
@@ -287,10 +287,10 @@ def main():
     # explain subcommand
     explain_parser = subparsers.add_parser(
         'explain',
-        help='Explain why merchants are classified the way they are',
-        description='Show classification reasoning for merchants or transaction descriptions. '
-                    'Pass a merchant name to see its classification, or a raw transaction description '
-                    'to see which rule matches. Use --amount to test amount-based rules.'
+        help='Show how merchants are categorized and which rules match',
+        description='Show categorization details for merchants or transaction descriptions. '
+                    'Pass a merchant name to see its category and matching views, or a raw transaction '
+                    'description to see which rule matches. Use --amount to test amount-based rules.'
     )
     explain_parser.add_argument(
         'merchant',
