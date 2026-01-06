@@ -218,12 +218,14 @@
                     <a href="#combining">Combining Conditions</a>
                     <a href="#custom-fields">Custom CSV Fields</a>
                     <a href="#extraction">Extraction Functions</a>
+                    <a href="#rule-mode">Rule Mode (Experimental)</a>
                 </div>
                 <div>
                     <a href="#variables">Variables</a>
                     <a href="#transforms">Field Transforms</a>
                     <a href="#special-tags">Special Tags</a>
                     <a href="#dynamic-tags">Dynamic Tags</a>
+                    <a href="#supplemental">Supplemental Sources (Experimental)</a>
                     <a href="#views-rules">Views Rules</a>
                     <a href="#view-functions">View Functions</a>
                 </div>
@@ -392,6 +394,39 @@
             </tr>
         </table>
 
+        <h2 id="rule-mode"><a href="#rule-mode" class="anchor-link">#</a>Rule Mode (Experimental)</h2>
+        <p>Control how rules are matched when multiple patterns could match a transaction.</p>
+
+        <div class="note">
+            <div class="note-title">Experimental</div>
+            <p>This feature is experimental and may change based on feedback.</p>
+        </div>
+
+        <pre><code><span class="comment"># In settings.yaml:</span>
+<span class="keyword">rule_mode:</span> first_match    <span class="comment"># Default - first matching rule wins</span>
+<span class="keyword">rule_mode:</span> most_specific  <span class="comment"># Most specific pattern wins</span></code></pre>
+
+        <h3>first_match (Default)</h3>
+        <p>The first rule that matches wins. Order your rules from most specific to least specific:</p>
+        <pre><code><span class="highlight">[Uber Eats]</span>                    <span class="comment"># Check first (more specific)</span>
+<span class="keyword">match:</span> contains(<span class="string">"UBER EATS"</span>)
+<span class="keyword">category:</span> Food
+
+<span class="highlight">[Uber]</span>                         <span class="comment"># Check second (less specific)</span>
+<span class="keyword">match:</span> contains(<span class="string">"UBER"</span>)
+<span class="keyword">category:</span> Transportation</code></pre>
+
+        <h3>most_specific</h3>
+        <p>The rule with the most specific match wins, regardless of order. Specificity is determined by pattern length and type:</p>
+        <pre><code><span class="comment"># Order doesn't matter with most_specific mode</span>
+<span class="highlight">[Uber]</span>
+<span class="keyword">match:</span> contains(<span class="string">"UBER"</span>)        <span class="comment"># Less specific (4 chars)</span>
+<span class="keyword">category:</span> Transportation
+
+<span class="highlight">[Uber Eats]</span>
+<span class="keyword">match:</span> contains(<span class="string">"UBER EATS"</span>)   <span class="comment"># More specific (9 chars) - wins</span>
+<span class="keyword">category:</span> Food</code></pre>
+
         <h2 id="custom-fields"><a href="#custom-fields" class="anchor-link">#</a>Custom CSV Fields</h2>
         <p>Access fields captured from CSV format strings using <code>field.&lt;name&gt;</code>:</p>
         <pre><code><span class="comment"># In settings.yaml:</span>
@@ -540,6 +575,100 @@ field.memo = trim(field.memo)</code></pre>
             <div class="note-title">Two-pass matching</div>
             <p>First rule with <code>category:</code> sets the category. Tags are collected from ALL matching rules.</p>
         </div>
+
+        <h2 id="supplemental"><a href="#supplemental" class="anchor-link">#</a>Supplemental Data Sources (Experimental)</h2>
+        <p>Enrich transactions with data from other CSV files. Match Amazon transactions to order details, PayPal payments to merchant names, or any cross-reference scenario.</p>
+
+        <div class="note">
+            <div class="note-title">Experimental</div>
+            <p>This feature is experimental and will evolve based on feedback.</p>
+        </div>
+
+        <h3>Defining Supplemental Sources</h3>
+        <pre><code><span class="comment"># In settings.yaml:</span>
+<span class="keyword">data_sources:</span>
+  - <span class="keyword">name:</span> Chase                    <span class="comment"># Primary source (generates transactions)</span>
+    <span class="keyword">file:</span> data/chase.csv
+    <span class="keyword">format:</span> <span class="string">"{date},{description},{amount}"</span>
+
+  - <span class="keyword">name:</span> amazon_orders            <span class="comment"># Supplemental source (query-only)</span>
+    <span class="keyword">file:</span> data/amazon_orders.csv
+    <span class="keyword">format:</span> <span class="string">"{date},{item},{amount}"</span>
+    <span class="keyword">supplemental:</span> true              <span class="comment"># Won't generate transactions</span></code></pre>
+
+        <h3>Querying with List Comprehensions</h3>
+        <p>Use Python list comprehensions to query supplemental data. Access the current transaction via <code>txn.</code>:</p>
+        <pre><code><span class="highlight">[Amazon - Verified]</span>
+<span class="keyword">match:</span> contains(<span class="string">"AMAZON"</span>) and any(r for r in amazon_orders if r.amount == txn.amount)
+<span class="keyword">category:</span> Shopping
+<span class="keyword">subcategory:</span> Online</code></pre>
+
+        <h3>The let: Directive</h3>
+        <p>Cache expensive queries in named variables for reuse:</p>
+        <pre><code><span class="highlight">[Amazon - Verified]</span>
+<span class="keyword">let:</span> orders = [r for r in amazon_orders if r.amount == txn.amount]
+<span class="keyword">let:</span> has_order = len(orders) > 0
+<span class="keyword">match:</span> contains(<span class="string">"AMAZON"</span>) and has_order
+<span class="keyword">category:</span> Shopping
+<span class="keyword">tags:</span> verified</code></pre>
+
+        <h3>The field: Directive</h3>
+        <p>Add computed fields to transactions (visible in HTML report):</p>
+        <pre><code><span class="highlight">[Amazon - Verified]</span>
+<span class="keyword">let:</span> orders = [r for r in amazon_orders if r.amount == txn.amount]
+<span class="keyword">match:</span> contains(<span class="string">"AMAZON"</span>) and len(orders) > 0
+<span class="keyword">category:</span> Shopping
+<span class="keyword">field:</span> items = [r.item for r in orders]
+<span class="keyword">field:</span> order_count = len(orders)</code></pre>
+
+        <h3>Supported Functions</h3>
+        <table>
+            <tr>
+                <th>Function</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>any(expr for r in source if cond)</code></td>
+                <td>True if any record matches</td>
+            </tr>
+            <tr>
+                <td><code>len([...])</code></td>
+                <td>Count of matching records</td>
+            </tr>
+            <tr>
+                <td><code>sum(r.amount for r in source)</code></td>
+                <td>Sum values from records</td>
+            </tr>
+            <tr>
+                <td><code>next((r for r in source if cond), None)</code></td>
+                <td>First matching record or None</td>
+            </tr>
+        </table>
+
+        <h3>Transaction Context (txn.)</h3>
+        <p>Access current transaction fields with the <code>txn.</code> prefix:</p>
+        <table>
+            <tr>
+                <th>Field</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>txn.amount</code></td>
+                <td>Transaction amount</td>
+            </tr>
+            <tr>
+                <td><code>txn.date</code></td>
+                <td>Transaction date</td>
+            </tr>
+            <tr>
+                <td><code>txn.description</code></td>
+                <td>Transaction description</td>
+            </tr>
+            <tr>
+                <td><code>txn.&lt;field&gt;</code></td>
+                <td>Any custom captured field</td>
+            </tr>
+        </table>
 
         <h2 id="rule-priority"><a href="#rule-priority" class="anchor-link">#</a>Rule Priority</h2>
         <p>First categorization rule wins. Put specific patterns before general ones:</p>
