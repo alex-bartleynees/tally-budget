@@ -222,7 +222,7 @@
         <h2 id="settings-yaml"><a href="#settings-yaml" class="anchor-link">#</a>settings.yaml</h2>
         <p>The main configuration file. Created by <code>tally init</code>.</p>
 
-        <pre><code><span class="highlight">year:</span> 2025
+        <pre><code><span class="highlight">title:</span> <span class="string">"2025 Budget"</span>
 
 <span class="highlight">currency_format:</span> <span class="string">"${amount}"</span>  <span class="comment"># Optional: defaults to $</span>
 
@@ -478,7 +478,7 @@ UBER -> <span class="string">"Uber"</span>, Travel, Transport</code></pre>
                 <td>Show next steps (context-aware)</td>
             </tr>
             <tr>
-                <td><code>tally run</code></td>
+                <td><code>tally up</code></td>
                 <td>Generate HTML spending report</td>
             </tr>
             <tr>
@@ -505,21 +505,24 @@ UBER -> <span class="string">"Uber"</span>, Travel, Transport</code></pre>
 
         <h3>Output Formats</h3>
         <pre><code><span class="comment"># Different output formats</span>
-tally run                      <span class="comment"># HTML report (default)</span>
-tally run --format json        <span class="comment"># JSON with reasoning</span>
-tally run --format markdown    <span class="comment"># Markdown report</span>
-tally run --format summary     <span class="comment"># Text summary only</span>
+tally up                       <span class="comment"># HTML report (default)</span>
+tally up --format json         <span class="comment"># JSON with reasoning</span>
+tally up --format markdown     <span class="comment"># Markdown report</span>
+tally up --format summary      <span class="comment"># Text summary only</span>
 
 <span class="comment"># Verbosity levels</span>
-tally run -v                   <span class="comment"># Include decision trace</span>
-tally run -vv                  <span class="comment"># Include thresholds, CV values</span></code></pre>
+tally up -v                    <span class="comment"># Include decision trace</span>
+tally up -vv                   <span class="comment"># Include thresholds, CV values</span>
+
+<span class="comment"># Show changes since last run</span>
+tally up --diff                <span class="comment"># Detailed diff output</span></code></pre>
 
         <h3>Filtering</h3>
         <pre><code><span class="comment"># Filter by classification</span>
-tally run --format json --only monthly,variable
+tally up --format json --only monthly,variable
 
 <span class="comment"># Filter by category</span>
-tally run --format json --category Food
+tally up --format json --category Food
 
 <span class="comment"># Explain specific classifications</span>
 tally explain --classification monthly
