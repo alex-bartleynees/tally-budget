@@ -164,12 +164,11 @@ class TransactionContext:
     - weekday: Day of week (0=Monday, 1=Tuesday, ... 6=Sunday)
     - field: Custom fields captured from CSV format string (dict)
     - source: Data source name (string)
-    - location: Transaction location (string)
     - data_sources: Dict mapping source names to list of row dicts (for queries)
     """
 
     __slots__ = ('description', 'amount', 'date', 'variables', 'field', 'source',
-                 'month', 'year', 'day', 'weekday', 'location', 'data_sources')
+                 'month', 'year', 'day', 'weekday', 'data_sources')
 
     # Class-level function name mapping (looked up dynamically)
     _FUNCTION_NAMES: Set[str] = {
@@ -187,7 +186,6 @@ class TransactionContext:
         variables: Optional[Dict[str, Any]] = None,
         field: Optional[Dict[str, str]] = None,
         source: Optional[str] = None,
-        location: Optional[str] = None,
         data_sources: Optional[Dict[str, List[Dict]]] = None,
     ):
         self.description = description
@@ -196,7 +194,6 @@ class TransactionContext:
         self.variables = variables or {}
         self.field = field  # Custom captures from CSV format string (None if not available)
         self.source = source or ""  # Data source name (e.g., "Amex", "Chase")
-        self.location = location or ""  # Transaction location (e.g., "Seattle, WA")
         self.data_sources = data_sources or {}  # Source name -> list of row dicts
 
         # Extract date components
@@ -503,7 +500,6 @@ class TransactionContext:
             variables=variables,
             field=txn.get('field'),
             source=txn.get('source'),
-            location=txn.get('location'),
             data_sources=data_sources,
         )
 
@@ -1059,8 +1055,6 @@ class TransactionEvaluator:
                 return self.ctx.date
             elif attr_name == 'source':
                 return getattr(self.ctx, 'source', '')
-            elif attr_name == 'location':
-                return getattr(self.ctx, 'location', '')
             elif attr_name == 'month':
                 return self.ctx.month
             elif attr_name == 'year':
@@ -1070,7 +1064,7 @@ class TransactionEvaluator:
             elif attr_name == 'weekday':
                 return self.ctx.weekday
             else:
-                available = ['description', 'amount', 'date', 'source', 'location',
+                available = ['description', 'amount', 'date', 'source',
                              'month', 'year', 'day', 'weekday']
                 raise ExpressionError(
                     f"Unknown txn attribute: txn.{node.attr}. "
@@ -1090,15 +1084,13 @@ class TransactionEvaluator:
                 return self.ctx.date
             elif field_name == 'source':
                 return getattr(self.ctx, 'source', '')
-            elif field_name == 'location':
-                return getattr(self.ctx, 'location', '')
 
             # Custom fields from CSV
             if self.ctx.field is not None and field_name in self.ctx.field:
                 return self.ctx.field[field_name]
 
             # Field not found
-            available = ['description', 'amount', 'date', 'source', 'location']
+            available = ['description', 'amount', 'date', 'source']
             if self.ctx.field:
                 available.extend(sorted(self.ctx.field.keys()))
             raise ExpressionError(

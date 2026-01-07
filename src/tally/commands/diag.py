@@ -254,8 +254,6 @@ def cmd_diag(args):
                         print(f"       {name}: column {col} (custom capture)")
                 if format_spec.description_template:
                     print(f"     Description template: {format_spec.description_template}")
-                if format_spec.location_column is not None:
-                    print(f"       location: column {format_spec.location_column}")
                 if format_spec.negate_amount:
                     print(f"     Amount negation: enabled")
             print()

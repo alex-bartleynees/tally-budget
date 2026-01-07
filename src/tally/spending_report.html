@@ -26,7 +26,7 @@
                            @input="onSearchInput"
                            @focus="showAutocomplete = true"
                            @keydown="onSearchKeydown"
-                           placeholder="Search merchants, categories, locations...">
+                           placeholder="Search merchants, categories, tags...">
                     <div class="autocomplete-list" :class="{ show: showAutocomplete && filteredAutocomplete.length > 0 }">
                         <div v-for="(item, index) in filteredAutocomplete"
                              :key="item.id"
@@ -203,7 +203,6 @@
                     :format-date="formatDate"
                     :format-pct="formatPct"
                     :add-filter="addFilter"
-                    :get-location-class="getLocationClass"
                     :highlight-description="highlightDescription"
                     :tag-color="tagColor"
                 ></merchant-section>
@@ -238,7 +237,6 @@
                     :format-date="formatDate"
                     :format-pct="formatPct"
                     :add-filter="addFilter"
-                    :get-location-class="getLocationClass"
                     :highlight-description="highlightDescription"
                     :tag-color="tagColor"
                 ></merchant-section>
@@ -274,7 +272,6 @@
                     :format-date="formatDate"
                     :format-pct="formatPct"
                     :add-filter="addFilter"
-                    :get-location-class="getLocationClass"
                     :highlight-description="highlightDescription"
                     :tag-color="tagColor"
                 ></merchant-section>

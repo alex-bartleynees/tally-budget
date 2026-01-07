@@ -21,7 +21,6 @@ from .classification import (
 # Import parsing functions from parsers module (and re-export for backwards compatibility)
 from .parsers import (
     parse_amount,
-    extract_location,
     parse_amex,
     parse_boa,
     parse_generic_csv,
@@ -104,7 +103,6 @@ def analyze_transactions(transactions):
             'description': txn.get('raw_description', txn['description']),
             'amount': effective_amount,
             'source': txn['source'],
-            'location': txn.get('location'),
             'tags': txn.get('tags', [])
         }
         # Include extra_fields from field: directives

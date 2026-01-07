@@ -291,7 +291,6 @@ def cmd_reference(args):
   {C.GREEN}txn.date{C.RESET}          Transaction date
   {C.GREEN}txn.description{C.RESET}   Transaction description
   {C.GREEN}txn.source{C.RESET}        Data source name
-  {C.GREEN}txn.location{C.RESET}      Transaction location
 
   {C.BOLD}Useful in list comprehensions to avoid ambiguity:{C.RESET}
   {C.DIM}# Find orders within 3 days of transaction{C.RESET}

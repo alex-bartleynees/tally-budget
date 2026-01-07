@@ -126,7 +126,6 @@ const MerchantSection = defineComponent({
         formatDate: { type: Function, required: true },
         formatPct: { type: Function, default: null },
         addFilter: { type: Function, required: true },
-        getLocationClass: { type: Function, default: null },
         highlightDescription: { type: Function, default: (d) => d },
         tagColor: { type: Function, default: () => '#888' }
     },
@@ -299,12 +298,6 @@ const MerchantSection = defineComponent({
                                             <span class="txn-date">{{ formatDate(txn.date) }}</span>
                                             <span class="txn-desc"><span v-if="txn.source" class="txn-source" :class="txn.source.toLowerCase()">{{ txn.source }}</span> <span v-html="highlightDescription(txn.description)"></span></span>
                                             <span class="txn-badges">
-                                                <span v-if="txn.location && getLocationClass"
-                                                      class="txn-location clickable"
-                                                      :class="getLocationClass(txn.location)"
-                                                      @click.stop="addFilter(txn.location, 'location')">
-                                                    {{ txn.location }}
-                                                </span>
                                                 <span v-for="tag in [...(txn.tags || [])].sort()"
                                                       :key="tag"
                                                       class="tag-badge"
@@ -1248,21 +1241,6 @@ createApp({
                 }
             });
 
-            // Locations (unique)
-            const locations = new Set();
-            for (const category of Object.values(categoryView)) {
-                for (const subcat of Object.values(category.subcategories || {})) {
-                    for (const merchant of Object.values(subcat.merchants || {})) {
-                        for (const txn of merchant.transactions || []) {
-                            if (txn.location) locations.add(txn.location);
-                        }
-                    }
-                }
-            }
-            locations.forEach(l => items.push({
-                type: 'location', filterText: l, displayText: l, id: `l:${l}`
-            }));
-
             // Tags (unique across all merchants, including excluded and refund transactions)
             const tags = new Set();
             for (const category of Object.values(categoryView)) {
@@ -1308,7 +1286,7 @@ createApp({
             if (!q) return [];
 
             // Priority order for autocomplete types (lower = higher priority)
-            const typePriority = { tag: 0, category: 1, subcategory: 2, location: 3, merchant: 4 };
+            const typePriority = { tag: 0, category: 1, subcategory: 2, merchant: 3 };
 
             // Get matching autocomplete items (merchants, categories, etc.)
             // Sort by type priority so tags/categories appear before merchants
@@ -1401,8 +1379,6 @@ createApp({
                     return merchant.category.toLowerCase() === text;
                 case 'subcategory':
                     return merchant.subcategory.toLowerCase() === text;
-                case 'location':
-                    return (txn.location || '').toLowerCase() === text;
                 case 'month':
                     return monthMatches(txn.month, filter.text);
                 case 'tag':
@@ -1577,7 +1553,7 @@ createApp({
         }
 
         function filterTypeChar(type) {
-            return { category: 'c', subcategory: 'sc', merchant: 'm', location: 'l', month: 'd', tag: 't', text: 's' }[type] || '?';
+            return { category: 'c', subcategory: 'sc', merchant: 'm', month: 'd', tag: 't', text: 's' }[type] || '?';
         }
 
         // Highlight search terms in transaction descriptions
@@ -1603,12 +1579,6 @@ createApp({
 
         function escapeRegex(text) {
             return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        }
-
-        function getLocationClass(location) {
-            // Just distinguish international locations (>2 chars) from domestic
-            if (location && location.length > 2) return 'intl';
-            return '';
         }
 
         function expandMonthRange(rangeStr) {
@@ -1678,7 +1648,7 @@ createApp({
                 history.replaceState(null, '', location.pathname);
                 return;
             }
-            const typeChar = { category: 'c', subcategory: 'sc', merchant: 'm', location: 'l', month: 'd', tag: 't', text: 's' };
+            const typeChar = { category: 'c', subcategory: 'sc', merchant: 'm', month: 'd', tag: 't', text: 's' };
             const parts = activeFilters.value.map(f => {
                 const mode = f.mode === 'exclude' ? '-' : '+';
                 return `${mode}${typeChar[f.type]}:${encodeURIComponent(f.text)}`;
@@ -1689,7 +1659,7 @@ createApp({
         function hashToFilters() {
             const hash = location.hash.slice(1);
             if (!hash) return;
-            const typeMap = { c: 'category', sc: 'subcategory', m: 'merchant', l: 'location', d: 'month', t: 'tag', s: 'text' };
+            const typeMap = { c: 'category', sc: 'subcategory', m: 'merchant', d: 'month', t: 'tag', s: 'text' };
             hash.split('&').forEach(part => {
                 const mode = part[0] === '-' ? 'exclude' : 'include';
                 const start = part[0] === '+' || part[0] === '-' ? 1 : 0;
@@ -2034,7 +2004,7 @@ createApp({
             // Methods
             addFilter, removeFilter, toggleFilterMode, clearFilters, addMonthFilter,
             toggleExpand, toggleSection, toggleSort, sortedMerchants,
-            formatCurrency, formatDate, formatMonthLabel, formatPct, filterTypeChar, getLocationClass,
+            formatCurrency, formatDate, formatMonthLabel, formatPct, filterTypeChar,
             highlightDescription,
             onSearchInput, onSearchKeydown, selectAutocompleteItem,
             toggleTheme

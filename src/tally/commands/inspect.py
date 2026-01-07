@@ -151,13 +151,9 @@ def cmd_inspect(args):
         print(f"  - Date column: {spec.date_column} (format: {spec.date_format})")
         print(f"  - Description column: {spec.description_column}")
         print(f"  - Amount column: {spec.amount_column}")
-        if spec.location_column is not None:
-            print(f"  - Location column: {spec.location_column}")
 
         # Build suggested format string
         max_col = max(spec.date_column, spec.description_column, spec.amount_column)
-        if spec.location_column is not None:
-            max_col = max(max_col, spec.location_column)
 
         cols = []
         for i in range(max_col + 1):
@@ -167,8 +163,6 @@ def cmd_inspect(args):
                 cols.append('{description}')
             elif i == spec.amount_column:
                 cols.append('{amount}')
-            elif spec.location_column is not None and i == spec.location_column:
-                cols.append('{location}')
             else:
                 cols.append('{_}')
 

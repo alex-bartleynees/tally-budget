@@ -204,7 +204,6 @@ def cmd_explain(args):
         has_category = hasattr(args, 'category') and args.category
         has_tags = hasattr(args, 'tags') and args.tags
         has_month = hasattr(args, 'month') and args.month
-        has_location = hasattr(args, 'location') and args.location
 
         # Apply view filter
         if has_view:
@@ -280,15 +279,6 @@ def cmd_explain(args):
                     print(f"Available months: {', '.join(sorted(available_months))}", file=sys.stderr)
                 sys.exit(1)
 
-        # Apply location filter
-        if has_location:
-            location_lower = args.location.lower()
-            matching_merchants = {
-                k: v for k, v in matching_merchants.items()
-                if _merchant_has_location(v, location_lower)
-            }
-            active_filters.append(f"location:{args.location}")
-
         # If no filters applied, show summary
         if not active_filters:
             _print_explain_summary(stats, verbose)
@@ -309,7 +299,7 @@ def cmd_explain(args):
                     _print_classification_summary('Filtered', matching_merchants, verbose, stats['num_months'])
                 else:
                     print(f"No merchants found matching: {filter_desc}")
-                    _suggest_available_values(by_merchant, has_category, has_tags, has_month, has_location)
+                    _suggest_available_values(by_merchant, has_category, has_tags, has_month)
 
     print_deprecation_warnings(config)
 
@@ -390,17 +380,7 @@ def _merchant_has_month(merchant_data, month_filter):
     return False
 
 
-def _merchant_has_location(merchant_data, location_lower):
-    """Check if merchant has transactions with the specified location."""
-    transactions = merchant_data.get('transactions', [])
-    for txn in transactions:
-        txn_location = txn.get('location', '')
-        if txn_location and location_lower in txn_location.lower():
-            return True
-    return False
-
-
-def _suggest_available_values(by_merchant, has_category, has_tags, has_month, has_location):
+def _suggest_available_values(by_merchant, has_category, has_tags, has_month):
     """Suggest available filter values when no matches found."""
     if has_category:
         all_categories = set(v.get('category') for v in by_merchant.values() if v.get('category'))
@@ -422,19 +402,6 @@ def _suggest_available_values(by_merchant, has_category, has_tags, has_month, ha
                     all_months.add(txn['month'])
         if all_months:
             print(f"\nAvailable months: {', '.join(sorted(all_months))}")
-
-    if has_location:
-        all_locations = set()
-        for data in by_merchant.values():
-            for txn in data.get('transactions', []):
-                if txn.get('location'):
-                    all_locations.add(txn['location'])
-        if all_locations:
-            # Show unique locations, limit to 10
-            sorted_locs = sorted(all_locations)[:10]
-            print(f"\nSample locations: {', '.join(sorted_locs)}")
-            if len(all_locations) > 10:
-                print(f"  ... and {len(all_locations) - 10} more")
 
 
 def _format_match_expr(pattern):

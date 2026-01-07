@@ -20,7 +20,6 @@ class FormatSpec:
     custom_captures: Optional[dict] = None    # Mode 2: {type}, {merchant}, etc.
     description_template: Optional[str] = None  # Mode 2: "{merchant} - {type}"
     extra_fields: Optional[dict] = None  # Extra field captures alongside {description}
-    location_column: Optional[int] = None
     has_header: bool = True
     source_name: Optional[str] = None  # Optional override for transaction source
     negate_amount: bool = False  # If True, flip the sign of amounts (use {-amount} in format)
@@ -29,7 +28,7 @@ class FormatSpec:
 
 
 # Reserved field names that cannot be used for custom captures
-RESERVED_NAMES = {'date', 'amount', 'location', 'description', '_', '*', 'field'}
+RESERVED_NAMES = {'date', 'amount', 'description', '_', '*', 'field'}
 
 
 def parse_format_string(format_str: str, description_template: Optional[str] = None) -> FormatSpec:
@@ -49,7 +48,6 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
         Mode 2 (custom): Use named captures like {type}, {merchant} with a description_template
 
     Required fields: date, amount, and either {description} or custom captures
-    Optional fields: location
 
     Examples:
         Mode 1: "{date:%m/%d/%Y}, {description}, {amount}"
@@ -170,7 +168,6 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
         custom_captures=custom_captures if custom_captures else None,
         description_template=description_template,
         extra_fields=extra_fields,
-        location_column=field_positions.get('location'),
         has_header=True,
         negate_amount=negate_amount,
         abs_amount=abs_amount,

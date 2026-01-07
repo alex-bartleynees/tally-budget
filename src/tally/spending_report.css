@@ -22,7 +22,6 @@
     --bg-highlight: rgba(255, 230, 0, 0.3);
     --bg-code: rgba(255,255,255,0.08);
     --bg-help: rgba(255,255,255,0.02);
-    --bg-location: #444;
 
     /* Text */
     --text-primary: #e8e8e8;
@@ -84,7 +83,6 @@
     --bg-highlight: rgba(255, 200, 0, 0.3);
     --bg-code: rgba(0,0,0,0.06);
     --bg-help: rgba(0,0,0,0.02);
-    --bg-location: #666;
 
     --text-primary: #1a1a2e;
     --text-secondary: #555;
@@ -299,9 +297,6 @@ h1 {
 .autocomplete-item .type.merchant {
     color: var(--accent-cyan);
 }
-.autocomplete-item .type.location {
-    color: var(--accent-orange);
-}
 .autocomplete-item .type.tag {
     color: var(--accent-yellow);
 }
@@ -363,13 +358,11 @@ h1 {
 .filter-chip.subcategory.include { background: rgba(240, 147, 251, 0.2); color: var(--accent-pink); }
 .filter-chip.merchant { border-color: var(--accent-cyan); }
 .filter-chip.merchant.include { background: rgba(77, 255, 210, 0.2); color: var(--accent-cyan); }
-.filter-chip.location { border-color: var(--accent-orange); }
-.filter-chip.location.include { background: rgba(255, 169, 77, 0.2); color: var(--accent-orange); }
 .filter-chip.month { border-color: var(--accent-purple); }
 .filter-chip.month.include { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); }
 .filter-chip.tag { border-color: var(--accent-yellow); }
 .filter-chip.tag.include { background: rgba(245, 175, 25, 0.2); color: var(--accent-yellow); }
-.filter-chip.category.exclude, .filter-chip.subcategory.exclude, .filter-chip.merchant.exclude, .filter-chip.location.exclude, .filter-chip.month.exclude, .filter-chip.tag.exclude {
+.filter-chip.category.exclude, .filter-chip.subcategory.exclude, .filter-chip.merchant.exclude, .filter-chip.month.exclude, .filter-chip.tag.exclude {
     background: rgba(255, 107, 107, 0.15);
     border-color: var(--accent-red);
     color: var(--accent-red);
@@ -1081,22 +1074,6 @@ th[data-tooltip] { cursor: pointer; }
     background: var(--text-muted);
     color: white;
 }
-.txn-location {
-    font-size: 0.7rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
-    font-weight: bold;
-    background: var(--bg-location);
-    color: #fff;
-}
-.txn-location.home {
-    background: var(--bg-home);
-    color: var(--text-home);
-}
-.txn-location.intl {
-    background: var(--bg-intl);
-    color: var(--text-intl);
-}
 .chart-section {
     background: var(--bg-card);
     border-radius: 16px;
@@ -1223,7 +1200,6 @@ section:nth-child(5) { animation-delay: 0.4s; }
 .clickable { cursor: pointer; }
 .clickable:hover { text-decoration: underline; color: var(--accent-blue); }
 .clickable .chevron { text-decoration: none !important; display: inline-block; }
-.location-badge.clickable:hover { background: var(--accent-blue); }
 
 /* Help/Guide section - Compact inline design */
 .help-section {

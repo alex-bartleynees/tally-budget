@@ -496,7 +496,6 @@ def normalize_merchant(
     field: Optional[Dict[str, str]] = None,
     data_source: Optional[str] = None,
     transforms: Optional[List[Tuple[str, str]]] = None,
-    location: Optional[str] = None,
     data_sources: Optional[Dict[str, List[Dict]]] = None,
 ) -> Tuple[str, str, str, Optional[dict]]:
     """Normalize a merchant description to (name, category, subcategory, match_info).
@@ -514,7 +513,6 @@ def normalize_merchant(
         field: Optional dict of custom CSV captures (for field.name in rule expressions)
         data_source: Optional data source name (for source variable in rule expressions and dynamic tags)
         transforms: Optional list of (field_path, expression) tuples for field transforms
-        location: Optional transaction location
         data_sources: Optional dict mapping source names to list of row dicts (for cross-source queries)
 
     Returns:
@@ -526,7 +524,7 @@ def normalize_merchant(
     from tally import expr_parser
 
     # Build transaction context for transforms
-    transaction = {'description': description, 'amount': amount or 0, 'field': field, 'source': data_source, 'location': location}
+    transaction = {'description': description, 'amount': amount or 0, 'field': field, 'source': data_source}
     if txn_date:
         transaction['date'] = txn_date
 

@@ -322,10 +322,6 @@ def main():
         help='Filter to specific month (e.g., --month 2024-12 or --month Dec)'
     )
     explain_parser.add_argument(
-        '--location',
-        help='Filter by transaction location (e.g., --location "New York")'
-    )
-    explain_parser.add_argument(
         '--amount', '-a',
         type=float,
         help='Transaction amount for testing amount-based rules (e.g., --amount 150.00)'

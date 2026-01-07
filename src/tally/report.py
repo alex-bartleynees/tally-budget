@@ -244,7 +244,7 @@ def write_summary_file_vue(stats, filepath, year=None, currency_format="${amount
                     'description': txn.get('raw_description', txn.get('description', '')),
                     'amount': txn.get('amount', 0),
                     'source': txn.get('source', ''),
-                    'location': txn.get('location'),
+
                     'tags': txn.get('tags', [])
                 }
                 # Include extra_fields from field: directives

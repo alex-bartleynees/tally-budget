@@ -419,8 +419,6 @@ def load_supplemental_sources(config, config_dir):
                     column_map['amount'] = format_spec.amount_column
                     if format_spec.description_column is not None:
                         column_map['description'] = format_spec.description_column
-                    if format_spec.location_column is not None:
-                        column_map['location'] = format_spec.location_column
 
                     for line in reader:
                         if not line or all(not cell.strip() for cell in line):

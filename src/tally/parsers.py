@@ -48,15 +48,6 @@ def parse_amount(amount_str, decimal_separator='.'):
     return -result if negative else result
 
 
-def extract_location(description):
-    """Extract state/country code from transaction description."""
-    # Pattern: ends with 2-letter code (state or country)
-    match = re.search(r'\s+([A-Z]{2})\s*$', description)
-    if match:
-        return match.group(1)
-    return None
-
-
 def parse_amex(filepath, rules):
     """Parse AMEX CSV file and return list of transactions.
 
@@ -77,7 +68,6 @@ def parse_amex(filepath, rules):
                     row['Description'], rules, amount=amount, txn_date=date.date(),
                     data_source='AMEX',
                 )
-                location = extract_location(row['Description'])
 
                 transactions.append({
                     'date': date,
@@ -88,7 +78,6 @@ def parse_amex(filepath, rules):
                     'category': category,
                     'subcategory': subcategory,
                     'source': 'AMEX',
-                    'location': location,
                     'match_info': match_info,
                     'tags': match_info.get('tags', []) if match_info else [],
                 })
@@ -127,7 +116,6 @@ def parse_boa(filepath, rules):
                     description, rules, amount=amount, txn_date=date.date(),
                     data_source='BOA',
                 )
-                location = extract_location(description)
 
                 transactions.append({
                     'date': date,
@@ -139,7 +127,6 @@ def parse_boa(filepath, rules):
                     'category': category,
                     'subcategory': subcategory,
                     'source': 'BOA',
-                    'location': location,
                     'tags': match_info.get('tags', []) if match_info else [],
                 })
             except ValueError:
@@ -226,8 +213,6 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 required_cols.extend(format_spec.custom_captures.values())
             if format_spec.extra_fields:
                 required_cols.extend(format_spec.extra_fields.values())
-            if format_spec.location_column is not None:
-                required_cols.append(format_spec.location_column)
             max_col = max(required_cols)
 
             if len(row) <= max_col:
@@ -282,20 +267,12 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
             # Track if this is a credit (negative amount = income/refund)
             is_credit = amount < 0
 
-            # Extract location
-            location = None
-            if format_spec.location_column is not None:
-                location = row[format_spec.location_column].strip()
-            if not location:
-                location = extract_location(description)
-
             # Normalize merchant
             merchant, category, subcategory, match_info = normalize_merchant(
                 description, rules, amount=amount, txn_date=date.date(),
                 field=captures if captures else None,
                 data_source=format_spec.source_name or source_name,
                 transforms=transforms,
-                location=location,
                 data_sources=data_sources,
             )
 
@@ -308,7 +285,6 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 'category': category,
                 'subcategory': subcategory,
                 'source': format_spec.source_name or source_name,
-                'location': location,
                 'is_credit': is_credit,
                 'match_info': match_info,
                 'tags': match_info.get('tags', []) if match_info else [],
@@ -339,7 +315,6 @@ def auto_detect_csv_format(filepath):
     - Date: 'date', 'trans date', 'transaction date', 'posting date'
     - Description: 'description', 'merchant', 'payee', 'memo', 'name'
     - Amount: 'amount', 'debit', 'charge', 'transaction amount'
-    - Location: 'location', 'city', 'state', 'city/state'
 
     Returns:
         FormatSpec with detected mappings
@@ -351,7 +326,6 @@ def auto_detect_csv_format(filepath):
     DATE_PATTERNS = ['date', 'trans date', 'transaction date', 'posting date', 'trans_date']
     DESC_PATTERNS = ['description', 'merchant', 'payee', 'memo', 'name', 'merchant name']
     AMOUNT_PATTERNS = ['amount', 'debit', 'charge', 'transaction amount', 'payment']
-    LOCATION_PATTERNS = ['location', 'city', 'state', 'city/state', 'region']
 
     def match_header(header, patterns):
         header_lower = header.lower().strip()
@@ -365,7 +339,7 @@ def auto_detect_csv_format(filepath):
             raise ValueError("CSV file is empty or has no headers")
 
     # Find column indices
-    date_col = desc_col = amount_col = location_col = None
+    date_col = desc_col = amount_col = None
 
     for idx, header in enumerate(headers):
         if date_col is None and match_header(header, DATE_PATTERNS):
@@ -374,8 +348,6 @@ def auto_detect_csv_format(filepath):
             desc_col = idx
         elif amount_col is None and match_header(header, AMOUNT_PATTERNS):
             amount_col = idx
-        elif location_col is None and match_header(header, LOCATION_PATTERNS):
-            location_col = idx
 
     # Validate required columns found
     missing = []
@@ -397,6 +369,5 @@ def auto_detect_csv_format(filepath):
         date_format='%m/%d/%Y',  # Default format
         description_column=desc_col,
         amount_column=amount_col,
-        location_column=location_col,
         has_header=True
     )
