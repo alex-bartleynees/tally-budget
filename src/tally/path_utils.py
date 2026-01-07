@@ -4,6 +4,7 @@ Path resolution helpers for data sources.
 
 import glob
 import os
+import sys
 
 
 def resolve_data_source_paths(config_dir, file_spec):
@@ -26,8 +27,19 @@ def resolve_data_source_paths(config_dir, file_spec):
         spec = os.path.normpath(os.path.join(base_dir, spec))
 
     if glob.has_magic(spec):
+        # Warn about potentially expensive patterns
+        double_star_count = spec.count('**')
+        if double_star_count > 1:
+            print(f"Warning: Pattern '{file_spec}' uses multiple ** wildcards which may scan many directories", 
+                  file=sys.stderr)
+        
         matches = glob.glob(spec, recursive=True)
         files = [os.path.normpath(p) for p in matches if os.path.isfile(p)]
+        
+        # Show progress for large results
+        if len(files) > 100:
+            print(f"  Found {len(files)} files matching '{file_spec}'", file=sys.stderr)
+        
         return sorted(set(files)), 'glob'
 
     if os.path.isdir(spec):
