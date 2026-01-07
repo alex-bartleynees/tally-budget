@@ -301,6 +301,10 @@ def apply_transforms(transaction, transforms):
     Original values are preserved in '_raw_{field}' keys for debugging.
     E.g., _raw_description holds the original description.
 
+    Top-level transaction fields (amount, description, date) are updated
+    directly on the transaction dict. Custom fields are stored in
+    transaction['field'].
+
     Args:
         transaction: Transaction dict (will be modified in place)
         transforms: List of (field_path, expression) tuples
@@ -312,6 +316,9 @@ def apply_transforms(transaction, transforms):
         return transaction
 
     from tally import expr_parser
+
+    # Top-level transaction fields that map directly to transaction keys
+    TOP_LEVEL_FIELDS = {'amount', 'description', 'date'}
 
     for field_path, expr in transforms:
         try:
@@ -327,15 +334,21 @@ def apply_transforms(transaction, transforms):
             field_name = field_path[6:]  # Remove "field." prefix
             raw_key = f'_raw_{field_name}'
 
-            if field_name == 'description':
-                # Save original if not already saved
+            if field_name in TOP_LEVEL_FIELDS:
+                # Top-level transaction field
                 if raw_key not in transaction:
-                    transaction[raw_key] = transaction.get('description', '')
-                transaction['description'] = str(new_value)
+                    transaction[raw_key] = transaction.get(field_name)
+                if field_name == 'amount':
+                    transaction['amount'] = float(new_value)
+                elif field_name == 'date':
+                    # Keep as-is if already a date, otherwise store string
+                    transaction['date'] = new_value
+                else:
+                    transaction[field_name] = str(new_value)
             else:
+                # Custom field → transaction['field'][name]
                 if 'field' not in transaction:
                     transaction['field'] = {}
-                # Save original if not already saved
                 if raw_key not in transaction:
                     transaction[raw_key] = transaction.get('field', {}).get(field_name, '')
                 transaction['field'][field_name] = str(new_value)

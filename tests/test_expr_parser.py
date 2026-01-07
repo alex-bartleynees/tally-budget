@@ -240,6 +240,54 @@ class TestEvaluateArithmetic:
         # Should return 0, not raise
         assert evaluate("10 / 0", ctx) == 0
 
+    def test_string_coercion_add(self):
+        """Strings that look like numbers are coerced in addition."""
+        ctx = create_context()
+        # This tests the coercion via named variable
+        # Since ctx doesn't support custom vars, we test with transaction evaluator
+        from tally.expr_parser import TransactionContext, TransactionEvaluator, parse_expression
+        from datetime import datetime
+        txn_ctx = TransactionContext.from_transaction({
+            'description': 'TEST',
+            'amount': 100.0,
+            'date': datetime(2025, 1, 1),
+            'field': {'fee': '25.50'},
+            'source': 'test'
+        })
+        parsed = parse_expression('field.amount + field.fee')
+        evaluator = TransactionEvaluator(txn_ctx)
+        assert evaluator.evaluate(parsed) == 125.50
+
+    def test_string_coercion_subtract(self):
+        """Strings that look like numbers are coerced in subtraction."""
+        from tally.expr_parser import TransactionContext, TransactionEvaluator, parse_expression
+        from datetime import datetime
+        txn_ctx = TransactionContext.from_transaction({
+            'description': 'TEST',
+            'amount': 100.0,
+            'date': datetime(2025, 1, 1),
+            'field': {'discount': '10'},
+            'source': 'test'
+        })
+        parsed = parse_expression('field.amount - field.discount')
+        evaluator = TransactionEvaluator(txn_ctx)
+        assert evaluator.evaluate(parsed) == 90.0
+
+    def test_string_coercion_multiply(self):
+        """Strings that look like numbers are coerced in multiplication."""
+        from tally.expr_parser import TransactionContext, TransactionEvaluator, parse_expression
+        from datetime import datetime
+        txn_ctx = TransactionContext.from_transaction({
+            'description': 'TEST',
+            'amount': 50.0,
+            'date': datetime(2025, 1, 1),
+            'field': {'multiplier': '2'},
+            'source': 'test'
+        })
+        parsed = parse_expression('field.amount * field.multiplier')
+        evaluator = TransactionEvaluator(txn_ctx)
+        assert evaluator.evaluate(parsed) == 100.0
+
 
 # =============================================================================
 # Evaluation Tests - Comparisons

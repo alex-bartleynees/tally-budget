@@ -1198,6 +1198,97 @@ class TestApplyTransforms:
         result = apply_transforms(transaction, transforms)
         assert result['description'] == 'STARBUCKS'  # Unchanged
 
+    def test_apply_amount_transform_add_fee(self):
+        """Apply transform that adds a fee to amount."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'WIRE TRANSFER',
+            'amount': 100.00,
+            'field': {'fee': '25.00'}
+        }
+        transforms = [('field.amount', 'field.amount + field.fee')]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['amount'] == 125.00
+        assert result['_raw_amount'] == 100.00
+
+    def test_apply_amount_transform_subtract(self):
+        """Apply transform that subtracts from amount."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'REFUND',
+            'amount': 50.00,
+            'field': {'discount': '10.00'}
+        }
+        transforms = [('field.amount', 'field.amount - field.discount')]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['amount'] == 40.00
+
+    def test_apply_amount_transform_multiply(self):
+        """Apply transform that multiplies amount."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'PURCHASE',
+            'amount': 100.00,
+            'field': {}
+        }
+        transforms = [('field.amount', 'field.amount * 1.1')]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['amount'] == pytest.approx(110.00)
+
+    def test_apply_amount_transform_from_string_fee(self):
+        """Amount transform handles string fee values (from CSV captures)."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'INTERNATIONAL WIRE',
+            'amount': 500.00,
+            'field': {'fee': '35'}  # String, not float
+        }
+        transforms = [('field.amount', 'field.amount + field.fee')]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['amount'] == 535.00
+
+    def test_apply_amount_transform_preserves_raw(self):
+        """Amount transform preserves original in _raw_amount."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'PURCHASE',
+            'amount': 100.00,
+            'field': {'fee': '5.00'}
+        }
+        transforms = [('field.amount', 'field.amount + field.fee')]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['_raw_amount'] == 100.00
+        assert result['amount'] == 105.00
+
+    def test_apply_amount_transform_chained(self):
+        """Multiple amount transforms chain correctly."""
+        from tally.merchant_utils import apply_transforms
+
+        transaction = {
+            'description': 'PURCHASE',
+            'amount': 100.00,
+            'field': {'fee': '10.00', 'tax': '8.00'}
+        }
+        transforms = [
+            ('field.amount', 'field.amount + field.fee'),
+            ('field.amount', 'field.amount + field.tax'),
+        ]
+
+        result = apply_transforms(transaction, transforms)
+        assert result['amount'] == 118.00
+        # _raw_amount should be the original before any transforms
+        assert result['_raw_amount'] == 100.00
+
 
 class TestGetTransforms:
     """Tests for get_transforms function."""

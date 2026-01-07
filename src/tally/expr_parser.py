@@ -706,6 +706,16 @@ class ExpressionContext:
         return min(a, b)
 
 
+def _coerce_to_number(value):
+    """Coerce a string value to float for arithmetic operations."""
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return value
+    return value
+
+
 class ExpressionEvaluator:
     """
     Evaluates a parsed AST expression against a context.
@@ -774,6 +784,10 @@ class ExpressionEvaluator:
     def _eval_BinOp(self, node: ast.BinOp) -> Any:
         left = self.evaluate(node.left)
         right = self.evaluate(node.right)
+
+        # Coerce strings to numbers for arithmetic
+        left = _coerce_to_number(left)
+        right = _coerce_to_number(right)
 
         if isinstance(node.op, ast.Add):
             return left + right
@@ -956,6 +970,10 @@ class TransactionEvaluator:
     def _eval_BinOp(self, node: ast.BinOp) -> Any:
         left = self.evaluate(node.left)
         right = self.evaluate(node.right)
+
+        # Coerce strings to numbers for arithmetic
+        left = _coerce_to_number(left)
+        right = _coerce_to_number(right)
 
         if isinstance(node.op, ast.Add):
             return left + right

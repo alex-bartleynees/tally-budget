@@ -260,7 +260,26 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 # Negate: flip sign (for credit cards where positive = charge)
                 amount = -amount
 
-            # Skip zero amounts
+            # Apply field transforms before zero-amount check
+            # This allows transforms like field.amount = field.amount + field.fee
+            # to rescue transactions where amount=0 but fee>0
+            transform_raw_values = {}
+            if transforms:
+                from .merchant_utils import apply_transforms
+                pre_txn = {
+                    'description': description,
+                    'amount': amount,
+                    'date': date,
+                    'field': captures if captures else None,
+                    'source': format_spec.source_name or source_name,
+                }
+                apply_transforms(pre_txn, transforms)
+                amount = pre_txn.get('amount', amount)
+                description = pre_txn.get('description', description)
+                # Preserve raw values from transforms
+                transform_raw_values = {k: v for k, v in pre_txn.items() if k.startswith('_raw_')}
+
+            # Skip zero amounts (after transforms have been applied)
             if amount == 0:
                 continue
 
@@ -272,7 +291,7 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 description, rules, amount=amount, txn_date=date.date(),
                 field=captures if captures else None,
                 data_source=format_spec.source_name or source_name,
-                transforms=transforms,
+                transforms=None,  # Already applied above
                 data_sources=data_sources,
             )
 
@@ -291,7 +310,11 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 'excluded': None,  # No auto-exclusion; use rules to categorize
                 'field': captures if captures else None,  # Custom CSV captures for rule expressions
             }
-            # Add _raw_* keys from transforms (e.g., _raw_description)
+            # Add _raw_* keys from transforms
+            if transform_raw_values:
+                for key, value in transform_raw_values.items():
+                    txn[key] = value
+            # Add _raw_* keys from normalize_merchant (e.g., _raw_description)
             if match_info and match_info.get('raw_values'):
                 for key, value in match_info['raw_values'].items():
                     txn[key] = value

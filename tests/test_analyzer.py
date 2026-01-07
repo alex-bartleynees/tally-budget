@@ -1628,6 +1628,162 @@ class TestCustomFieldCaptures:
             os.unlink(f.name)
 
 
+class TestAmountTransforms:
+    """Integration tests for field.amount transforms in CSV parsing."""
+
+    def test_amount_transform_adds_fee_during_parse(self):
+        """Amount transform adds fee column to transaction amount during CSV parsing."""
+        csv_content = """Date,Description,Amount,Fee
+01/15/2025,WIRE TRANSFER,100.00,25.00
+01/16/2025,ACH PAYMENT,500.00,5.00
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        try:
+            f.write(csv_content)
+            f.close()
+
+            rules = [('true', 'Bank Transfer', 'Transfers', 'Bank', None, 'test', [])]
+
+            format_spec = parse_format_string('{date:%m/%d/%Y},{description},{amount},{fee}')
+            format_spec.has_header = True
+
+            # Apply transforms: add fee to amount
+            transforms = [('field.amount', 'field.amount + field.fee')]
+
+            txns = parse_generic_csv(f.name, format_spec, rules, transforms=transforms)
+
+            assert len(txns) == 2
+            # First: 100 + 25 = 125
+            assert txns[0]['amount'] == 125.00
+            # Second: 500 + 5 = 505
+            assert txns[1]['amount'] == 505.00
+        finally:
+            os.unlink(f.name)
+
+    def test_zero_amount_with_fee_not_skipped(self):
+        """Transaction with amount=0 but fee>0 is included after transform."""
+        csv_content = """Date,Description,Amount,Fee
+01/15/2025,WIRE FEE,0.00,35.00
+01/16/2025,NORMAL CHARGE,50.00,0.00
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        try:
+            f.write(csv_content)
+            f.close()
+
+            rules = [('true', 'Bank Fee', 'Fees', 'Bank', None, 'test', [])]
+
+            format_spec = parse_format_string('{date:%m/%d/%Y},{description},{amount},{fee}')
+            format_spec.has_header = True
+
+            # Transform adds fee to amount
+            transforms = [('field.amount', 'field.amount + field.fee')]
+
+            txns = parse_generic_csv(f.name, format_spec, rules, transforms=transforms)
+
+            # Both transactions should be included
+            assert len(txns) == 2
+
+            # First: 0 + 35 = 35 (not skipped!)
+            assert txns[0]['amount'] == 35.00
+            assert txns[0]['raw_description'] == 'WIRE FEE'
+
+            # Second: 50 + 0 = 50
+            assert txns[1]['amount'] == 50.00
+        finally:
+            os.unlink(f.name)
+
+    def test_amount_transform_preserves_raw_value(self):
+        """Original amount is preserved in _raw_amount after transform."""
+        csv_content = """Date,Description,Amount,Fee
+01/15/2025,TRANSFER,100.00,10.00
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        try:
+            f.write(csv_content)
+            f.close()
+
+            rules = [('true', 'Transfer', 'Transfers', 'Bank', None, 'test', [])]
+
+            format_spec = parse_format_string('{date:%m/%d/%Y},{description},{amount},{fee}')
+            format_spec.has_header = True
+
+            transforms = [('field.amount', 'field.amount + field.fee')]
+
+            txns = parse_generic_csv(f.name, format_spec, rules, transforms=transforms)
+
+            assert len(txns) == 1
+            assert txns[0]['amount'] == 110.00
+            assert txns[0]['_raw_amount'] == 100.00
+        finally:
+            os.unlink(f.name)
+
+    def test_description_transform_backwards_compat(self):
+        """Description transforms continue to work (backwards compatibility)."""
+        csv_content = """Date,Description,Amount
+01/15/2025,APLPAY STARBUCKS,5.50
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        try:
+            f.write(csv_content)
+            f.close()
+
+            rules = [('contains("STARBUCKS")', 'Starbucks', 'Food', 'Coffee', None, 'test', [])]
+
+            format_spec = parse_format_string('{date:%m/%d/%Y},{description},{amount}')
+            format_spec.has_header = True
+
+            # Strip APLPAY prefix
+            transforms = [('field.description', 'regex_replace(field.description, "^APLPAY\\\\s+", "")')]
+
+            txns = parse_generic_csv(f.name, format_spec, rules, transforms=transforms)
+
+            assert len(txns) == 1
+            # Description is the merchant name from rule match
+            assert txns[0]['merchant'] == 'Starbucks'
+            # raw_description is the transformed description used for matching
+            assert txns[0]['raw_description'] == 'STARBUCKS'
+            # _raw_description is the original before transform
+            assert txns[0]['_raw_description'] == 'APLPAY STARBUCKS'
+        finally:
+            os.unlink(f.name)
+
+    def test_combined_amount_and_description_transforms(self):
+        """Multiple transforms on different fields work together."""
+        csv_content = """Date,Description,Amount,Fee
+01/15/2025,APLPAY COFFEE SHOP,10.00,1.00
+"""
+        f = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+        try:
+            f.write(csv_content)
+            f.close()
+
+            rules = [('contains("COFFEE")', 'Coffee Shop', 'Food', 'Coffee', None, 'test', [])]
+
+            format_spec = parse_format_string('{date:%m/%d/%Y},{description},{amount},{fee}')
+            format_spec.has_header = True
+
+            transforms = [
+                ('field.description', 'regex_replace(field.description, "^APLPAY\\\\s+", "")'),
+                ('field.amount', 'field.amount + field.fee'),
+            ]
+
+            txns = parse_generic_csv(f.name, format_spec, rules, transforms=transforms)
+
+            assert len(txns) == 1
+            # Merchant matched via transformed description
+            assert txns[0]['merchant'] == 'Coffee Shop'
+            # raw_description is the transformed value used for matching
+            assert txns[0]['raw_description'] == 'COFFEE SHOP'
+            # Amount includes fee
+            assert txns[0]['amount'] == 11.00
+            # Original values preserved
+            assert txns[0]['_raw_description'] == 'APLPAY COFFEE SHOP'
+            assert txns[0]['_raw_amount'] == 10.00
+        finally:
+            os.unlink(f.name)
+
+
 class TestFieldAccessEdgeCases:
     """Edge case tests for field access in rule expressions."""
 
