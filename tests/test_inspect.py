@@ -905,3 +905,46 @@ class TestAutoDetectCsvFormat:
             assert 'Description' in str(excinfo.value)
         finally:
             os.unlink(tmpfile)
+
+    def test_quoted_fields_with_embedded_delimiter(self):
+        """Test that quotechar is respected - fields containing delimiter are parsed correctly."""
+        from tally.parsers import auto_detect_csv_format
+
+        # Description contains semicolon inside quotes
+        csv_content = '''"Date";"Description";"Amount"
+"01/15/2025";"STORE; LOCATION A";"123.45"
+"01/16/2025";"CAFE; DOWNTOWN";"5.99"
+'''
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            tmpfile = f.name
+
+        try:
+            spec = auto_detect_csv_format(tmpfile)
+
+            # Should detect 3 columns, not 4 (semicolon in description should not split)
+            assert spec.date_column == 0
+            assert spec.description_column == 1
+            assert spec.amount_column == 2
+            assert spec.delimiter == ';'
+        finally:
+            os.unlink(tmpfile)
+
+    def test_tab_delimiter(self):
+        """Test auto-detection of tab-delimited CSV."""
+        from tally.parsers import auto_detect_csv_format
+
+        csv_content = "Date\tDescription\tAmount\n01/15/2025\tGROCERY STORE\t123.45\n"
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            tmpfile = f.name
+
+        try:
+            spec = auto_detect_csv_format(tmpfile)
+
+            assert spec.date_column == 0
+            assert spec.description_column == 1
+            assert spec.amount_column == 2
+            assert spec.delimiter == '\t'
+        finally:
+            os.unlink(tmpfile)
