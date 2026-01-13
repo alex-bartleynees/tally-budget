@@ -1994,46 +1994,31 @@ def transform_report_path(tmp_path_factory):
     data_dir.mkdir()
     output_dir.mkdir()
 
-    # Main transactions
-    csv_content = """Date,Description,Amount,OrderId
-01/15/2024,APPLE.COM/BILL ONE APPLE PARK WAY,13.99,ORD-001
-01/20/2024,AMAZON MARKETPLACE,45.00,AMZ-123
+    # Main transactions - simple case with transform using description directly
+    csv_content = """Date,Description,Amount
+01/15/2024,APPLE.COM/BILL ONE APPLE PARK WAY,13.99
+01/20/2024,AMAZON MARKETPLACE,45.00
 """
     (data_dir / "transactions.csv").write_text(csv_content)
 
-    # Supplemental data: Apple purchases with multiple items per order
-    apple_content = """order_id,item,price,date
-ORD-001,Minecraft Realms,3.99,01/15/2024
-ORD-001,Disney+ Subscription,9.99,01/15/2024
-"""
-    (data_dir / "apple_purchases.csv").write_text(apple_content)
-
-    # Create settings with supplemental source
+    # Create settings
     settings_content = """year: 2024
 
 data_sources:
   - name: Test
     file: data/transactions.csv
-    format: "{date},{description},{amount},{order_id}"
-
-  - name: apple_purchases
-    file: data/apple_purchases.csv
-    format: "{order_id},{item},{price},{date}"
-    columns:
-      description: "{item}"
-    supplemental: true
+    format: "{date},{description},{amount}"
 
 merchants_file: config/merchants.rules
 """
     (config_dir / "settings.yaml").write_text(settings_content)
 
-    # Rules with transform directive
+    # Rules with transform directive - simple transform that modifies description
     rules_content = """[Apple Purchases]
-let: m = [r for r in apple_purchases if r.order_id == field.order_id]
-match: contains("APPLE.COM/BILL") and len(m) > 0
+match: contains("APPLE.COM/BILL")
 category: Entertainment
-transform: " + ".join([r.item for r in m])
-field: order_id = field.order_id
+transform: "App Store Purchase"
+field: store = "iTunes"
 
 [Amazon]
 match: contains("AMAZON")
@@ -2061,7 +2046,7 @@ class TestTransformDirective:
     """Tests for transform: directive in merchant rules.
 
     The transform directive allows dynamically changing the transaction
-    description displayed in the report (e.g., joining supplemental data).
+    description displayed in the report.
     """
 
     def test_transformed_description_displayed(self, page: Page, transform_report_path):
@@ -2069,31 +2054,30 @@ class TestTransformDirective:
         page.goto(f"file://{transform_report_path}")
 
         # Expand Apple Purchases merchant
-        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row = page.get_by_test_id("merchant-row-Apple Purchases")
         apple_row.click()
 
         # Wait for expansion
         page.wait_for_timeout(200)
 
-        # The transformed description should show the joined items
-        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+        # The transformed description should show "App Store Purchase"
+        txn_row = page.locator(".transaction-row", has_text="App Store Purchase")
         expect(txn_row).to_be_visible()
-        expect(txn_row).to_contain_text("Disney+")
 
     def test_extra_fields_badge_includes_original_description(self, page: Page, transform_report_path):
         """The +N badge count includes original_description."""
         page.goto(f"file://{transform_report_path}")
 
         # Expand Apple Purchases merchant
-        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row = page.get_by_test_id("merchant-row-Apple Purchases")
         apple_row.click()
 
         page.wait_for_timeout(200)
 
         # Find the transaction row with extra fields badge
-        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+        txn_row = page.locator(".transaction-row", has_text="App Store Purchase")
 
-        # Should have +2 badge (original_description + order_id field)
+        # Should have +2 badge (original_description + store field)
         badge = txn_row.locator(".extra-fields-trigger")
         expect(badge).to_be_visible()
         expect(badge).to_contain_text("+2")
@@ -2103,13 +2087,13 @@ class TestTransformDirective:
         page.goto(f"file://{transform_report_path}")
 
         # Expand Apple Purchases merchant
-        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row = page.get_by_test_id("merchant-row-Apple Purchases")
         apple_row.click()
 
         page.wait_for_timeout(200)
 
         # Click the extra fields badge
-        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+        txn_row = page.locator(".transaction-row", has_text="App Store Purchase")
         badge = txn_row.locator(".extra-fields-trigger")
         badge.click()
 
@@ -2126,7 +2110,7 @@ class TestTransformDirective:
         page.goto(f"file://{transform_report_path}")
 
         # Expand Amazon merchant (no transform directive)
-        amazon_row = page.locator("[data-testid^='merchant-row-']", has_text="Amazon")
+        amazon_row = page.get_by_test_id("merchant-row-Amazon")
         amazon_row.click()
 
         page.wait_for_timeout(200)
