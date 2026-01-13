@@ -1084,9 +1084,17 @@ class TransactionEvaluator:
             else:
                 available = ['description', 'amount', 'date', 'source',
                              'month', 'year', 'day', 'weekday']
+                # Check if this might be a custom field
+                hint = ""
+                if self.ctx.field and attr_name in self.ctx.field:
+                    hint = f"\n\nHint: '{attr_name}' is a custom CSV field. Use 'field.{attr_name}' instead of 'txn.{attr_name}'."
+                elif self.ctx.field:
+                    # Show available custom fields
+                    custom_fields = sorted(self.ctx.field.keys())
+                    hint = f"\n\nCustom fields available via 'field.': {', '.join(custom_fields)}"
                 raise ExpressionError(
                     f"Unknown txn attribute: txn.{node.attr}. "
-                    f"Available: {', '.join(available)}"
+                    f"Available: {', '.join(available)}{hint}"
                 )
 
         # Handle field.name access (custom CSV fields)
@@ -1188,7 +1196,16 @@ class TransactionEvaluator:
         if func_name == 'len':
             if len(node.args) != 1:
                 raise ExpressionError("len() requires exactly 1 argument")
-            return len(self.evaluate(node.args[0]))
+            value = self.evaluate(node.args[0])
+            if value is None:
+                # Provide helpful error message with the expression that evaluated to None
+                arg_source = ast.unparse(node.args[0]) if hasattr(ast, 'unparse') else str(node.args[0])
+                raise ExpressionError(
+                    f"len() received None - '{arg_source}' evaluated to None. "
+                    f"This often happens when a 'let:' binding fails. "
+                    f"Check that field names use 'field.name' (not 'txn.name') for custom CSV columns."
+                )
+            return len(value)
 
         if func_name == 'sum':
             if len(node.args) < 1 or len(node.args) > 2:

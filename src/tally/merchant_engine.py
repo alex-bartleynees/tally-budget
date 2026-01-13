@@ -394,7 +394,15 @@ class MerchantEngine:
                     expr, transaction, variables=variables, data_sources=data_sources
                 )
                 variables[var_name] = result
-            except expr_parser.ExpressionError:
+            except expr_parser.ExpressionError as e:
+                # Log warning with rule context for debugging
+                import warnings
+                warnings.warn(
+                    f"Rule [{rule.name}] let binding '{var_name}' failed: {e}\n"
+                    f"  Expression: {expr}\n"
+                    f"  Setting {var_name} = None",
+                    stacklevel=2
+                )
                 # If binding fails, set to None so match can still work
                 variables[var_name] = None
         return variables
@@ -522,8 +530,15 @@ class MerchantEngine:
                 matches = expr_parser.matches_transaction(
                     rule.match_expr, transaction, variables, data_sources
                 )
-            except expr_parser.ExpressionError:
-                # Skip rules that can't be evaluated
+            except expr_parser.ExpressionError as e:
+                # Log warning with rule context for debugging  
+                import warnings
+                warnings.warn(
+                    f"Rule [{rule.name}] match expression failed: {e}\n"
+                    f"  Expression: {rule.match_expr}\n"
+                    f"  Skipping this rule for transaction.",
+                    stacklevel=2
+                )
                 continue
 
             if matches:

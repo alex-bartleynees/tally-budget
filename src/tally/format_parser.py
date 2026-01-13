@@ -15,7 +15,7 @@ class FormatSpec:
     """Parsed format specification for CSV parsing."""
     date_column: int
     date_format: str
-    amount_column: int
+    amount_column: Optional[int] = None  # None for supplemental sources without amount
     description_column: Optional[int] = None  # Mode 1: single {description}
     custom_captures: Optional[dict] = None    # Mode 2: {type}, {merchant}, etc.
     description_template: Optional[str] = None  # Mode 2: "{merchant} - {type}"
@@ -31,7 +31,7 @@ class FormatSpec:
 RESERVED_NAMES = {'date', 'amount', 'description', '_', '*', 'field'}
 
 
-def parse_format_string(format_str: str, description_template: Optional[str] = None) -> FormatSpec:
+def parse_format_string(format_str: str, description_template: Optional[str] = None, supplemental: bool = False) -> FormatSpec:
     """
     Parse a format string into a FormatSpec.
 
@@ -47,7 +47,7 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
         Mode 1 (simple): Use {description} to capture a single column
         Mode 2 (custom): Use named captures like {type}, {merchant} with a description_template
 
-    Required fields: date, amount, and either {description} or custom captures
+    Required fields: date (and amount for non-supplemental sources)
 
     Examples:
         Mode 1: "{date:%m/%d/%Y}, {description}, {amount}"
@@ -155,7 +155,8 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
                 )
 
     # Validate required reserved fields
-    required = {'date', 'amount'}
+    # Supplemental sources only need {date}, not {amount}
+    required = {'date'} if supplemental else {'date', 'amount'}
     missing = required - set(field_positions.keys())
     if missing:
         raise ValueError(f"Missing required fields: {missing}")
@@ -163,7 +164,7 @@ def parse_format_string(format_str: str, description_template: Optional[str] = N
     return FormatSpec(
         date_column=field_positions['date'],
         date_format=date_format,
-        amount_column=field_positions['amount'],
+        amount_column=field_positions.get('amount'),  # None for supplemental sources
         description_column=field_positions.get('description'),
         custom_captures=custom_captures if custom_captures else None,
         description_template=description_template,

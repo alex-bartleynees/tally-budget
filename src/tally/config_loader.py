@@ -78,8 +78,11 @@ def resolve_source_format(source, warnings=None):
         columns = source.get('columns', {})
         description_template = columns.get('description') if isinstance(columns, dict) else None
 
+        # Supplemental sources have relaxed validation (no {amount} required)
+        is_supplemental = source.get('supplemental', False)
+
         try:
-            format_spec = parse_format_string(format_str, description_template)
+            format_spec = parse_format_string(format_str, description_template, supplemental=is_supplemental)
 
             # Apply explicit settings
             if 'delimiter' in source:
@@ -338,7 +341,8 @@ def load_supplemental_sources(config, config_dir):
 
                     # Add standard columns
                     column_map['date'] = format_spec.date_column
-                    column_map['amount'] = format_spec.amount_column
+                    if format_spec.amount_column is not None:
+                        column_map['amount'] = format_spec.amount_column
                     if format_spec.description_column is not None:
                         column_map['description'] = format_spec.description_column
 
