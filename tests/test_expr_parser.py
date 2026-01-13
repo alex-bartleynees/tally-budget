@@ -1342,3 +1342,76 @@ class TestSupplementalDataIntegration:
             data_sources=data_sources
         )
         assert result is False
+
+
+
+class TestJoinMethod:
+    """Tests for join() method on strings."""
+
+    def test_join_with_list_comprehension(self):
+        """Join with list comprehension from data source."""
+        from tally.expr_parser import evaluate_transaction
+        
+        data_sources = {
+            "items": [
+                {"name": "Apple"},
+                {"name": "Banana"},
+                {"name": "Cherry"},
+            ]
+        }
+        
+        result = evaluate_transaction(
+            "\" + \".join([r.name for r in items])",
+            {"description": "test", "amount": 0},
+            data_sources=data_sources
+        )
+        assert result == "Apple + Banana + Cherry"
+
+    def test_join_empty_list(self):
+        """Join empty list from filtered data source returns empty string."""
+        from tally.expr_parser import evaluate_transaction
+        
+        data_sources = {
+            "items": []
+        }
+        
+        result = evaluate_transaction(
+            "\", \".join([r.name for r in items])",
+            {"description": "test", "amount": 0},
+            data_sources=data_sources
+        )
+        assert result == ""
+
+    def test_join_single_item(self):
+        """Join single item list returns item without separator."""
+        from tally.expr_parser import evaluate_transaction
+        
+        data_sources = {
+            "items": [{"name": "only"}]
+        }
+        
+        result = evaluate_transaction(
+            "\" - \".join([r.name for r in items])",
+            {"description": "test", "amount": 0},
+            data_sources=data_sources
+        )
+        assert result == "only"
+
+    def test_join_converts_numbers_to_strings(self):
+        """Join converts non-string items to strings."""
+        from tally.expr_parser import evaluate_transaction
+        
+        data_sources = {
+            "prices": [
+                {"value": 10.99},
+                {"value": 5.50},
+            ]
+        }
+        
+        result = evaluate_transaction(
+            "\" + \".join([r.value for r in prices])",
+            {"description": "test", "amount": 0},
+            data_sources=data_sources
+        )
+        assert result == "10.99 + 5.5"
+

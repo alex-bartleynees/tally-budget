@@ -1618,6 +1618,143 @@ field: x = import os
             engine.parse(content)
 
 
+class TestTransformDirective:
+    """Tests for transform: directive in merchant rules."""
+
+    def test_parse_transform_directive(self):
+        """Parse rule with transform directive."""
+        content = """
+[Test]
+match: contains("TEST")
+category: Shopping
+transform: "Custom Description"
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        assert len(engine.rules) == 1
+        rule = engine.rules[0]
+        assert rule.transform == '"Custom Description"'
+
+    def test_transform_evaluated_on_match(self):
+        """Transform expression is evaluated when rule matches."""
+        content = """
+[Test]
+match: contains("TEST")
+category: Shopping
+transform: "Transformed: " + txn.description
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'TEST MERCHANT', 'amount': 10.0})
+        assert result.matched
+        assert result.transform_description == "Transformed: TEST MERCHANT"
+
+    def test_transform_with_description(self):
+        """Transform can use description in expression."""
+        content = """
+[Test]
+match: contains("TEST")
+category: Shopping
+transform: "Purchase: " + description
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'TEST MERCHANT', 'amount': 99.99})
+        assert result.transform_description == "Purchase: TEST MERCHANT"
+
+    def test_transform_with_let_binding(self):
+        """Transform can use variables from let bindings."""
+        content = """
+[Test]
+let: prefix = "Item: "
+match: contains("TEST")
+category: Shopping
+transform: prefix + txn.description
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'TEST WIDGET', 'amount': 10.0})
+        assert result.transform_description == "Item: TEST WIDGET"
+
+    def test_transform_with_data_sources_and_join(self):
+        """Transform can query data sources and use join."""
+        content = """
+[Amazon]
+let: orders = [r for r in amazon_orders if r.amount == amount]
+match: contains("AMAZON") and len(orders) > 0
+category: Shopping
+transform: " + ".join([r.item for r in orders])
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        data_sources = {
+            'amazon_orders': [
+                {'item': 'Book', 'amount': 45.99},
+                {'item': 'Cable', 'amount': 45.99},
+                {'item': 'Other', 'amount': 30.00},
+            ]
+        }
+
+        result = engine.match(
+            {'description': 'AMAZON MARKETPLACE', 'amount': 45.99},
+            data_sources=data_sources
+        )
+        assert result.matched
+        assert result.transform_description == "Book + Cable"
+
+    def test_transform_not_evaluated_when_no_match(self):
+        """Transform is not evaluated when rule doesn't match."""
+        content = """
+[Test]
+match: contains("NOMATCH")
+category: Shopping
+transform: "Should not appear"
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'OTHER', 'amount': 10.0})
+        assert not result.matched
+        assert result.transform_description == ""
+
+    def test_transform_empty_when_expression_fails(self):
+        """Transform returns empty string when expression fails."""
+        content = """
+[Test]
+match: contains("TEST")
+category: Shopping
+transform: undefined_variable + "test"
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'TEST', 'amount': 10.0})
+        assert result.matched
+        assert result.transform_description == ""
+
+    def test_transform_with_field_directives(self):
+        """Transform works alongside field directives."""
+        content = """
+[Test]
+match: contains("TEST")
+category: Shopping
+transform: "Custom Name"
+field: extra_info = "bonus"
+"""
+        engine = MerchantEngine()
+        engine.parse(content)
+
+        result = engine.match({'description': 'TEST', 'amount': 10.0})
+        assert result.matched
+        assert result.transform_description == "Custom Name"
+        assert result.extra_fields['extra_info'] == "bonus"
+
+
 class TestRuleModes:
     """Tests for rule_mode: first_match vs most_specific."""
 

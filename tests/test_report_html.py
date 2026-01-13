@@ -1970,3 +1970,168 @@ class TestSubcategoryFilterPercentage:
                         f"Category percentage {pct}% exceeds valid range. "
                         f"Bug may be present in percentage calculation."
                     )
+
+
+# =============================================================================
+# Category 8: Transform Directive Tests
+# =============================================================================
+
+@pytest.fixture(scope="module")
+def transform_report_path(tmp_path_factory):
+    """Generate a report with transform directive applied.
+
+    Tests that:
+    - transform: directive changes displayed transaction description
+    - original_description is preserved and shown in popup
+    - +N badge includes original_description in count
+    """
+    tmp_dir = tmp_path_factory.mktemp("transform_test")
+    config_dir = tmp_dir / "config"
+    data_dir = tmp_dir / "data"
+    output_dir = tmp_dir / "output"
+
+    config_dir.mkdir()
+    data_dir.mkdir()
+    output_dir.mkdir()
+
+    # Main transactions
+    csv_content = """Date,Description,Amount,OrderId
+01/15/2024,APPLE.COM/BILL ONE APPLE PARK WAY,13.99,ORD-001
+01/20/2024,AMAZON MARKETPLACE,45.00,AMZ-123
+"""
+    (data_dir / "transactions.csv").write_text(csv_content)
+
+    # Supplemental data: Apple purchases with multiple items per order
+    apple_content = """order_id,item,price,date
+ORD-001,Minecraft Realms,3.99,01/15/2024
+ORD-001,Disney+ Subscription,9.99,01/15/2024
+"""
+    (data_dir / "apple_purchases.csv").write_text(apple_content)
+
+    # Create settings with supplemental source
+    settings_content = """year: 2024
+
+data_sources:
+  - name: Test
+    file: data/transactions.csv
+    format: "{date},{description},{amount},{order_id}"
+
+  - name: apple_purchases
+    file: data/apple_purchases.csv
+    format: "{order_id},{item},{price},{date}"
+    columns:
+      description: "{item}"
+    supplemental: true
+
+merchants_file: config/merchants.rules
+"""
+    (config_dir / "settings.yaml").write_text(settings_content)
+
+    # Rules with transform directive
+    rules_content = """[Apple Purchases]
+let: m = [r for r in apple_purchases if r.order_id == field.order_id]
+match: contains("APPLE.COM/BILL") and len(m) > 0
+category: Entertainment
+transform: " + ".join([r.item for r in m])
+field: order_id = field.order_id
+
+[Amazon]
+match: contains("AMAZON")
+category: Shopping
+subcategory: Online
+"""
+    (config_dir / "merchants.rules").write_text(rules_content)
+
+    # Generate the report
+    report_file = output_dir / "report.html"
+    result = subprocess.run(
+        ["uv", "run", "tally", "run", "-o", str(report_file), str(config_dir)],
+        capture_output=True,
+        text=True,
+        cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    )
+
+    if result.returncode != 0:
+        pytest.fail(f"Failed to generate report: {result.stderr}\n{result.stdout}")
+
+    return str(report_file)
+
+
+class TestTransformDirective:
+    """Tests for transform: directive in merchant rules.
+
+    The transform directive allows dynamically changing the transaction
+    description displayed in the report (e.g., joining supplemental data).
+    """
+
+    def test_transformed_description_displayed(self, page: Page, transform_report_path):
+        """Transaction with transform shows transformed description."""
+        page.goto(f"file://{transform_report_path}")
+
+        # Expand Apple Purchases merchant
+        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row.click()
+
+        # Wait for expansion
+        page.wait_for_timeout(200)
+
+        # The transformed description should show the joined items
+        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+        expect(txn_row).to_be_visible()
+        expect(txn_row).to_contain_text("Disney+")
+
+    def test_extra_fields_badge_includes_original_description(self, page: Page, transform_report_path):
+        """The +N badge count includes original_description."""
+        page.goto(f"file://{transform_report_path}")
+
+        # Expand Apple Purchases merchant
+        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row.click()
+
+        page.wait_for_timeout(200)
+
+        # Find the transaction row with extra fields badge
+        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+
+        # Should have +2 badge (original_description + order_id field)
+        badge = txn_row.locator(".extra-fields-trigger")
+        expect(badge).to_be_visible()
+        expect(badge).to_contain_text("+2")
+
+    def test_popup_shows_original_description(self, page: Page, transform_report_path):
+        """Clicking +N badge shows original description in popup."""
+        page.goto(f"file://{transform_report_path}")
+
+        # Expand Apple Purchases merchant
+        apple_row = page.locator("[data-testid^='merchant-row-']", has_text="Apple Purchases")
+        apple_row.click()
+
+        page.wait_for_timeout(200)
+
+        # Click the extra fields badge
+        txn_row = page.locator(".transaction-row", has_text="Minecraft Realms")
+        badge = txn_row.locator(".extra-fields-trigger")
+        badge.click()
+
+        page.wait_for_timeout(100)
+
+        # Popup should show "Original" label with raw description
+        popup = page.locator(".extra-fields-popup")
+        expect(popup).to_be_visible()
+        expect(popup).to_contain_text("Original")
+        expect(popup).to_contain_text("APPLE.COM/BILL")
+
+    def test_untransformed_transaction_no_original_field(self, page: Page, transform_report_path):
+        """Transaction without transform has no original_description in badge."""
+        page.goto(f"file://{transform_report_path}")
+
+        # Expand Amazon merchant (no transform directive)
+        amazon_row = page.locator("[data-testid^='merchant-row-']", has_text="Amazon")
+        amazon_row.click()
+
+        page.wait_for_timeout(200)
+
+        # Amazon transaction should not have extra fields badge
+        txn_row = page.locator(".transaction-row", has_text="AMAZON")
+        badge = txn_row.locator(".extra-fields-trigger")
+        expect(badge).not_to_be_visible()
