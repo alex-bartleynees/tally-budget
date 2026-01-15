@@ -5,11 +5,14 @@ Tally 'diag' command - Show diagnostic information about config and rules.
 import os
 import sys
 
+from collections import Counter
+
 from ..colors import C
 from ..cli_utils import resolve_config_dir
 from ..classification import SPECIAL_TAGS
 from ..config_loader import load_config
 from ..merchant_utils import get_all_rules, diagnose_rules, get_transforms
+from ..parsers import parse_generic_csv, ParseResult, SkippedRow
 from ..path_utils import resolve_data_source_paths
 
 
@@ -256,6 +259,104 @@ def cmd_diag(args):
                     print(f"     Description template: {format_spec.description_template}")
                 if format_spec.negate_amount:
                     print(f"     Amount negation: enabled")
+            print()
+
+    # PARSING HEALTH - test-parse each source and report issues
+    if config and config.get('data_sources'):
+        print("PARSING HEALTH")
+        print("-" * 70)
+        print("  Testing sample rows from each data source...")
+        print()
+
+        rule_mode = config.get('rule_mode', 'first_match')
+        transforms = get_transforms(config.get('_merchants_file'), match_mode=rule_mode)
+
+        for i, source in enumerate(config['data_sources'], 1):
+            # Skip supplemental sources
+            if source.get('supplemental', False):
+                continue
+
+            files, _ = resolve_data_source_paths(config_dir, source.get('file'))
+            format_spec = source.get('_format_spec')
+
+            if not files:
+                print(f"  {i}. {source.get('name', 'unnamed')}")
+                print(f"     {C.RED}✗{C.RESET} Cannot test - file not found")
+                print()
+                continue
+
+            if not format_spec:
+                print(f"  {i}. {source.get('name', 'unnamed')}")
+                print(f"     {C.YELLOW}⚠{C.RESET} Cannot test - no format spec (legacy parser?)")
+                print()
+                continue
+
+            # Test-parse first file (limit to first 20 rows for speed)
+            filepath = files[0]
+            filename = os.path.basename(filepath)
+            try:
+                # Parse with empty rules to just test format
+                result = parse_generic_csv(filepath, format_spec, [],
+                                           source_name=source.get('name', 'CSV'),
+                                           decimal_separator=source.get('decimal_separator', '.'),
+                                           transforms=transforms,
+                                           data_sources=None)
+
+                txn_count = len(result.transactions)
+                skip_count = len(result.skipped_rows)
+
+                print(f"  {i}. {source.get('name', 'unnamed')} ({filename})")
+
+                if skip_count == 0:
+                    print(f"     {C.GREEN}✓{C.RESET} Parsed {txn_count} transactions successfully")
+                else:
+                    total = txn_count + skip_count
+                    pct = (txn_count / total * 100) if total > 0 else 0
+                    if txn_count == 0:
+                        print(f"     {C.RED}✗{C.RESET} 0/{total} rows parsed ({skip_count} skipped)")
+                    else:
+                        print(f"     {C.YELLOW}⚠{C.RESET} {txn_count}/{total} rows parsed ({skip_count} skipped)")
+
+                    # Show breakdown by reason
+                    reason_counts = Counter(s.reason for s in result.skipped_rows)
+                    reason_labels = {
+                        'empty_required_field': 'empty required field',
+                        'date_parse_error': 'date parse error',
+                        'amount_parse_error': 'amount parse error',
+                        'insufficient_columns': 'insufficient columns',
+                        'regex_mismatch': 'regex mismatch',
+                        'zero_amount': 'zero amount',
+                        'parse_exception': 'parse error',
+                    }
+
+                    # Show individual errors (limit to 5)
+                    shown = 0
+                    for skip in result.skipped_rows[:5]:
+                        print(f"       {filename}:{skip.line_number}: {skip.message}")
+                        shown += 1
+                    if len(result.skipped_rows) > 5:
+                        print(f"       ... and {len(result.skipped_rows) - 5} more")
+
+                    # Provide hints based on error type
+                    if 'date_parse_error' in reason_counts:
+                        # Check if it looks like a %y vs %Y issue
+                        for skip in result.skipped_rows:
+                            if skip.reason == 'date_parse_error' and '%Y' in format_spec.date_format:
+                                # Look for 2-digit year pattern in the error
+                                if "'" in skip.message:
+                                    date_val = skip.message.split("'")[1]
+                                    import re
+                                    if re.match(r'^\d{1,2}/\d{1,2}/\d{2}$', date_val):
+                                        print()
+                                        print(f"     {C.CYAN}Hint:{C.RESET} Dates look like 2-digit year (e.g., '{date_val}')")
+                                        suggested = format_spec.date_format.replace('%Y', '%y')
+                                        print(f"           Try: format: \"{{date:{suggested}}},{{description}},{{amount}}\"")
+                                        break
+
+            except Exception as e:
+                print(f"  {i}. {source.get('name', 'unnamed')} ({filename})")
+                print(f"     {C.RED}✗{C.RESET} Error: {e}")
+
             print()
 
     # Merchant rules diagnostics

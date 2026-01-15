@@ -6,10 +6,28 @@ This module handles parsing of CSV files and other transaction formats.
 
 import csv
 import re
+from dataclasses import dataclass
 from datetime import datetime
+from typing import List, Optional, NamedTuple
 
 from .merchant_utils import normalize_merchant
 from .format_parser import FormatSpec
+
+
+@dataclass
+class SkippedRow:
+    """Information about a row that was skipped during CSV parsing."""
+    filepath: str           # Source CSV file
+    line_number: int        # Line number in file (1-indexed)
+    reason: str             # Category: empty_field, date_error, etc.
+    message: str            # Human-readable description
+    raw_data: Optional[str] = None  # Original line/row content for debugging
+
+
+class ParseResult(NamedTuple):
+    """Result of parsing a CSV file."""
+    transactions: List[dict]
+    skipped_rows: List[SkippedRow]
 
 
 def parse_amount(amount_str, decimal_separator='.'):
@@ -144,7 +162,10 @@ def _iter_rows_with_delimiter(filepath, delimiter, has_header):
         has_header: Whether to skip the first line
 
     Yields:
-        List of column values for each row
+        Tuple of (line_number, row_data, raw_line) where:
+        - line_number: 1-indexed line number in the file
+        - row_data: List of column values, or None if line didn't match
+        - raw_line: Original line content (for regex mode) or comma-joined row
     """
     with open(filepath, 'r', encoding='utf-8') as f:
         if delimiter and delimiter == 'tab':
@@ -152,28 +173,38 @@ def _iter_rows_with_delimiter(filepath, delimiter, has_header):
         if delimiter and delimiter.startswith('regex:'):
             # Regex-based parsing
             pattern = re.compile(delimiter[6:])  # Strip 'regex:' prefix
-            for i, line in enumerate(f):
-                if has_header and i == 0:
+            for i, line in enumerate(f, start=1):
+                if has_header and i == 1:
                     continue
-                line = line.strip()
-                if not line:
+                raw_line = line.rstrip('\n\r')
+                line_stripped = line.strip()
+                if not line_stripped:
+                    yield (i, None, raw_line, 'empty_line')
                     continue
-                match = pattern.match(line)
+                match = pattern.match(line_stripped)
                 if match:
-                    yield list(match.groups())
+                    yield (i, list(match.groups()), raw_line, None)
+                else:
+                    yield (i, None, raw_line, 'regex_mismatch')
         elif delimiter and len(delimiter) == 1:
             reader = csv.reader(f, delimiter=delimiter)
-            if has_header:
-                next(reader, None)
+            line_num = 0
             for row in reader:
-                yield row
+                line_num += 1
+                if has_header and line_num == 1:
+                    continue
+                raw_line = delimiter.join(row)
+                yield (line_num, row, raw_line, None)
         else:
             # Standard CSV (comma-delimited)
             reader = csv.reader(f)
-            if has_header:
-                next(reader, None)
+            line_num = 0
             for row in reader:
-                yield row
+                line_num += 1
+                if has_header and line_num == 1:
+                    continue
+                raw_line = ','.join(row)
+                yield (line_num, row, raw_line, None)
 
 
 def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
@@ -196,27 +227,51 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
         - 'regex:PATTERN': Regex with capture groups for columns
 
     Returns:
-        List of transaction dictionaries
+        ParseResult with transactions list and skipped_rows list
     """
     transactions = []
+    skipped_rows = []
 
     # Get delimiter from format spec
     delimiter = getattr(format_spec, 'delimiter', None)
 
-    for row in _iter_rows_with_delimiter(filepath, delimiter, format_spec.has_header):
+    # Calculate max required column once
+    required_cols = [format_spec.date_column, format_spec.amount_column]
+    if format_spec.description_column is not None:
+        required_cols.append(format_spec.description_column)
+    if format_spec.custom_captures:
+        required_cols.extend(format_spec.custom_captures.values())
+    if format_spec.extra_fields:
+        required_cols.extend(format_spec.extra_fields.values())
+    max_col = max(required_cols)
+
+    for line_num, row, raw_line, iter_skip_reason in _iter_rows_with_delimiter(
+            filepath, delimiter, format_spec.has_header):
+        # Handle skips from the iterator (regex mode)
+        if iter_skip_reason == 'empty_line':
+            # Don't report empty lines as errors - they're expected
+            continue
+        if iter_skip_reason == 'regex_mismatch':
+            skipped_rows.append(SkippedRow(
+                filepath=filepath,
+                line_number=line_num,
+                reason='regex_mismatch',
+                message=f"Line doesn't match format pattern",
+                raw_data=raw_line,
+            ))
+            continue
+
         try:
             # Ensure row has enough columns
-            required_cols = [format_spec.date_column, format_spec.amount_column]
-            if format_spec.description_column is not None:
-                required_cols.append(format_spec.description_column)
-            if format_spec.custom_captures:
-                required_cols.extend(format_spec.custom_captures.values())
-            if format_spec.extra_fields:
-                required_cols.extend(format_spec.extra_fields.values())
-            max_col = max(required_cols)
-
             if len(row) <= max_col:
-                continue  # Skip malformed rows
+                skipped_rows.append(SkippedRow(
+                    filepath=filepath,
+                    line_number=line_num,
+                    reason='insufficient_columns',
+                    message=f"Expected {max_col + 1} columns, got {len(row)}",
+                    raw_data=raw_line,
+                ))
+                continue
 
             # Extract values
             date_str = row[format_spec.date_column].strip()
@@ -238,19 +293,54 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                     captures[name] = row[col_idx].strip() if col_idx < len(row) else ''
                 description = format_spec.description_template.format(**captures)
 
-            # Skip empty rows
-            if not date_str or not description or not amount_str:
+            # Check for empty required fields
+            empty_fields = []
+            if not date_str:
+                empty_fields.append('date')
+            if not description:
+                empty_fields.append('description')
+            if not amount_str:
+                empty_fields.append('amount')
+            if empty_fields:
+                skipped_rows.append(SkippedRow(
+                    filepath=filepath,
+                    line_number=line_num,
+                    reason='empty_required_field',
+                    message=f"Empty {', '.join(empty_fields)} field",
+                    raw_data=raw_line,
+                ))
                 continue
 
             # Parse date - handle optional day suffix (e.g., "01/02/2017  Mon")
             # Only strip trailing text if the date format doesn't contain spaces
             # (formats like "%d %b %y" for "30 Dec 25" need the spaces preserved)
+            date_str_to_parse = date_str
             if ' ' not in format_spec.date_format:
-                date_str = date_str.split()[0]  # Take just the date part
-            date = datetime.strptime(date_str, format_spec.date_format)
+                date_str_to_parse = date_str.split()[0]  # Take just the date part
+            try:
+                date = datetime.strptime(date_str_to_parse, format_spec.date_format)
+            except ValueError:
+                skipped_rows.append(SkippedRow(
+                    filepath=filepath,
+                    line_number=line_num,
+                    reason='date_parse_error',
+                    message=f"Cannot parse date '{date_str}' with format {format_spec.date_format}",
+                    raw_data=raw_line,
+                ))
+                continue
 
             # Parse amount (handle locale-specific formats)
-            amount = parse_amount(amount_str, decimal_separator)
+            try:
+                amount = parse_amount(amount_str, decimal_separator)
+            except ValueError:
+                skipped_rows.append(SkippedRow(
+                    filepath=filepath,
+                    line_number=line_num,
+                    reason='amount_parse_error',
+                    message=f"Cannot parse amount '{amount_str}'",
+                    raw_data=raw_line,
+                ))
+                continue
 
             # Apply amount modifier if specified
             if format_spec.abs_amount:
@@ -281,6 +371,13 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
 
             # Skip zero amounts (after transforms have been applied)
             if amount == 0:
+                skipped_rows.append(SkippedRow(
+                    filepath=filepath,
+                    line_number=line_num,
+                    reason='zero_amount',
+                    message=f"Zero amount (after transforms)",
+                    raw_data=raw_line,
+                ))
                 continue
 
             # Track if this is a credit (negative amount = income/refund)
@@ -327,21 +424,66 @@ def parse_generic_csv(filepath, format_spec, rules, source_name='CSV',
                 txn['description'] = match_info['transform_description']
             transactions.append(txn)
 
-        except (ValueError, IndexError):
-            # Skip problematic rows
+        except (ValueError, IndexError) as e:
+            # Catch any remaining parse errors
+            skipped_rows.append(SkippedRow(
+                filepath=filepath,
+                line_number=line_num,
+                reason='parse_exception',
+                message=str(e) if str(e) else f"{type(e).__name__}",
+                raw_data=raw_line,
+            ))
             continue
 
-    return transactions
+    return ParseResult(transactions=transactions, skipped_rows=skipped_rows)
+
+
+def _detect_date_format(date_values):
+    """
+    Detect the date format from sample values.
+
+    Args:
+        date_values: List of date strings to analyze
+
+    Returns:
+        Tuple of (format_string, description) e.g. ('%m/%d/%y', 'MM/DD/YY')
+    """
+    # Date format patterns - order matters: more specific patterns first
+    date_patterns = [
+        (r'^\d{1,2}/\d{1,2}/\d{4}$', '%m/%d/%Y', 'MM/DD/YYYY'),
+        (r'^\d{1,2}/\d{1,2}/\d{2}$', '%m/%d/%y', 'MM/DD/YY'),
+        (r'^\d{4}-\d{2}-\d{2}$', '%Y-%m-%d', 'YYYY-MM-DD (ISO)'),
+        (r'^\d{1,2}-\d{1,2}-\d{4}$', '%m-%d-%Y', 'MM-DD-YYYY'),
+        (r'^\d{1,2}-\d{1,2}-\d{2}$', '%m-%d-%y', 'MM-DD-YY'),
+        (r'^\d{1,2}\.\d{1,2}\.\d{4}$', '%d.%m.%Y', 'DD.MM.YYYY (European)'),
+        (r'^\d{1,2}\.\d{1,2}\.\d{2}$', '%d.%m.%y', 'DD.MM.YY (European)'),
+    ]
+
+    # Filter out empty values
+    non_empty = [v.strip() for v in date_values if v.strip()]
+    if not non_empty:
+        return '%m/%d/%Y', 'MM/DD/YYYY (default)'
+
+    # Check each pattern
+    for pattern, fmt, desc in date_patterns:
+        matches = sum(1 for v in non_empty if re.match(pattern, v))
+        if matches >= len(non_empty) * 0.8:  # 80% threshold
+            return fmt, desc
+
+    # Fallback to default
+    return '%m/%d/%Y', 'MM/DD/YYYY (default)'
 
 
 def auto_detect_csv_format(filepath):
     """
-    Attempt to auto-detect CSV column mapping from headers.
+    Attempt to auto-detect CSV column mapping from headers and date format from data.
 
     Looks for common header names:
     - Date: 'date', 'trans date', 'transaction date', 'posting date'
     - Description: 'description', 'merchant', 'payee', 'memo', 'name'
     - Amount: 'amount', 'debit', 'charge', 'transaction amount'
+
+    Also analyzes actual date values to detect the correct format (e.g., %y vs %Y).
 
     Returns:
         FormatSpec with detected mappings
@@ -358,6 +500,7 @@ def auto_detect_csv_format(filepath):
         header_lower = header.lower().strip()
         return any(p in header_lower for p in patterns)
 
+    # First pass: detect headers and dialect
     with open(filepath, 'r', encoding='utf-8') as f:
         # Detect CSV dialect (delimiter, quotechar, etc.)
         sample = f.read(4096)
@@ -372,6 +515,13 @@ def auto_detect_csv_format(filepath):
 
         if not headers:
             raise ValueError("CSV file is empty or has no headers")
+
+        # Read some data rows for date format detection
+        data_rows = []
+        for i, row in enumerate(reader):
+            if i >= 20:  # Sample first 20 data rows
+                break
+            data_rows.append(row)
 
     # Determine delimiter for FormatSpec (None means comma/default)
     detected_delimiter = None
@@ -404,9 +554,13 @@ def auto_detect_csv_format(filepath):
             f"Headers found: {headers}"
         )
 
+    # Detect date format from actual data
+    date_values = [row[date_col] for row in data_rows if date_col < len(row)]
+    date_format, _ = _detect_date_format(date_values)
+
     return FormatSpec(
         date_column=date_col,
-        date_format='%m/%d/%Y',  # Default format
+        date_format=date_format,
         description_column=desc_col,
         amount_column=amount_col,
         has_header=True,

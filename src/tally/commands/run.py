@@ -31,6 +31,8 @@ from ..analyzer import (
     format_diff_summary,
     format_diff_detailed,
 )
+from ..parsers import ParseResult, SkippedRow
+from collections import Counter
 
 
 def cmd_run(args):
@@ -42,6 +44,11 @@ def cmd_run(args):
         config = load_config(config_dir, args.settings)
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        # Format validation errors from config_loader
+        print(f"Error: {e}", file=sys.stderr)
+        print(f"\nRun 'tally diag --config {config_dir}' for more details.", file=sys.stderr)
         sys.exit(1)
 
     # Check for deprecated settings
@@ -92,6 +99,8 @@ def cmd_run(args):
 
     # Parse transactions from configured data sources (skip supplemental)
     all_txns = []
+    all_skipped = []  # Track all skipped rows across sources
+    verbose = args.verbose if hasattr(args, 'verbose') else 0
 
     for source in data_sources:
         # Skip supplemental sources - they don't generate transactions
@@ -114,21 +123,26 @@ def cmd_run(args):
         format_spec = source.get('_format_spec')
 
         source_txns = []
+        source_skipped = []
         unknown_parser = False
         for filepath in source_files:
             try:
                 if parser_type == 'amex':
                     warn_deprecated_parser(source.get('name', 'AMEX'), 'amex', filepath)
                     txns = parse_amex(filepath, rules)
+                    skipped = []
                 elif parser_type == 'boa':
                     warn_deprecated_parser(source.get('name', 'BOA'), 'boa', filepath)
                     txns = parse_boa(filepath, rules)
+                    skipped = []
                 elif parser_type == 'generic' and format_spec:
-                    txns = parse_generic_csv(filepath, format_spec, rules,
-                                             source_name=source.get('name', 'CSV'),
-                                             decimal_separator=source.get('decimal_separator', '.'),
-                                             transforms=transforms,
-                                             data_sources=supplemental_data)
+                    result = parse_generic_csv(filepath, format_spec, rules,
+                                               source_name=source.get('name', 'CSV'),
+                                               decimal_separator=source.get('decimal_separator', '.'),
+                                               transforms=transforms,
+                                               data_sources=supplemental_data)
+                    txns = result.transactions
+                    skipped = result.skipped_rows
                 else:
                     if not args.quiet:
                         print(f"  {source['name']}: Unknown parser type '{parser_type}'")
@@ -141,18 +155,88 @@ def cmd_run(args):
                 continue
 
             source_txns.extend(txns)
+            source_skipped.extend(skipped)
 
         if unknown_parser:
             continue
 
         if source_txns:
             all_txns.extend(source_txns)
+        all_skipped.extend(source_skipped)
         if not args.quiet:
             files_note = f" ({len(source_files)} files)" if len(source_files) > 1 else ""
-            print(f"  {source['name']}: {len(source_txns)} transactions{files_note}")
+            skip_note = ""
+            if source_skipped:
+                skip_note = f" ({C.YELLOW}{len(source_skipped)} rows skipped{C.RESET})"
+            print(f"  {source['name']}: {len(source_txns)} transactions{files_note}{skip_note}")
+
+            # Show skip details based on verbosity
+            if source_skipped and verbose >= 1:
+                # Group by reason
+                reason_counts = Counter(s.reason for s in source_skipped)
+                reason_labels = {
+                    'empty_required_field': 'empty required field',
+                    'date_parse_error': 'date parse error',
+                    'amount_parse_error': 'amount parse error',
+                    'insufficient_columns': 'insufficient columns',
+                    'regex_mismatch': 'regex mismatch',
+                    'zero_amount': 'zero amount',
+                    'parse_exception': 'parse error',
+                }
+                for reason, count in reason_counts.most_common():
+                    label = reason_labels.get(reason, reason)
+                    print(f"    {C.YELLOW}⚠{C.RESET} {count} row{'s' if count > 1 else ''}: {label}")
+
+            # Show individual errors at -vv
+            if source_skipped and verbose >= 2:
+                # Limit to first 10 errors
+                shown = source_skipped[:10]
+                for skip in shown:
+                    # Get just the filename for cleaner output
+                    filename = os.path.basename(skip.filepath)
+                    print(f"      {filename}:{skip.line_number}: {skip.message}")
+                if len(source_skipped) > 10:
+                    print(f"      ... and {len(source_skipped) - 10} more")
+
+            # At default verbosity, hint to use -v when rows skipped
+            if source_skipped and verbose == 0:
+                print(f"    {C.DIM}Run with -v to see why rows were skipped{C.RESET}")
 
     if not all_txns:
         print("Error: No transactions found", file=sys.stderr)
+        if all_skipped:
+            # Show why rows were skipped when no transactions parsed
+            reason_counts = Counter(s.reason for s in all_skipped)
+            reason_labels = {
+                'empty_required_field': 'empty required field',
+                'date_parse_error': 'date parse error',
+                'amount_parse_error': 'amount parse error',
+                'insufficient_columns': 'insufficient columns',
+                'regex_mismatch': 'regex mismatch',
+                'zero_amount': 'zero amount',
+                'parse_exception': 'parse error',
+            }
+            print(f"\n{len(all_skipped)} rows were skipped:", file=sys.stderr)
+            for reason, count in reason_counts.most_common():
+                label = reason_labels.get(reason, reason)
+                print(f"  • {count} row{'s' if count > 1 else ''}: {label}", file=sys.stderr)
+
+            # Show first few specific errors
+            print(f"\nFirst errors:", file=sys.stderr)
+            for skip in all_skipped[:5]:
+                filename = os.path.basename(skip.filepath)
+                print(f"  {filename}:{skip.line_number}: {skip.message}", file=sys.stderr)
+            if len(all_skipped) > 5:
+                print(f"  ... and {len(all_skipped) - 5} more", file=sys.stderr)
+
+            # Provide actionable hints based on most common error
+            top_reason = reason_counts.most_common(1)[0][0] if reason_counts else None
+            if top_reason == 'date_parse_error':
+                print(f"\n{C.CYAN}Hint:{C.RESET} Check your date format. Run 'tally inspect <file>' to detect the correct format.", file=sys.stderr)
+            elif top_reason == 'empty_required_field':
+                print(f"\n{C.CYAN}Hint:{C.RESET} Some required fields are empty. Check CSV has data in date/amount/description columns.", file=sys.stderr)
+            elif top_reason == 'insufficient_columns':
+                print(f"\n{C.CYAN}Hint:{C.RESET} CSV has fewer columns than expected. Check your format string matches the file.", file=sys.stderr)
         sys.exit(1)
 
     if not args.quiet:
@@ -194,8 +278,6 @@ def cmd_run(args):
             if not only_filter:
                 only_filter = None
     category_filter = args.category if hasattr(args, 'category') and args.category else None
-
-    verbose = args.verbose if hasattr(args, 'verbose') else 0
     currency_format = config.get('currency_format', '${amount}')
 
     if output_format == 'json':

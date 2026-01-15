@@ -6,9 +6,221 @@ import tempfile
 import os
 from datetime import date
 
-from tally.analyzer import parse_amount, parse_generic_csv, analyze_transactions, export_json, export_csv
+from tally.analyzer import parse_amount, analyze_transactions, export_json, export_csv
+from tally.analyzer import parse_generic_csv as _parse_generic_csv
+from tally.parsers import SkippedRow, ParseResult, _detect_date_format
 from tally.format_parser import parse_format_string
 from tally.merchant_utils import get_all_rules
+
+
+def parse_generic_csv(*args, **kwargs):
+    """Test wrapper that extracts transactions from ParseResult for backward compatibility."""
+    result = _parse_generic_csv(*args, **kwargs)
+    return result.transactions
+
+
+class TestSkippedRowTracking:
+    """Tests for SkippedRow tracking in CSV parsing."""
+
+    def test_wrong_date_format_tracked(self):
+        """Rows with unparseable dates should be tracked with file:line info."""
+        csv_content = """Date,Description,Amount
+01/15/24,COFFEE SHOP,-5.00
+01/16/24,GROCERY,-50.00
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                # Use wrong date format (%Y expects 4-digit year, but data has 2-digit)
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert isinstance(result, ParseResult)
+                assert len(result.transactions) == 0
+                assert len(result.skipped_rows) == 2
+
+                # Check first skipped row
+                skip = result.skipped_rows[0]
+                assert skip.filepath == f.name
+                assert skip.line_number == 2  # Line 1 is header
+                assert skip.reason == 'date_parse_error'
+                assert '01/15/24' in skip.message
+                assert '%m/%d/%Y' in skip.message
+            finally:
+                os.unlink(f.name)
+
+    def test_empty_fields_tracked(self):
+        """Rows with empty required fields should be tracked."""
+        csv_content = """Date,Description,Amount
+01/15/2025,COFFEE SHOP,-5.00
+01/16/2025,,-50.00
+,GROCERY,-25.00
+01/18/2025,GAS STATION,
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert len(result.transactions) == 1  # Only first row is valid
+                assert len(result.skipped_rows) == 3
+
+                # Check reasons
+                reasons = [s.reason for s in result.skipped_rows]
+                assert reasons.count('empty_required_field') == 3
+
+                # Check specific messages
+                messages = [s.message for s in result.skipped_rows]
+                assert any('description' in m for m in messages)
+                assert any('date' in m for m in messages)
+                assert any('amount' in m for m in messages)
+            finally:
+                os.unlink(f.name)
+
+    def test_insufficient_columns_tracked(self):
+        """Rows with too few columns should be tracked."""
+        csv_content = """Date,Description,Amount
+01/15/2025,COFFEE SHOP,-5.00
+01/16/2025,GROCERY
+01/17/2025
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert len(result.transactions) == 1
+                assert len(result.skipped_rows) == 2
+
+                # Both should be insufficient columns
+                for skip in result.skipped_rows:
+                    assert skip.reason == 'insufficient_columns'
+                    assert 'column' in skip.message.lower()
+            finally:
+                os.unlink(f.name)
+
+    def test_zero_amount_tracked(self):
+        """Rows with zero amount should be tracked."""
+        csv_content = """Date,Description,Amount
+01/15/2025,COFFEE SHOP,-5.00
+01/16/2025,ZERO TRANSACTION,0.00
+01/17/2025,ANOTHER ZERO,0
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert len(result.transactions) == 1
+                assert len(result.skipped_rows) == 2
+
+                for skip in result.skipped_rows:
+                    assert skip.reason == 'zero_amount'
+            finally:
+                os.unlink(f.name)
+
+    def test_successful_parse_no_skipped_rows(self):
+        """Successful parse should have empty skipped_rows."""
+        csv_content = """Date,Description,Amount
+01/15/2025,COFFEE SHOP,-5.00
+01/16/2025,GROCERY,-50.00
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert len(result.transactions) == 2
+                assert len(result.skipped_rows) == 0
+            finally:
+                os.unlink(f.name)
+
+    def test_skipped_row_has_raw_data(self):
+        """SkippedRow should include raw line data for debugging."""
+        csv_content = """Date,Description,Amount
+BAD_DATE,COFFEE SHOP,-5.00
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write(csv_content)
+            f.flush()
+
+            try:
+                format_spec = parse_format_string("{date:%m/%d/%Y},{description},{amount}")
+                rules = get_all_rules()
+
+                result = _parse_generic_csv(f.name, format_spec, rules)
+
+                assert len(result.skipped_rows) == 1
+                skip = result.skipped_rows[0]
+                assert skip.raw_data is not None
+                assert 'BAD_DATE' in skip.raw_data
+            finally:
+                os.unlink(f.name)
+
+
+class TestDateFormatDetection:
+    """Tests for date format auto-detection."""
+
+    def test_detect_two_digit_year(self):
+        """Should detect MM/DD/YY format (2-digit year)."""
+        values = ['01/15/24', '02/28/25', '12/31/23']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%m/%d/%y'
+
+    def test_detect_four_digit_year(self):
+        """Should detect MM/DD/YYYY format (4-digit year)."""
+        values = ['01/15/2024', '02/28/2025', '12/31/2023']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%m/%d/%Y'
+
+    def test_detect_iso_format(self):
+        """Should detect YYYY-MM-DD (ISO) format."""
+        values = ['2024-01-15', '2025-02-28', '2023-12-31']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%Y-%m-%d'
+
+    def test_detect_european_format(self):
+        """Should detect DD.MM.YYYY (European) format."""
+        values = ['15.01.2024', '28.02.2025', '31.12.2023']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%d.%m.%Y'
+
+    def test_detect_with_empty_values(self):
+        """Should handle empty values gracefully."""
+        values = ['', '01/15/24', '', '02/28/24']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%m/%d/%y'
+
+    def test_fallback_to_default(self):
+        """Should fall back to default if no pattern matches."""
+        values = ['not-a-date', 'also-not-a-date']
+        fmt, desc = _detect_date_format(values)
+        assert fmt == '%m/%d/%Y'  # Default
+        assert 'default' in desc.lower()
 
 
 class TestExportJson:
@@ -924,7 +1136,6 @@ class TestRegexDelimiter:
             format_spec.delimiter = r"regex:^(\d{2}/\d{2}/\d{4})\s+(.+?)\s+(-[\d,]+\.\d{2})\s+([-\d,]+\.\d{2})$"
             format_spec.has_header = False
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 3
@@ -955,7 +1166,6 @@ class TestRegexDelimiter:
             format_spec.delimiter = r"regex:^(\d{2}/\d{2}/\d{4})\s+(.+?)\s+(-[\d,]+\.\d{2})\s+([\d,]+\.\d{2})$"
             format_spec.has_header = False
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             # Only the debit should be captured
@@ -977,7 +1187,6 @@ class TestRegexDelimiter:
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {amount}')
             format_spec.delimiter = 'tab'
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 2
@@ -1010,7 +1219,6 @@ class TestRegexDelimiter:
             format_spec = parse_format_string('{date:%d-%m-%Y},{description},{amount}')
             format_spec.delimiter = ';'
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(
                 f.name,
                 format_spec,
@@ -1077,7 +1285,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 3
@@ -1106,7 +1313,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {-amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 3
@@ -1136,7 +1342,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {+amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 4
@@ -1168,7 +1373,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {+amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 3
@@ -1192,7 +1396,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {+amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 2
@@ -1216,7 +1419,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {+amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert len(txns) == 3
@@ -1256,7 +1458,6 @@ class TestAmountSignHandling:
             rules = get_all_rules()
             format_spec = parse_format_string('{date:%m/%d/%Y}, {description}, {amount}')
 
-            from tally.analyzer import parse_generic_csv
             txns = parse_generic_csv(f.name, format_spec, rules)
 
             assert txns[0]['is_credit'] == False  # Positive = not credit
@@ -2665,7 +2866,7 @@ subcategory: Unknown
     def test_full_parser_flow_with_directives(self):
         """Full flow: CSV parsing with rules that have let/field/transform."""
         from tally.merchant_utils import get_all_rules, clear_engine_cache
-        from tally.parsers import parse_generic_csv
+        from tally.parsers import parse_generic_csv as _parse_generic_csv_direct
         from tally.format_parser import parse_format_string
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -2698,7 +2899,8 @@ subcategory: Other
             rules = get_all_rules(rules_file)
             format_spec = parse_format_string("{date},{description},{amount}")
 
-            txns = parse_generic_csv(csv_file, format_spec, rules)
+            result = _parse_generic_csv_direct(csv_file, format_spec, rules)
+            txns = result.transactions
 
             # First transaction: matches let: condition
             assert txns[0]['merchant'] == "Streaming Service"

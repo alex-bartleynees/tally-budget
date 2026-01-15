@@ -78,10 +78,11 @@ def cmd_explain(args):
                     warn_deprecated_parser(source.get('name', 'BOA'), 'boa', filepath)
                     txns = parse_boa(filepath, rules)
                 elif parser_type == 'generic' and format_spec:
-                    txns = parse_generic_csv(filepath, format_spec, rules,
-                                             source_name=source.get('name', 'CSV'),
-                                             decimal_separator=source.get('decimal_separator', '.'),
-                                             transforms=transforms)
+                    result = parse_generic_csv(filepath, format_spec, rules,
+                                               source_name=source.get('name', 'CSV'),
+                                               decimal_separator=source.get('decimal_separator', '.'),
+                                               transforms=transforms)
+                    txns = result.transactions
                 else:
                     break
             except Exception:
