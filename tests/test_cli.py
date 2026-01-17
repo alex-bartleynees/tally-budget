@@ -536,3 +536,149 @@ data_sources:
             )
             assert result.returncode == 0
             assert "Test: 3 transactions" in result.stdout
+
+
+class TestMarkdownRendering:
+    """Tests for terminal markdown rendering."""
+
+    # ANSI codes
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+    RESET = '\033[0m'
+
+    def test_render_header(self):
+        """Headers should render as bold without # symbols."""
+        from tally.commands.update import _render_markdown_line
+
+        assert _render_markdown_line('# Title') == f'{self.BOLD}Title{self.RESET}'
+        assert _render_markdown_line('## Section') == f'{self.BOLD}Section{self.RESET}'
+        assert _render_markdown_line('### Subsection') == f'{self.BOLD}Subsection{self.RESET}'
+
+    def test_render_bullet_dash(self):
+        """Dash bullets should render with bullet character."""
+        from tally.commands.update import _render_markdown_line
+
+        assert _render_markdown_line('- Item one') == '  • Item one'
+        assert _render_markdown_line('- Another item') == '  • Another item'
+
+    def test_render_bullet_asterisk(self):
+        """Asterisk bullets should render with bullet character."""
+        from tally.commands.update import _render_markdown_line
+
+        assert _render_markdown_line('* Item one') == '  • Item one'
+        assert _render_markdown_line('* Another item') == '  • Another item'
+
+    def test_render_inline_bold(self):
+        """Bold text should render with ANSI bold."""
+        from tally.commands.update import _render_markdown_line
+
+        result = _render_markdown_line('This is **bold** text')
+        assert result == f'This is {self.BOLD}bold{self.RESET} text'
+
+    def test_render_inline_code(self):
+        """Inline code should render dim."""
+        from tally.commands.update import _render_markdown_line
+
+        result = _render_markdown_line('Run `tally update` now')
+        assert result == f'Run {self.DIM}tally update{self.RESET} now'
+
+    def test_render_bullet_with_formatting(self):
+        """Bullets with inline formatting should work."""
+        from tally.commands.update import _render_markdown_line
+
+        result = _render_markdown_line('- Added **CSV export** for `tally run`')
+        assert f'{self.BOLD}CSV export{self.RESET}' in result
+        assert f'{self.DIM}tally run{self.RESET}' in result
+        assert result.startswith('  • ')
+
+    def test_render_plain_text(self):
+        """Plain text should pass through unchanged."""
+        from tally.commands.update import _render_markdown_line
+
+        assert _render_markdown_line('Just plain text') == 'Just plain text'
+        assert _render_markdown_line('') == ''
+
+
+class TestUpdateReleaseNotes:
+    """Tests for release notes display after update."""
+
+    def test_show_release_notes_displays_summary(self, capsys):
+        """Release notes should show first few lines."""
+        from tally.commands.update import _show_release_notes
+
+        release_info = {
+            'version': '0.1.50',
+            'release_url': 'https://github.com/davidfowl/tally/releases/tag/v0.1.50',
+            'body': """### New Features
+- Added CSV export format
+- Improved error messages
+
+### Bug Fixes
+- Fixed parsing issues
+
+## Install
+curl -fsSL ..."""
+        }
+
+        _show_release_notes(release_info)
+        captured = capsys.readouterr()
+
+        assert "What's New" in captured.out
+        assert "New Features" in captured.out
+        assert "CSV export" in captured.out
+        assert "Bug Fixes" in captured.out
+        # Should stop before install section
+        assert "curl" not in captured.out
+        assert release_info['release_url'] in captured.out
+
+    def test_show_release_notes_truncates_long_content(self, capsys):
+        """Long release notes should be truncated with ellipsis."""
+        from tally.commands.update import _show_release_notes
+
+        long_body = "\n".join([f"- Feature {i}: some description" for i in range(50)])
+        release_info = {
+            'version': '0.1.50',
+            'release_url': 'https://github.com/davidfowl/tally/releases/tag/v0.1.50',
+            'body': long_body
+        }
+
+        _show_release_notes(release_info)
+        captured = capsys.readouterr()
+
+        # Should have ellipsis indicating truncation
+        assert "..." in captured.out
+        # Should include release URL
+        assert release_info['release_url'] in captured.out
+
+    def test_show_release_notes_empty_body(self, capsys):
+        """Empty body should just show release URL."""
+        from tally.commands.update import _show_release_notes
+
+        release_info = {
+            'version': '0.1.50',
+            'release_url': 'https://github.com/davidfowl/tally/releases/tag/v0.1.50',
+            'body': ''
+        }
+
+        _show_release_notes(release_info)
+        captured = capsys.readouterr()
+
+        assert "What's New" not in captured.out
+        assert release_info['release_url'] in captured.out
+
+    def test_show_release_notes_no_url(self, capsys):
+        """Missing release URL should still show notes."""
+        from tally.commands.update import _show_release_notes
+
+        release_info = {
+            'version': '0.1.50',
+            'release_url': '',
+            'body': '### New feature\n- Added stuff'
+        }
+
+        _show_release_notes(release_info)
+        captured = capsys.readouterr()
+
+        assert "What's New" in captured.out
+        assert "New feature" in captured.out
+        assert "Full release notes:" not in captured.out

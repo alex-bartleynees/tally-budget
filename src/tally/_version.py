@@ -114,7 +114,7 @@ def get_latest_release_info(timeout: float = 10.0, prerelease: bool = False) -> 
         prerelease: If True, fetch the 'dev' prerelease instead of latest stable
 
     Returns dict with 'version', 'assets' (dict of name -> url), 'release_url',
-    or None if request fails.
+    and 'body' (release notes markdown), or None if request fails.
     """
     import urllib.request
     import json
@@ -169,7 +169,8 @@ def get_latest_release_info(timeout: float = 10.0, prerelease: bool = False) -> 
             return {
                 'version': version,
                 'assets': assets,
-                'release_url': data.get('html_url', f'{REPO_URL}/releases/latest')
+                'release_url': data.get('html_url', f'{REPO_URL}/releases/latest'),
+                'body': data.get('body', ''),
             }
     except Exception:
         return None
